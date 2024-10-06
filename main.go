@@ -118,7 +118,6 @@ func startweb(items []Item, outputFilename string) {
 }
 
 func main() {
-
 	todayStr := time.Now().Format("2006-01-02")
 	filename := fmt.Sprintf("daily_trending/%s.html", todayStr)
 	//fmt.Println(filename)
