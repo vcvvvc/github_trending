@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"time"
 )
 
@@ -21,6 +22,13 @@ type Item struct {
 	Languages   string
 	Stars       int
 	Description string
+}
+
+func openChrome(url string) {
+	err := exec.Command("open", "-a", "Google Chrome", url).Start()
+	if err != nil {
+		fmt.Println("Failed to open the URL in Chrome:", err)
+	}
 }
 
 // 将HTML内容保存到指定的文件
@@ -112,6 +120,7 @@ func startweb(items []Item, outputFilename string) {
 		c.String(http.StatusOK, string(data))
 
 	})
+	openChrome("http://127.0.0.1:20111")
 
 	fmt.Println("http://127.0.0.1:20111")
 	r.Run(":20111")
@@ -123,7 +132,7 @@ func main() {
 	//fmt.Println(filename)
 
 	// 设置 SOCKS5 代理地址
-	socks5URL, _ := url.Parse("socks5://127.0.0.1:1099")
+	socks5URL, _ := url.Parse("socks5://127.0.0.1:8898")
 
 	// 创建代理拨号器
 	dialer, err := proxy.FromURL(socks5URL, proxy.Direct)
