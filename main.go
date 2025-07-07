@@ -189,7 +189,7 @@ func main() {
 		"Today":        todayStr,
 		"Year":         time.Now().Year(),
 		"GroupsJSON":   template.JS(jsonData),
-		"ArchiveFiles": template.JS(archiveFiles),
+		"ArchiveFiles": archiveFiles,
 	}
 
 	// Render to the root index.html first
