@@ -77,15 +77,26 @@ func renderTemplateToFile(templateFile string, data interface{}, outputFilename 
 func main() {
 	todayStr := time.Now().Format("2006-01-02")
 	filename := fmt.Sprintf("daily_trending/%s.html", todayStr)
+	
 	var client *http.Client
-	if os.Getenv("GITHUB_ACTIONS") != "true" {
-		socks5URL, _ := url.Parse("socks5://127.0.0.1:8800")
+	if os.Getenv("GITHUB_ACTIONS") == "true" {
+		// In GitHub Actions, use a default HTTP client.
+		client = &http.Client{}
+	} else {
+		// For local development, use a SOCKS5 proxy.
+		socks5URL, err := url.Parse("socks5://127.0.0.1:8800")
+		if err != nil {
+			log.Fatalf("Failed to parse SOCKS5 URL: %v", err)
+		}
+
 		dialer, err := proxy.FromURL(socks5URL, proxy.Direct)
 		if err != nil {
 			log.Println("Can't connect to the proxy, trying direct connection")
+			client = &http.Client{} // Fallback to direct connection
 		} else {
-			httpTransport := &http.Transport{}
-			httpTransport.Dial = dialer.Dial
+			httpTransport := &http.Transport{
+				Dial: dialer.Dial,
+			}
 			client = &http.Client{Transport: httpTransport}
 		}
 	}
