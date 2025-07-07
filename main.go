@@ -88,7 +88,7 @@ func main() {
 	var groupedItems []LanguageGroup
 
 	lists := []string{
-		"", "C++", "Go", "Python", "Solidity", "Rust", "TypeScript", "JavaScript", "Java", "Kotlin",
+		"", "C++", "Go", "Python", "Solidity", "Rust", 
 	}
 
 	idCounter := 1

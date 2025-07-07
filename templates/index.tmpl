@@ -126,6 +126,7 @@
             padding: 15px;
             margin-bottom: 15px;
             transition: box-shadow 0.3s, border-color 0.3s;
+            animation: fadeIn 0.5s ease-in-out;
         }
         .repo-card:hover {
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
@@ -158,8 +159,38 @@
             font-weight: normal;
         }
         
-        .repo-stars {
+        .repo-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 8px;
+            font-size: 0.9em;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+        
+        .repo-language-tag {
+            padding: 3px 8px;
+            background-color: var(--link-color);
+            color: white;
+            border-radius: 10px;
+            font-size: 0.85em;
             font-weight: bold;
+        }
+
+        .repo-stars {
+            display: flex;
+            align-items: center;
+            padding: 3px 8px;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .repo-stars:hover {
+            background-color: var(--border-color);
         }
 
         .repo-desc {
@@ -179,6 +210,40 @@
             .dashboard {
                 grid-template-columns: 1fr;
             }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #to-top-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--link-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        #to-top-btn.show {
+            opacity: 1;
+            visibility: visible;
         }
 
     </style>
@@ -221,6 +286,8 @@
         </footer>
     </div>
 
+    <button id="to-top-btn" title="Go to top">↑</button>
+
     <script>
         const groupsData = {{ .GroupsJSON }};
         let myChart;
@@ -234,6 +301,7 @@
             setupSort();
             setupChart();
             setupFilters();
+            setupBackToTopButton();
         });
 
         function renderAll() {
@@ -367,12 +435,28 @@
                             <span class="repo-serial">${allRepos.indexOf(repo) + 1}.</span>
                             <a href="${repo.URL}" target="_blank">${repo.Name}</a>
                         </div>
-                        <div class="repo-stars">🌟 ${repo.Stars}</div>
+                        <span class="repo-stars">🌟 ${repo.Stars}</span>
                     </div>
-                    <div class="repo-lang" style="font-size: 0.9em; opacity: 0.7; margin-top: 5px;">${repo.Language}</div>
+                    <div class="repo-meta">
+                        ${repo.Language ? `<span class="repo-language-tag">${repo.Language}</span>` : ''}
+                    </div>
                     <div class="repo-desc">${repo.Description || ''}</div>
                 `;
                 repoList.appendChild(card);
+            });
+        }
+
+        function setupBackToTopButton() {
+            const btn = document.getElementById('to-top-btn');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    btn.classList.add('show');
+                } else {
+                    btn.classList.remove('show');
+                }
+            });
+            btn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             });
         }
     </script>
