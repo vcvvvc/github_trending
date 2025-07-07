@@ -378,6 +378,12 @@
                     html.classList.add('dark');
                     themeToggle.textContent = '☀️';
                 }
+
+                if (myChart) {
+                    const newColor = getComputedStyle(document.body).getPropertyValue('--text-color');
+                    myChart.options.plugins.legend.labels.color = newColor;
+                    myChart.update();
+                }
             });
         }
         
@@ -429,6 +435,7 @@
             const ctx = document.getElementById('lang-chart').getContext('2d');
             const labels = groupsData.map(g => g.GroupName);
             const data = groupsData.map(g => g.Repos.length);
+            const textColor = getComputedStyle(document.body).getPropertyValue('--text-color');
 
             myChart = new Chart(ctx, {
                 type: 'doughnut',
@@ -449,6 +456,9 @@
                     plugins: {
                         legend: {
                             position: 'top',
+                            labels: {
+                                color: textColor
+                            }
                         },
                         title: {
                             display: false
