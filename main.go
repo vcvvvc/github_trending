@@ -120,7 +120,9 @@ func startweb(items []Item, outputFilename string) {
 		c.String(http.StatusOK, string(data))
 
 	})
-	openChrome("http://127.0.0.1:20111")
+	if os.Getenv("GITHUB_ACTIONS") != "true" {
+		openChrome("http://127.0.0.1:20111")
+	}
 
 	fmt.Println("http://127.0.0.1:20111")
 	r.Run(":20111")
@@ -130,22 +132,25 @@ func main() {
 	todayStr := time.Now().Format("2006-01-02")
 	filename := fmt.Sprintf("daily_trending/%s.html", todayStr)
 	//fmt.Println(filename)
-
+	var client *http.Client
 	// 设置 SOCKS5 代理地址
-	socks5URL, _ := url.Parse("socks5://127.0.0.1:8898")
+	if os.Getenv("GITHUB_ACTIONS") != "true" {
+		socks5URL, _ := url.Parse("socks5://127.0.0.1:8800")
 
-	// 创建代理拨号器
-	dialer, err := proxy.FromURL(socks5URL, proxy.Direct)
-	if err != nil {
-		// 处理错误
+		// 创建代理拨号器
+		dialer, err := proxy.FromURL(socks5URL, proxy.Direct)
+		if err != nil {
+			// 处理错误
+		}
+
+		// 设置 http.Transport 使用代理拨号器
+		httpTransport := &http.Transport{}
+		httpTransport.Dial = dialer.Dial
+
+		// 创建 http.Client 使用定制的 Transport
+		client = &http.Client{Transport: httpTransport}
 	}
 
-	// 设置 http.Transport 使用代理拨号器
-	httpTransport := &http.Transport{}
-	httpTransport.Dial = dialer.Dial
-
-	// 创建 http.Client 使用定制的 Transport
-	client := &http.Client{Transport: httpTransport}
 	trend := trending.NewTrendingWithClient(client)
 
 	var items []Item

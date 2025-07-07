@@ -1,0 +1,32 @@
+name: Daily Trending
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 4 * * *' # Runs at 4:00 AM UTC, which is 12:00 PM Beijing Time
+
+jobs:
+  build-and-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Run application
+        run: go run main.go
+        env:
+          GITHUB_ACTIONS: "true"
+
+      - name: Commit files
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: update daily trending"
+          file_pattern: "daily_trending/*.html"
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "github-actions[bot]@users.noreply.github.com"
+          commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>" 
