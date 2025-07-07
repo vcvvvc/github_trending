@@ -76,8 +76,7 @@ func renderTemplateToFile(templateFile string, data interface{}, outputFilename 
 	return nil
 }
 
-// update a new func to update index.html
-func updateIndexPage(dailyDir, templateFile, outputFilename string) error {
+func getArchiveFiles(dailyDir string) ([]string, error) {
 	var files []string
 	err := filepath.Walk(dailyDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -89,36 +88,15 @@ func updateIndexPage(dailyDir, templateFile, outputFilename string) error {
 		return nil
 	})
 	if err != nil {
-		return fmt.Errorf("Error walking directory: %v", err)
+		return nil, fmt.Errorf("error walking directory: %v", err)
 	}
-
-	// sort files by name
 	sort.Sort(sort.Reverse(sort.StringSlice(files)))
-
-	tmpl, err := template.ParseFiles(templateFile)
-	if err != nil {
-		return fmt.Errorf("Error parsing index template: %v", err)
-	}
-
-	var htmlBuffer bytes.Buffer
-	data := map[string]interface{}{
-		"Files": files,
-	}
-	err = tmpl.Execute(&htmlBuffer, data)
-	if err != nil {
-		return fmt.Errorf("Error rendering index template: %v", err)
-	}
-
-	err = saveHTMLToFile(outputFilename, htmlBuffer.String())
-	if err != nil {
-		return fmt.Errorf("Error saving index.html: %v", err)
-	}
-	return nil
+	return files, nil
 }
 
 func main() {
 	todayStr := time.Now().Format("2006-01-02")
-	filename := fmt.Sprintf("daily_trending/%s.html", todayStr)
+	dailyFilename := fmt.Sprintf("daily_trending/%s.html", todayStr)
 	
 	var client *http.Client
 	if os.Getenv("GITHUB_ACTIONS") == "true" {
@@ -201,29 +179,36 @@ func main() {
 		log.Fatalf("Failed to marshal data to JSON: %v", err)
 	}
 
+	archiveFiles, err := getArchiveFiles("daily_trending")
+	if err != nil {
+		log.Printf("Warning: could not get archive files: %v", err)
+	}
+
 	templateFile := "templates/index.tmpl"
 	data := map[string]interface{}{
-		"Today":      todayStr,
-		"Year":       time.Now().Year(),
-		"GroupsJSON": template.JS(jsonData),
+		"Today":        todayStr,
+		"Year":         time.Now().Year(),
+		"GroupsJSON":   template.JS(jsonData),
+		"ArchiveFiles": template.JS(archiveFiles),
 	}
 
-	err = renderTemplateToFile(templateFile, data, filename)
+	// Render to the root index.html first
+	err = renderTemplateToFile(templateFile, data, "index.html")
 	if err != nil {
-		fmt.Printf("Error: %v\n", err)
+		fmt.Printf("Error rendering root index.html: %v\n", err)
 	} else {
-		fmt.Println("HTML file saved successfully:", filename)
+		fmt.Println("Root index.html updated successfully.")
 	}
 
-	// Update index page
-	err = updateIndexPage("daily_trending", "templates/list.tmpl", "index.html")
+	// Also save a copy to the daily archive
+	err = renderTemplateToFile(templateFile, data, dailyFilename)
 	if err != nil {
-		fmt.Printf("Error updating index page: %v\n", err)
+		fmt.Printf("Error rendering daily archive file: %v\n", err)
 	} else {
-		fmt.Println("Index page updated successfully.")
+		fmt.Println("Daily archive file saved successfully:", dailyFilename)
 	}
 
 	if os.Getenv("GITHUB_ACTIONS") != "true" {
-		open(filename)
+		open("index.html")
 	}
 }

@@ -131,6 +131,35 @@
             border-color: var(--link-color);
         }
         
+        .archives {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        .archives h2 {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        .archives ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        .archives li a {
+            display: block;
+            padding: 8px 5px;
+            color: var(--link-color);
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .archives li a:hover {
+            background-color: var(--border-color);
+            text-decoration: none;
+        }
+
         .main-content {
             display: flex;
             flex-direction: column;
@@ -315,6 +344,13 @@
                 <canvas id="lang-chart"></canvas>
                 <div class="filters" id="filters-container">
                     <button class="filter-btn active" data-lang="all">All</button>
+                </div>
+
+                <div class="archives">
+                    <h2>Archives</h2>
+                    <ul id="archive-list">
+                        <!-- Archive links will be injected here -->
+                    </ul>
                 </div>
             </aside>
             
@@ -517,14 +553,26 @@
         }
 
         function setupLogoLink() {
-            const logoLink = document.getElementById('logo-link');
-            if (logoLink) {
-                logoLink.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    document.getElementById('sort-by').value = 'default';
-                    renderAll();
-                });
-            }
+            const logo = document.getElementById('logo-link');
+            logo.addEventListener('click', (e) => {
+                e.preventDefault();
+                renderAll();
+                document.getElementById('sort-by').value = 'default';
+            });
+        }
+
+        function renderArchiveLinks(files, currentFile) {
+            const container = document.getElementById('archive-list');
+            container.innerHTML = '';
+            files.forEach(file => {
+                if (file === currentFile) return; // Don't link to the current page
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = `daily_trending/${file}`;
+                a.textContent = file.replace('.html', '');
+                li.appendChild(a);
+                container.appendChild(li);
+            });
         }
     </script>
 </body>
