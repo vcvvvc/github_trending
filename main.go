@@ -60,6 +60,12 @@ func renderTemplateToFile(templateFile string, data interface{}, outputFilename 
 		return fmt.Errorf("Error rendering template: %v", err)
 	}
 
+	// 确保目录存在
+	err = os.MkdirAll("daily_trending", os.ModePerm)
+	if err != nil {
+		return fmt.Errorf("Error creating directory: %v", err)
+	}
+	
 	err = saveHTMLToFile(outputFilename, htmlBuffer.String())
 	if err != nil {
 		return fmt.Errorf("Error saving HTML to file: %v", err)
@@ -70,7 +76,7 @@ func renderTemplateToFile(templateFile string, data interface{}, outputFilename 
 
 func main() {
 	todayStr := time.Now().Format("2006-01-02")
-	filename := "index.html"
+	filename := fmt.Sprintf("daily_trending/%s.html", todayStr)
 	var client *http.Client
 	if os.Getenv("GITHUB_ACTIONS") != "true" {
 		socks5URL, _ := url.Parse("socks5://127.0.0.1:8800")
