@@ -88,7 +88,7 @@ func main() {
 	var groupedItems []LanguageGroup
 
 	lists := []string{
-		"C++", "Go", "Python", "Solidity", "Rust", "TypeScript", "JavaScript", "Java", "Kotlin",
+		"", "C++", "Go", "Python", "Solidity", "Rust", "TypeScript", "JavaScript", "Java", "Kotlin",
 	}
 
 	idCounter := 1
@@ -120,8 +120,12 @@ func main() {
 		}
 
 		if len(groupRepos) > 0 {
+			groupName := langName
+			if groupName == "" {
+				groupName = "Overall"
+			}
 			currentGroup := LanguageGroup{
-				GroupName: langName,
+				GroupName: groupName,
 				Repos:     groupRepos,
 			}
 			groupedItems = append(groupedItems, currentGroup)

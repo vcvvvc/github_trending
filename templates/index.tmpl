@@ -140,6 +140,8 @@
         .repo-name {
             font-size: 1.2em;
             font-weight: bold;
+            display: flex;
+            align-items: baseline;
         }
         .repo-name a {
             color: var(--link-color);
@@ -147,6 +149,13 @@
         }
         .repo-name a:hover {
             text-decoration: underline;
+        }
+        
+        .repo-serial {
+            font-size: 1em;
+            margin-right: 8px;
+            opacity: 0.7;
+            font-weight: normal;
         }
         
         .repo-stars {
@@ -355,6 +364,7 @@
                 card.innerHTML = `
                     <div class="repo-header">
                         <div class="repo-name">
+                            <span class="repo-serial">${allRepos.indexOf(repo) + 1}.</span>
                             <a href="${repo.URL}" target="_blank">${repo.Name}</a>
                         </div>
                         <div class="repo-stars">🌟 ${repo.Stars}</div>
