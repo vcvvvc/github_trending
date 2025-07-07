@@ -10,6 +10,8 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"sort"
 	"time"
 
 	"github.com/andygrunwald/go-trending"
@@ -71,6 +73,46 @@ func renderTemplateToFile(templateFile string, data interface{}, outputFilename 
 		return fmt.Errorf("Error saving HTML to file: %v", err)
 	}
 
+	return nil
+}
+
+// update a new func to update index.html
+func updateIndexPage(dailyDir, templateFile, outputFilename string) error {
+	var files []string
+	err := filepath.Walk(dailyDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() && filepath.Ext(path) == ".html" {
+			files = append(files, info.Name())
+		}
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("Error walking directory: %v", err)
+	}
+
+	// sort files by name
+	sort.Sort(sort.Reverse(sort.StringSlice(files)))
+
+	tmpl, err := template.ParseFiles(templateFile)
+	if err != nil {
+		return fmt.Errorf("Error parsing index template: %v", err)
+	}
+
+	var htmlBuffer bytes.Buffer
+	data := map[string]interface{}{
+		"Files": files,
+	}
+	err = tmpl.Execute(&htmlBuffer, data)
+	if err != nil {
+		return fmt.Errorf("Error rendering index template: %v", err)
+	}
+
+	err = saveHTMLToFile(outputFilename, htmlBuffer.String())
+	if err != nil {
+		return fmt.Errorf("Error saving index.html: %v", err)
+	}
 	return nil
 }
 
@@ -171,6 +213,14 @@ func main() {
 		fmt.Printf("Error: %v\n", err)
 	} else {
 		fmt.Println("HTML file saved successfully:", filename)
+	}
+
+	// Update index page
+	err = updateIndexPage("daily_trending", "templates/list.tmpl", "index.html")
+	if err != nil {
+		fmt.Printf("Error updating index page: %v\n", err)
+	} else {
+		fmt.Println("Index page updated successfully.")
 	}
 
 	if os.Getenv("GITHUB_ACTIONS") != "true" {
