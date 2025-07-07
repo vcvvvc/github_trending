@@ -1,60 +1,370 @@
-<!-- templates/index.tmpl -->
-<html>
+<!DOCTYPE html>
+<html lang="en" class="light">
 <head>
-    <meta charset="utf-8"/>
-    <title>项目列表</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Trending Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-            body {
-                font-family: 'Arial', sans-serif;
-                background-color: #f4f4f4;
-                padding: 0;
-                max-width: 800px;
-                margin: 0 auto;
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --card-bg: #f8f9fa;
+            --card-border: #dee2e6;
+            --link-color: #007bff;
+            --link-hover-color: #0056b3;
+            --border-color: #e9ecef;
+            --header-bg: #f1f3f5;
+        }
+
+        html.dark {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --card-bg: #2c2c2c;
+            --card-border: #444444;
+            --link-color: #58a6ff;
+            --link-hover-color: #8cc1ff;
+            --border-color: #3a3a3a;
+            --header-bg: #252525;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        #theme-toggle {
+            cursor: pointer;
+            font-size: 24px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 30px;
+        }
+
+        .sidebar {
+            background-color: var(--header-bg);
+            padding: 20px;
+            border-radius: 8px;
+            height: fit-content;
+        }
+
+        #lang-chart {
+            max-width: 100%;
+        }
+        
+        .filters {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover {
+            opacity: 0.8;
+        }
+        .filter-btn.active {
+            background-color: var(--link-color);
+            color: white;
+            border-color: var(--link-color);
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .repo-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: box-shadow 0.3s, border-color 0.3s;
+        }
+        .repo-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .repo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .repo-name {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .repo-name a {
+            color: var(--link-color);
+            text-decoration: none;
+        }
+        .repo-name a:hover {
+            text-decoration: underline;
+        }
+        
+        .repo-stars {
+            font-weight: bold;
+        }
+
+        .repo-desc {
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 992px) {
+            .dashboard {
+                grid-template-columns: 1fr;
             }
-            .container {
-                width: 80%;
-                margin: auto;
-                overflow: hidden;
-            }
-            h1 {
-                color: #333;
-                text-align: center;
-                margin-top: 50px;
-            }
-            .item {
-                background: #fff;
-                padding: 20px;
-                margin-bottom: 20px;
-                border-radius: 5px;
-                box-shadow: 0 5px 10px rgba(0,0,0,0.1);
-            }
-            .item h2 {
-                color: #333;
-                margin-bottom: 10px;
-            }
-            .item p {
-                line-height: 1.6;
-                color: #666;
-            }
-            .item a {
-                text-decoration: none;
-                color: #007bff;
-            }
-            .item a:hover {
-                text-decoration: underline;
-            }
-        </style>
+        }
+
+    </style>
 </head>
 <body>
-    <h1>项目列表</h1>
-    {{range .Items}}
-        <div>
-            <h2>{{.Name}} ({{.Languages}})</h2>
-            <p>ID: {{.Id}}</p>
-            <p>URL: <a href="{{.Url}}">{{.Url}}</a></p>
-            <p>Stars: {{.Stars}}</p>
-            <p>Description: {{.Description}}</p>
+
+    <div class="container">
+        <header>
+            <h1>GitHub Trending <small>({{ .Today }})</small></h1>
+            <div class="controls">
+                <div id="theme-toggle">🌙</div>
+            </div>
+        </header>
+
+        <div class="dashboard">
+            <aside class="sidebar">
+                <h2>Language Distribution</h2>
+                <canvas id="lang-chart"></canvas>
+                <div class="filters" id="filters-container">
+                    <button class="filter-btn active" data-lang="all">All</button>
+                </div>
+            </aside>
+            
+            <main class="main-content">
+                <div class="toolbar">
+                    <select id="sort-by">
+                        <option value="default">Default</option>
+                        <option value="stars">Sort by Stars</option>
+                        <option value="name">Sort by Name</option>
+                    </select>
+                </div>
+                <div id="repo-list">
+                    <!-- Repo cards will be injected here -->
+                </div>
+            </main>
         </div>
-    {{end}}
+        
+        <footer>
+            <p>&copy; {{ .Year }} - Generated by Go</p>
+        </footer>
+    </div>
+
+    <script>
+        const groupsData = {{ .GroupsJSON }};
+        let myChart;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initial render
+            renderAll();
+            
+            // Setup controls
+            setupThemeToggle();
+            setupSort();
+            setupChart();
+            setupFilters();
+        });
+
+        function renderAll() {
+            renderRepoCards(groupsData, 'default');
+            updateActiveFilterButton('all');
+        }
+
+        function setupThemeToggle() {
+            const themeToggle = document.getElementById('theme-toggle');
+            themeToggle.addEventListener('click', () => {
+                const html = document.documentElement;
+                if (html.classList.contains('dark')) {
+                    html.classList.remove('dark');
+                    html.classList.add('light');
+                    themeToggle.textContent = '🌙';
+                } else {
+                    html.classList.remove('light');
+                    html.classList.add('dark');
+                    themeToggle.textContent = '☀️';
+                }
+            });
+        }
+        
+        function setupSort() {
+            const sortBy = document.getElementById('sort-by');
+            sortBy.addEventListener('change', (e) => {
+                const lang = document.querySelector('.filter-btn.active').dataset.lang;
+                const sortMethod = e.target.value;
+                if (lang === 'all') {
+                    renderRepoCards(groupsData, sortMethod);
+                } else {
+                    const filteredData = groupsData.filter(g => g.GroupName === lang);
+                    renderRepoCards(filteredData, sortMethod);
+                }
+            });
+        }
+
+        function setupFilters() {
+            const filtersContainer = document.getElementById('filters-container');
+            groupsData.forEach(group => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.dataset.lang = group.GroupName;
+                btn.textContent = group.GroupName;
+                btn.addEventListener('click', () => {
+                    filterByLanguage(group.GroupName);
+                });
+                filtersContainer.appendChild(btn);
+            });
+
+            document.querySelector('.filter-btn[data-lang="all"]').addEventListener('click', () => {
+                renderAll();
+                document.getElementById('sort-by').value = 'default';
+            });
+        }
+        
+        function filterByLanguage(lang) {
+            const filteredData = groupsData.filter(g => g.GroupName === lang);
+            renderRepoCards(filteredData, document.getElementById('sort-by').value);
+            updateActiveFilterButton(lang);
+        }
+
+        function updateActiveFilterButton(lang) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.filter-btn[data-lang="${lang}"]`).classList.add('active');
+        }
+
+        function setupChart() {
+            const ctx = document.getElementById('lang-chart').getContext('2d');
+            const labels = groupsData.map(g => g.GroupName);
+            const data = groupsData.map(g => g.Repos.length);
+
+            myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Repos per language',
+                        data: data,
+                        backgroundColor: [
+                            '#3498db', '#f1c40f', '#2ecc71', '#e74c3c', '#9b59b6',
+                            '#34495e', '#1abc9c', '#e67e22', '#d35400', '#c0392b'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: false
+                        }
+                    },
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            const chartElement = elements[0];
+                            const lang = myChart.data.labels[chartElement.index];
+                            filterByLanguage(lang);
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderRepoCards(data, sortBy) {
+            const repoList = document.getElementById('repo-list');
+            repoList.innerHTML = '';
+            
+            let allRepos = data.flatMap(g => g.Repos);
+            
+            if (sortBy === 'stars') {
+                allRepos.sort((a, b) => b.Stars - a.Stars);
+            } else if (sortBy === 'name') {
+                allRepos.sort((a, b) => a.Name.localeCompare(b.Name));
+            }
+
+            if(allRepos.length === 0) {
+                repoList.innerHTML = '<p>No repositories found for this selection.</p>';
+                return;
+            }
+
+            allRepos.forEach(repo => {
+                const card = document.createElement('div');
+                card.className = 'repo-card';
+                card.innerHTML = `
+                    <div class="repo-header">
+                        <div class="repo-name">
+                            <a href="${repo.URL}" target="_blank">${repo.Name}</a>
+                        </div>
+                        <div class="repo-stars">🌟 ${repo.Stars}</div>
+                    </div>
+                    <div class="repo-lang" style="font-size: 0.9em; opacity: 0.7; margin-top: 5px;">${repo.Language}</div>
+                    <div class="repo-desc">${repo.Description || ''}</div>
+                `;
+                repoList.appendChild(card);
+            });
+        }
+    </script>
 </body>
 </html>

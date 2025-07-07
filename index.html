@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Trending Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --card-bg: #f8f9fa;
+            --card-border: #dee2e6;
+            --link-color: #007bff;
+            --link-hover-color: #0056b3;
+            --border-color: #e9ecef;
+            --header-bg: #f1f3f5;
+        }
+
+        html.dark {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --card-bg: #2c2c2c;
+            --card-border: #444444;
+            --link-color: #58a6ff;
+            --link-hover-color: #8cc1ff;
+            --border-color: #3a3a3a;
+            --header-bg: #252525;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        #theme-toggle {
+            cursor: pointer;
+            font-size: 24px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 30px;
+        }
+
+        .sidebar {
+            background-color: var(--header-bg);
+            padding: 20px;
+            border-radius: 8px;
+            height: fit-content;
+        }
+
+        #lang-chart {
+            max-width: 100%;
+        }
+        
+        .filters {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover {
+            opacity: 0.8;
+        }
+        .filter-btn.active {
+            background-color: var(--link-color);
+            color: white;
+            border-color: var(--link-color);
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .repo-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: box-shadow 0.3s, border-color 0.3s;
+        }
+        .repo-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .repo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .repo-name {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .repo-name a {
+            color: var(--link-color);
+            text-decoration: none;
+        }
+        .repo-name a:hover {
+            text-decoration: underline;
+        }
+        
+        .repo-stars {
+            font-weight: bold;
+        }
+
+        .repo-desc {
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 992px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>GitHub Trending <small>(2025-07-07)</small></h1>
+            <div class="controls">
+                <div id="theme-toggle">🌙</div>
+            </div>
+        </header>
+
+        <div class="dashboard">
+            <aside class="sidebar">
+                <h2>Language Distribution</h2>
+                <canvas id="lang-chart"></canvas>
+                <div class="filters" id="filters-container">
+                    <button class="filter-btn active" data-lang="all">All</button>
+                </div>
+            </aside>
+            
+            <main class="main-content">
+                <div class="toolbar">
+                    <select id="sort-by">
+                        <option value="default">Default</option>
+                        <option value="stars">Sort by Stars</option>
+                        <option value="name">Sort by Name</option>
+                    </select>
+                </div>
+                <div id="repo-list">
+                    
+                </div>
+            </main>
+        </div>
+        
+        <footer>
+            <p>&copy; 2025 - Generated by Go</p>
+        </footer>
+    </div>
+
+    <script>
+        const groupsData = [{"GroupName":"C++","Repos":[{"ID":1,"URL":"https://github.com/google/perfetto","Name":"google/perfetto","Language":"C++","Stars":4306,"Description":"Production-grade client-side tracing, profiling, and analysis for complex software systems."},{"ID":2,"URL":"https://github.com/ashishps1/awesome-low-level-design","Name":"ashishps1/awesome-low-level-design","Language":"C++","Stars":15833,"Description":"Learn Low Level Design (LLD) and prepare for interviews using free resources."},{"ID":3,"URL":"https://github.com/Alex313031/thorium","Name":"Alex313031/thorium","Language":"C++","Stars":6149,"Description":"Chromium fork named after radioactive element No. 90. Windows and MacOS/Raspi/Android/Special builds are in different repositories, links are towards the top of the README.md."},{"ID":4,"URL":"https://github.com/qbittorrent/qBittorrent","Name":"qbittorrent/qBittorrent","Language":"C++","Stars":31937,"Description":"qBittorrent BitTorrent client"},{"ID":5,"URL":"https://github.com/HIllya51/LunaTranslator","Name":"HIllya51/LunaTranslator","Language":"C++","Stars":7274,"Description":"Galgame翻译器，支持HOOK、OCR、剪贴板等。Visual Novel Translator , support HOOK / OCR / clipboard"},{"ID":6,"URL":"https://github.com/ggml-org/llama.cpp","Name":"ggml-org/llama.cpp","Language":"C++","Stars":82668,"Description":"LLM inference in C/C++"},{"ID":7,"URL":"https://github.com/doitsujin/dxvk","Name":"doitsujin/dxvk","Language":"C++","Stars":15055,"Description":"Vulkan-based implementation of D3D8, 9, 10 and 11 for Linux / Wine"},{"ID":8,"URL":"https://github.com/LizardByte/Sunshine","Name":"LizardByte/Sunshine","Language":"C++","Stars":27118,"Description":"Self-hosted game stream host for Moonlight."},{"ID":9,"URL":"https://github.com/LeagueToolkit/cslol-manager","Name":"LeagueToolkit/cslol-manager","Language":"C++","Stars":700,"Description":""},{"ID":10,"URL":"https://github.com/carbon-language/carbon-lang","Name":"carbon-language/carbon-lang","Language":"C++","Stars":33007,"Description":"Carbon Language's main repository: documents, design, implementation, and related tools. (NOTE: Carbon Language is experimental; see README)"},{"ID":11,"URL":"https://github.com/shadps4-emu/shadPS4","Name":"shadps4-emu/shadPS4","Language":"C++","Stars":22979,"Description":"PlayStation 4 emulator for Windows, Linux and macOS written in C++"},{"ID":12,"URL":"https://github.com/esphome/esphome","Name":"esphome/esphome","Language":"C++","Stars":9536,"Description":"ESPHome is a system to control your ESP8266/ESP32 by simple yet powerful configuration files and control them remotely through Home Automation systems."},{"ID":13,"URL":"https://github.com/ValveSoftware/source-sdk-2013","Name":"ValveSoftware/source-sdk-2013","Language":"C++","Stars":9123,"Description":"The 2013 edition of the Source SDK"},{"ID":14,"URL":"https://github.com/tdlib/td","Name":"tdlib/td","Language":"C++","Stars":7846,"Description":"Cross-platform library for building Telegram clients"},{"ID":15,"URL":"https://github.com/MaaAssistantArknights/MaaAssistantArknights","Name":"MaaAssistantArknights/MaaAssistantArknights","Language":"C++","Stars":16651,"Description":"《明日方舟》小助手，全日常一键长草！| A one-click tool for the daily tasks of Arknights, supporting all clients."},{"ID":16,"URL":"https://github.com/ethereum/solidity","Name":"ethereum/solidity","Language":"C++","Stars":24577,"Description":"Solidity, the Smart Contract Programming Language"},{"ID":17,"URL":"https://github.com/ocornut/imgui","Name":"ocornut/imgui","Language":"C++","Stars":66682,"Description":"Dear ImGui: Bloat-free Graphical User interface for C++ with minimal dependencies"},{"ID":18,"URL":"https://github.com/nomacs/nomacs","Name":"nomacs/nomacs","Language":"C++","Stars":2380,"Description":"nomacs is a free image viewer for windows, linux, and mac systems."}]},{"GroupName":"Go","Repos":[{"ID":19,"URL":"https://github.com/pocketbase/pocketbase","Name":"pocketbase/pocketbase","Language":"Go","Stars":48502,"Description":"Open Source realtime backend in 1 file"},{"ID":20,"URL":"https://github.com/SagerNet/sing-box","Name":"SagerNet/sing-box","Language":"Go","Stars":24876,"Description":"The universal proxy platform"},{"ID":21,"URL":"https://github.com/qichiyuhub/rule","Name":"qichiyuhub/rule","Language":"Go","Stars":524,"Description":"Clash、Sing-box、等分流规则"},{"ID":22,"URL":"https://github.com/PlakarKorp/plakar","Name":"PlakarKorp/plakar","Language":"Go","Stars":631,"Description":"plakar is a backup solution powered by Kloset and ptar"},{"ID":23,"URL":"https://github.com/gtsteffaniak/filebrowser","Name":"gtsteffaniak/filebrowser","Language":"Go","Stars":2549,"Description":"📂 Web File Browser"},{"ID":24,"URL":"https://github.com/zerodha/kite-mcp-server","Name":"zerodha/kite-mcp-server","Language":"Go","Stars":121,"Description":"Zerodha Kite MCP server"},{"ID":25,"URL":"https://github.com/jesseduffield/lazygit","Name":"jesseduffield/lazygit","Language":"Go","Stars":61675,"Description":"simple terminal UI for git commands"},{"ID":26,"URL":"https://github.com/kitops-ml/kitops","Name":"kitops-ml/kitops","Language":"Go","Stars":1035,"Description":"An open source DevOps tool for packaging and versioning AI/ML models, datasets, code, and configuration into an OCI artifact."},{"ID":27,"URL":"https://github.com/syncthing/syncthing","Name":"syncthing/syncthing","Language":"Go","Stars":73363,"Description":"Open Source Continuous File Synchronization"},{"ID":28,"URL":"https://github.com/wailsapp/wails","Name":"wailsapp/wails","Language":"Go","Stars":28943,"Description":"Create beautiful applications using Go"},{"ID":29,"URL":"https://github.com/mudler/LocalAI","Name":"mudler/LocalAI","Language":"Go","Stars":33721,"Description":"🤖 The free, Open Source alternative to OpenAI, Claude and others. Self-hosted and local-first. Drop-in replacement for OpenAI, running on consumer-grade hardware. No GPU required. Runs gguf, transformers, diffusers and many more models architectures. Features: Generate Text, Audio, Video, Images, Voice Cloning, Distributed, P2P inference"},{"ID":30,"URL":"https://github.com/XTLS/Xray-core","Name":"XTLS/Xray-core","Language":"Go","Stars":29775,"Description":"Xray, Penetrates Everything. Also the best v2ray-core. Where the magic happens. An open platform for various uses."},{"ID":31,"URL":"https://github.com/trustwallet/assets","Name":"trustwallet/assets","Language":"Go","Stars":4985,"Description":"A comprehensive, up-to-date collection of information about several thousands (!) of crypto tokens."},{"ID":32,"URL":"https://github.com/kubernetes/autoscaler","Name":"kubernetes/autoscaler","Language":"Go","Stars":8467,"Description":"Autoscaling components for Kubernetes"},{"ID":33,"URL":"https://github.com/MightyMoud/sidekick","Name":"MightyMoud/sidekick","Language":"Go","Stars":6917,"Description":"Bare metal to production ready in mins; your own fly server on your VPS."},{"ID":34,"URL":"https://github.com/filebrowser/filebrowser","Name":"filebrowser/filebrowser","Language":"Go","Stars":30162,"Description":"📂 Web File Browser"},{"ID":35,"URL":"https://github.com/Xpl0itU/WiiUDownloader","Name":"Xpl0itU/WiiUDownloader","Language":"Go","Stars":1231,"Description":"Allows to download encrypted wiiu files from nintendo's official servers"},{"ID":36,"URL":"https://github.com/cloudflare/cloudflared","Name":"cloudflare/cloudflared","Language":"Go","Stars":10969,"Description":"Cloudflare Tunnel client (formerly Argo Tunnel)"},{"ID":37,"URL":"https://github.com/coder/coder","Name":"coder/coder","Language":"Go","Stars":10331,"Description":"Provision remote development environments via Terraform"},{"ID":38,"URL":"https://github.com/AdguardTeam/AdGuardHome","Name":"AdguardTeam/AdGuardHome","Language":"Go","Stars":29079,"Description":"Network-wide ads \u0026 trackers blocking DNS server"},{"ID":39,"URL":"https://github.com/kubernetes/minikube","Name":"kubernetes/minikube","Language":"Go","Stars":30652,"Description":"Run Kubernetes locally"}]},{"GroupName":"Python","Repos":[{"ID":40,"URL":"https://github.com/commaai/openpilot","Name":"commaai/openpilot","Language":"Python","Stars":54510,"Description":"openpilot is an operating system for robotics. Currently, it upgrades the driver assistance system on 300+ supported cars."},{"ID":41,"URL":"https://github.com/topoteretes/cognee","Name":"topoteretes/cognee","Language":"Python","Stars":6205,"Description":"Memory for AI Agents in 5 lines of code"},{"ID":42,"URL":"https://github.com/megadose/toutatis","Name":"megadose/toutatis","Language":"Python","Stars":2780,"Description":"Toutatis is a tool that allows you to extract information from instagrams accounts such as e-mails, phone numbers and more"},{"ID":43,"URL":"https://github.com/WEIFENG2333/VideoCaptioner","Name":"WEIFENG2333/VideoCaptioner","Language":"Python","Stars":8070,"Description":"🎬 卡卡字幕助手 | VideoCaptioner - 基于 LLM 的智能字幕助手 - 视频字幕生成、断句、校正、字幕翻译全流程处理！- A powered tool for easy and efficient video subtitling."},{"ID":44,"URL":"https://github.com/Alibaba-NLP/WebAgent","Name":"Alibaba-NLP/WebAgent","Language":"Python","Stars":1543,"Description":"🌐 WebAgent for Information Seeking bulit by Tongyi Lab: WebWalker \u0026 WebDancer \u0026 WebSailor https://arxiv.org/pdf/2507.02592"},{"ID":45,"URL":"https://github.com/Free-TV/IPTV","Name":"Free-TV/IPTV","Language":"Python","Stars":6412,"Description":"M3U Playlist for free TV channels"},{"ID":46,"URL":"https://github.com/joeyism/linkedin_scraper","Name":"joeyism/linkedin_scraper","Language":"Python","Stars":2859,"Description":"A library that scrapes Linkedin for user data"},{"ID":47,"URL":"https://github.com/Shubhamsaboo/awesome-llm-apps","Name":"Shubhamsaboo/awesome-llm-apps","Language":"Python","Stars":48518,"Description":"Collection of awesome LLM apps with AI Agents and RAG using OpenAI, Anthropic, Gemini and opensource models."}]},{"GroupName":"Solidity","Repos":[{"ID":48,"URL":"https://github.com/Vectorized/solady","Name":"Vectorized/solady","Language":"Solidity","Stars":2962,"Description":"Optimized Solidity snippets."},{"ID":49,"URL":"https://github.com/OpenZeppelin/openzeppelin-foundry-upgrades","Name":"OpenZeppelin/openzeppelin-foundry-upgrades","Language":"Solidity","Stars":220,"Description":"Foundry library for deploying and managing upgradeable contracts"},{"ID":50,"URL":"https://github.com/foundry-rs/forge-std","Name":"foundry-rs/forge-std","Language":"Solidity","Stars":932,"Description":"Forge Standard Library is a collection of helpful contracts for use with forge and foundry. It leverages forge's cheatcodes to make writing tests easier and faster, while improving the UX of cheatcodes. For more in-depth usage examples checkout the tests."},{"ID":51,"URL":"https://github.com/AmazingAng/WTF-Solidity","Name":"AmazingAng/WTF-Solidity","Language":"Solidity","Stars":12801,"Description":"WTF Solidity 极简入门教程，供小白们使用。Now supports English! 官网: https://wtf.academy"},{"ID":52,"URL":"https://github.com/Uniswap/v2-periphery","Name":"Uniswap/v2-periphery","Language":"Solidity","Stars":1204,"Description":"🎚 Peripheral smart contracts for interacting with Uniswap V2"},{"ID":53,"URL":"https://github.com/succinctlabs/sp1-contracts","Name":"succinctlabs/sp1-contracts","Language":"Solidity","Stars":100,"Description":"Smart contracts for onchain verification of SP1."},{"ID":54,"URL":"https://github.com/ithacaxyz/account","Name":"ithacaxyz/account","Language":"Solidity","Stars":265,"Description":"All you need account for authentication and payments on the web."},{"ID":55,"URL":"https://github.com/OpenZeppelin/openzeppelin-contracts","Name":"OpenZeppelin/openzeppelin-contracts","Language":"Solidity","Stars":25940,"Description":"OpenZeppelin Contracts is a library for secure smart contract development."},{"ID":56,"URL":"https://github.com/smartcontractkit/Web3_tutorial_Chinese","Name":"smartcontractkit/Web3_tutorial_Chinese","Language":"Solidity","Stars":791,"Description":""},{"ID":57,"URL":"https://github.com/Uniswap/permit2","Name":"Uniswap/permit2","Language":"Solidity","Stars":832,"Description":"🔑🔑🔑 next generation token approvals mechanism"},{"ID":58,"URL":"https://github.com/a16z/erc4626-tests","Name":"a16z/erc4626-tests","Language":"Solidity","Stars":179,"Description":"ERC4626 Property Tests"},{"ID":59,"URL":"https://github.com/dapphub/ds-test","Name":"dapphub/ds-test","Language":"Solidity","Stars":226,"Description":"Assertions, equality checks and other test helpers"},{"ID":60,"URL":"https://github.com/Uniswap/v4-periphery","Name":"Uniswap/v4-periphery","Language":"Solidity","Stars":796,"Description":"🦄 🦄 🦄 🦄 Peripheral smart contracts for interacting with Uniswap v4"},{"ID":61,"URL":"https://github.com/Uniswap/v4-core","Name":"Uniswap/v4-core","Language":"Solidity","Stars":2259,"Description":"🦄 🦄 🦄 🦄 Core smart contracts of Uniswap v4"},{"ID":62,"URL":"https://github.com/Layr-Labs/eigenlayer-contracts","Name":"Layr-Labs/eigenlayer-contracts","Language":"Solidity","Stars":691,"Description":"Contracts of EigenLayer"},{"ID":63,"URL":"https://github.com/filecoin-project/filecoin-solidity","Name":"filecoin-project/filecoin-solidity","Language":"Solidity","Stars":22,"Description":"Filecoin Solidity API Library"},{"ID":64,"URL":"https://github.com/transmissions11/solmate","Name":"transmissions11/solmate","Language":"Solidity","Stars":4140,"Description":"Modern, opinionated, and gas optimized building blocks for smart contract development."},{"ID":65,"URL":"https://github.com/dmfxyz/murky","Name":"dmfxyz/murky","Language":"Solidity","Stars":465,"Description":"Merkle Proof Generator and Validator in Solidity"},{"ID":66,"URL":"https://github.com/Arachnid/solidity-stringutils","Name":"Arachnid/solidity-stringutils","Language":"Solidity","Stars":1156,"Description":"Basic string utilities for Solidity"},{"ID":67,"URL":"https://github.com/0xmetaschool/Learning-Projects","Name":"0xmetaschool/Learning-Projects","Language":"Solidity","Stars":988,"Description":"All the learning projects code from Metaschool website."}]},{"GroupName":"Rust","Repos":[{"ID":68,"URL":"https://github.com/rustfs/rustfs","Name":"rustfs/rustfs","Language":"Rust","Stars":1561,"Description":"🚀 High-performance distributed object storage for MinIO alternative."},{"ID":69,"URL":"https://github.com/smallcloudai/refact","Name":"smallcloudai/refact","Language":"Rust","Stars":2451,"Description":"AI Agent that handles engineering tasks end-to-end: integrates with developers’ tools, plans, executes, and iterates until it achieves a successful result."},{"ID":70,"URL":"https://github.com/vosen/ZLUDA","Name":"vosen/ZLUDA","Language":"Rust","Stars":12340,"Description":"CUDA on non-NVIDIA GPUs"},{"ID":71,"URL":"https://github.com/GyulyVGC/sniffnet","Name":"GyulyVGC/sniffnet","Language":"Rust","Stars":26806,"Description":"Comfortably monitor your Internet traffic 🕵️‍♂️"},{"ID":72,"URL":"https://github.com/YaLTeR/niri","Name":"YaLTeR/niri","Language":"Rust","Stars":9451,"Description":"A scrollable-tiling Wayland compositor."},{"ID":73,"URL":"https://github.com/google/comprehensive-rust","Name":"google/comprehensive-rust","Language":"Rust","Stars":30345,"Description":"This is the Rust course used by the Android team at Google. It provides you the material to quickly teach Rust."},{"ID":74,"URL":"https://github.com/DioxusLabs/dioxus","Name":"DioxusLabs/dioxus","Language":"Rust","Stars":29317,"Description":"Fullstack app framework for web, desktop, and mobile."},{"ID":75,"URL":"https://github.com/louis-e/arnis","Name":"louis-e/arnis","Language":"Rust","Stars":7448,"Description":"Generate any location from the real world in Minecraft Java Edition with a high level of detail."},{"ID":76,"URL":"https://github.com/bevyengine/bevy","Name":"bevyengine/bevy","Language":"Rust","Stars":40442,"Description":"A refreshingly simple data-driven game engine built in Rust"},{"ID":77,"URL":"https://github.com/TabbyML/tabby","Name":"TabbyML/tabby","Language":"Rust","Stars":31674,"Description":"Self-hosted AI coding assistant"},{"ID":78,"URL":"https://github.com/ruffle-rs/ruffle","Name":"ruffle-rs/ruffle","Language":"Rust","Stars":16880,"Description":"A Flash Player emulator written in Rust"},{"ID":79,"URL":"https://github.com/tree-sitter/tree-sitter","Name":"tree-sitter/tree-sitter","Language":"Rust","Stars":21194,"Description":"An incremental parsing system for programming tools"},{"ID":80,"URL":"https://github.com/elkowar/eww","Name":"elkowar/eww","Language":"Rust","Stars":11011,"Description":"ElKowars wacky widgets"},{"ID":81,"URL":"https://github.com/superfly/corrosion","Name":"superfly/corrosion","Language":"Rust","Stars":1075,"Description":"Gossip-based service discovery (and more) for large distributed systems."},{"ID":82,"URL":"https://github.com/apache/datafusion","Name":"apache/datafusion","Language":"Rust","Stars":7412,"Description":"Apache DataFusion SQL Query Engine"},{"ID":83,"URL":"https://github.com/erebe/wstunnel","Name":"erebe/wstunnel","Language":"Rust","Stars":4951,"Description":"Tunnel all your traffic over Websocket or HTTP2 - Bypass firewalls/DPI - Static binary available"},{"ID":84,"URL":"https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display","Name":"witnessmenow/ESP32-Cheap-Yellow-Display","Language":"Rust","Stars":2769,"Description":"Building a community around a cheap ESP32 Display with a touch screen"},{"ID":85,"URL":"https://github.com/nushell/nushell","Name":"nushell/nushell","Language":"Rust","Stars":35682,"Description":"A new type of shell"},{"ID":86,"URL":"https://github.com/greenbone/openvas-scanner","Name":"greenbone/openvas-scanner","Language":"Rust","Stars":3930,"Description":"This repository contains the scanner component for Greenbone Community Edition."},{"ID":87,"URL":"https://github.com/gyroflow/gyroflow","Name":"gyroflow/gyroflow","Language":"Rust","Stars":7579,"Description":"Video stabilization using gyroscope data"}]},{"GroupName":"TypeScript","Repos":[{"ID":88,"URL":"https://github.com/th-ch/youtube-music","Name":"th-ch/youtube-music","Language":"TypeScript","Stars":24568,"Description":"YouTube Music Desktop App bundled with custom plugins"},{"ID":89,"URL":"https://github.com/humanlayer/12-factor-agents","Name":"humanlayer/12-factor-agents","Language":"TypeScript","Stars":6398,"Description":"What are the principles we can use to build LLM-powered software that is actually good enough to put in the hands of production customers?"},{"ID":90,"URL":"https://github.com/iib0011/omni-tools","Name":"iib0011/omni-tools","Language":"TypeScript","Stars":4751,"Description":"Self-hosted collection of powerful web-based tools for everyday tasks. No ads, no tracking, just fast, accessible utilities right from your browser!"},{"ID":91,"URL":"https://github.com/simstudioai/sim","Name":"simstudioai/sim","Language":"TypeScript","Stars":4430,"Description":"Sim Studio is an open-source AI agent workflow builder. Sim Studio's interface is a lightweight, intuitive way to quickly build and deploy LLMs that connect with your favorite tools."},{"ID":92,"URL":"https://github.com/johannesjo/super-productivity","Name":"johannesjo/super-productivity","Language":"TypeScript","Stars":14197,"Description":"Super Productivity is an advanced todo list app with integrated Timeboxing and time tracking capabilities. It also comes with integrations for Jira, GitLab, GitHub and Open Project."},{"ID":93,"URL":"https://github.com/slowlydev/f1-dash","Name":"slowlydev/f1-dash","Language":"TypeScript","Stars":1284,"Description":"A real-time F1 dashboard"},{"ID":94,"URL":"https://github.com/samanhappy/mcphub","Name":"samanhappy/mcphub","Language":"TypeScript","Stars":746,"Description":"A unified hub for centralized management and dynamic organization of multiple MCP servers into streamable HTTP (SSE) endpoints, with support for flexible routing strategies"},{"ID":95,"URL":"https://github.com/maurodesouza/profile-readme-generator","Name":"maurodesouza/profile-readme-generator","Language":"TypeScript","Stars":2152,"Description":"🎨 Enhance your GitHub profile with this amazing tool, which allows you to create a personalized README quickly and easily. This profile README generator is the best you'll find 🚀"},{"ID":96,"URL":"https://github.com/nerding-io/n8n-nodes-mcp","Name":"nerding-io/n8n-nodes-mcp","Language":"TypeScript","Stars":2137,"Description":"n8n custom node for MCP"},{"ID":97,"URL":"https://github.com/directus/directus","Name":"directus/directus","Language":"TypeScript","Stars":31463,"Description":"The flexible backend for all your projects 🐰 Turn your DB into a headless CMS, admin panels, or apps with a custom UI, instant APIs, auth \u0026 more."},{"ID":98,"URL":"https://github.com/discordjs/discord.js","Name":"discordjs/discord.js","Language":"TypeScript","Stars":26101,"Description":"A powerful JavaScript library for interacting with the Discord API"},{"ID":99,"URL":"https://github.com/bytedance/UI-TARS-desktop","Name":"bytedance/UI-TARS-desktop","Language":"TypeScript","Stars":15019,"Description":"The Open All-in-One Multimodal AI Agent Stack connecting Cutting-edge AI Models and Agent Infra."},{"ID":100,"URL":"https://github.com/gothinkster/realworld","Name":"gothinkster/realworld","Language":"TypeScript","Stars":81844,"Description":"\"The mother of all demo apps\" — Exemplary fullstack Medium.com clone powered by React, Angular, Node, Django, and many more"},{"ID":101,"URL":"https://github.com/github/docs","Name":"github/docs","Language":"TypeScript","Stars":17556,"Description":"The open-source repo for docs.github.com"},{"ID":102,"URL":"https://github.com/Mail-0/Zero","Name":"Mail-0/Zero","Language":"TypeScript","Stars":8682,"Description":"Experience email the way you want with Mail0 – the first open source email app that puts your privacy and safety first. Join the discord: https://discord.gg/mail0"}]},{"GroupName":"JavaScript","Repos":[{"ID":103,"URL":"https://github.com/CodeWithHarry/Sigma-Web-Dev-Course","Name":"CodeWithHarry/Sigma-Web-Dev-Course","Language":"JavaScript","Stars":9107,"Description":"Source Code for Sigma Web Development Course"},{"ID":104,"URL":"https://github.com/jaywcjlove/awesome-mac","Name":"jaywcjlove/awesome-mac","Language":"JavaScript","Stars":84611,"Description":" Now we have become very big, Different from the original idea. Collect premium software in various categories."},{"ID":105,"URL":"https://github.com/eyaltoledano/claude-task-master","Name":"eyaltoledano/claude-task-master","Language":"JavaScript","Stars":17867,"Description":"An AI-powered task-management system you can drop into Cursor, Lovable, Windsurf, Roo, and others."},{"ID":106,"URL":"https://github.com/SillyTavern/SillyTavern","Name":"SillyTavern/SillyTavern","Language":"JavaScript","Stars":15871,"Description":"LLM Frontend for Power Users."},{"ID":107,"URL":"https://github.com/microsoft/Web-Dev-For-Beginners","Name":"microsoft/Web-Dev-For-Beginners","Language":"JavaScript","Stars":90218,"Description":"24 Lessons, 12 Weeks, Get Started as a Web Developer"},{"ID":108,"URL":"https://github.com/aframevr/aframe","Name":"aframevr/aframe","Language":"JavaScript","Stars":17194,"Description":"🅰️ Web framework for building virtual reality experiences."},{"ID":109,"URL":"https://github.com/fanmingming/live","Name":"fanmingming/live","Language":"JavaScript","Stars":25926,"Description":"✯ 可直连访问的电视/广播图标库与相关工具项目 ✯ 🔕 永久免费 直连访问 完整开源 不断完善的台标 支持IPv4/IPv6双栈访问 🔕"},{"ID":110,"URL":"https://github.com/pollinations/pollinations","Name":"pollinations/pollinations","Language":"JavaScript","Stars":2328,"Description":"Free Open-Source Image and Text Generation"},{"ID":111,"URL":"https://github.com/copy/v86","Name":"copy/v86","Language":"JavaScript","Stars":20854,"Description":"x86 PC emulator and x86-to-wasm JIT, running in the browser"},{"ID":112,"URL":"https://github.com/blackmatrix7/ios_rule_script","Name":"blackmatrix7/ios_rule_script","Language":"JavaScript","Stars":21659,"Description":"分流规则、重写写规则及脚本。"},{"ID":113,"URL":"https://github.com/HeyPuter/puter","Name":"HeyPuter/puter","Language":"JavaScript","Stars":33753,"Description":"🌐 The Internet OS! Free, Open-Source, and Self-Hostable."},{"ID":114,"URL":"https://github.com/nodejs/node","Name":"nodejs/node","Language":"JavaScript","Stars":112074,"Description":"Node.js JavaScript runtime ✨🐢🚀✨"}]},{"GroupName":"Java","Repos":[{"ID":115,"URL":"https://github.com/questdb/questdb","Name":"questdb/questdb","Language":"Java","Stars":15638,"Description":"QuestDB is a high performance, open-source, time-series database"},{"ID":116,"URL":"https://github.com/ashishps1/awesome-leetcode-resources","Name":"ashishps1/awesome-leetcode-resources","Language":"Java","Stars":11553,"Description":"Awesome LeetCode resources to learn Data Structures and Algorithms and prepare for Coding Interviews."},{"ID":117,"URL":"https://github.com/cabaletta/baritone","Name":"cabaletta/baritone","Language":"Java","Stars":7932,"Description":"google maps for block game"},{"ID":118,"URL":"https://github.com/Anuken/Mindustry","Name":"Anuken/Mindustry","Language":"Java","Stars":24278,"Description":"The automation tower defense RTS"},{"ID":119,"URL":"https://github.com/HbmMods/Hbm-s-Nuclear-Tech-GIT","Name":"HbmMods/Hbm-s-Nuclear-Tech-GIT","Language":"Java","Stars":596,"Description":"A flaming wreck of a minecraft mod about nuclear technology that is somehow still in development."},{"ID":120,"URL":"https://github.com/LawnchairLauncher/lawnchair","Name":"LawnchairLauncher/lawnchair","Language":"Java","Stars":10530,"Description":"No clever tagline needed."},{"ID":121,"URL":"https://github.com/SeleniumHQ/selenium","Name":"SeleniumHQ/selenium","Language":"Java","Stars":32698,"Description":"A browser automation framework and ecosystem."},{"ID":122,"URL":"https://github.com/williamfiset/Algorithms","Name":"williamfiset/Algorithms","Language":"Java","Stars":18043,"Description":"A collection of algorithms and data structures"},{"ID":123,"URL":"https://github.com/apache/maven","Name":"apache/maven","Language":"Java","Stars":4669,"Description":"Apache Maven core"},{"ID":124,"URL":"https://github.com/GeyserMC/Geyser","Name":"GeyserMC/Geyser","Language":"Java","Stars":5132,"Description":"A bridge/proxy allowing you to connect to Minecraft: Java Edition servers with Minecraft: Bedrock Edition."},{"ID":125,"URL":"https://github.com/TGX-Android/Telegram-X","Name":"TGX-Android/Telegram-X","Language":"Java","Stars":4332,"Description":"The main repository of Telegram X — official alternative Telegram client for Android."},{"ID":126,"URL":"https://github.com/yuliskov/SmartTube","Name":"yuliskov/SmartTube","Language":"Java","Stars":23502,"Description":"Advanced player for set-top boxes and tvs running Android OS"},{"ID":127,"URL":"https://github.com/Grasscutters/Grasscutter","Name":"Grasscutters/Grasscutter","Language":"Java","Stars":16562,"Description":"A server software reimplementation for a certain anime game."},{"ID":128,"URL":"https://github.com/PaperMC/Paper","Name":"PaperMC/Paper","Language":"Java","Stars":11248,"Description":"The most widely used, high performance Minecraft server that aims to fix gameplay and mechanics inconsistencies"},{"ID":129,"URL":"https://github.com/kunal-kushwaha/DSA-Bootcamp-Java","Name":"kunal-kushwaha/DSA-Bootcamp-Java","Language":"Java","Stars":19565,"Description":"This repository consists of the code samples, assignments, and notes for the Java data structures \u0026 algorithms + interview preparation bootcamp of WeMakeDevs."},{"ID":130,"URL":"https://github.com/deepjavalibrary/djl","Name":"deepjavalibrary/djl","Language":"Java","Stars":4542,"Description":"An Engine-Agnostic Deep Learning Framework in Java"},{"ID":131,"URL":"https://github.com/LSPosed/LSPosed","Name":"LSPosed/LSPosed","Language":"Java","Stars":20817,"Description":"LSPosed Framework"},{"ID":132,"URL":"https://github.com/Aefyr/SAI","Name":"Aefyr/SAI","Language":"Java","Stars":2933,"Description":"Android split APKs installer"},{"ID":133,"URL":"https://github.com/osmandapp/OsmAnd","Name":"osmandapp/OsmAnd","Language":"Java","Stars":5168,"Description":"OsmAnd"}]},{"GroupName":"Kotlin","Repos":[{"ID":134,"URL":"https://github.com/amir1376/ab-download-manager","Name":"amir1376/ab-download-manager","Language":"Kotlin","Stars":8358,"Description":"A Download Manager that speeds up your downloads"},{"ID":135,"URL":"https://github.com/JunkFood02/Seal","Name":"JunkFood02/Seal","Language":"Kotlin","Stars":20129,"Description":"🦭 Video/Audio Downloader for Android, based on yt-dlp, designed with Material You"},{"ID":136,"URL":"https://github.com/zacharee/InstallWithOptions","Name":"zacharee/InstallWithOptions","Language":"Kotlin","Stars":1702,"Description":"Simple-ish app using Shizuku to install APKs on-device with advanced options"},{"ID":137,"URL":"https://github.com/ankidroid/Anki-Android","Name":"ankidroid/Anki-Android","Language":"Kotlin","Stars":9710,"Description":"AnkiDroid: Anki flashcards on Android. Your secret trick to achieve superhuman information retention."},{"ID":138,"URL":"https://github.com/tiann/KernelSU","Name":"tiann/KernelSU","Language":"Kotlin","Stars":12916,"Description":"A Kernel based root solution for Android"},{"ID":139,"URL":"https://github.com/topjohnwu/Magisk","Name":"topjohnwu/Magisk","Language":"Kotlin","Stars":54181,"Description":"The Magic Mask for Android"},{"ID":140,"URL":"https://github.com/bannedbook/fanqiang","Name":"bannedbook/fanqiang","Language":"Kotlin","Stars":40014,"Description":"翻墙-科学上网"},{"ID":141,"URL":"https://github.com/home-assistant/android","Name":"home-assistant/android","Language":"Kotlin","Stars":2832,"Description":"Home Assistant Companion for Android"},{"ID":142,"URL":"https://github.com/mostafaalagamy/Metrolist","Name":"mostafaalagamy/Metrolist","Language":"Kotlin","Stars":1710,"Description":"YouTube Music client for Android"},{"ID":143,"URL":"https://github.com/mihonapp/mihon","Name":"mihonapp/mihon","Language":"Kotlin","Stars":14418,"Description":"Free and open source manga reader for Android"},{"ID":144,"URL":"https://github.com/RPCSX/rpcsx-ui-android","Name":"RPCSX/rpcsx-ui-android","Language":"Kotlin","Stars":825,"Description":""},{"ID":145,"URL":"https://github.com/aniyomiorg/aniyomi","Name":"aniyomiorg/aniyomi","Language":"Kotlin","Stars":6071,"Description":"An app for manga and anime"},{"ID":146,"URL":"https://github.com/yuzono/aniyomi-extensions","Name":"yuzono/aniyomi-extensions","Language":"Kotlin","Stars":94,"Description":"Source code of extensions for Anikku / Aniyomi \u0026 forks."},{"ID":147,"URL":"https://github.com/open-ani/animeko","Name":"open-ani/animeko","Language":"Kotlin","Stars":8259,"Description":"集找番、追番、看番的一站式弹幕追番平台，云收藏同步 (Bangumi)，离线缓存，BitTorrent，弹幕云过滤。100% Kotlin/Compose Multiplatform"},{"ID":148,"URL":"https://github.com/OxygenCobalt/Auxio","Name":"OxygenCobalt/Auxio","Language":"Kotlin","Stars":2789,"Description":"A simple, rational music player for android"},{"ID":149,"URL":"https://github.com/CCBlueX/LiquidBounce","Name":"CCBlueX/LiquidBounce","Language":"Kotlin","Stars":1812,"Description":"A free Minecraft hacked client (utility mod) for Fabric"},{"ID":150,"URL":"https://github.com/2dust/v2rayNG","Name":"2dust/v2rayNG","Language":"Kotlin","Stars":42405,"Description":"A V2Ray client for Android, support Xray core and v2fly core"},{"ID":151,"URL":"https://github.com/zhanghai/MaterialFiles","Name":"zhanghai/MaterialFiles","Language":"Kotlin","Stars":7105,"Description":"Material Design file manager for Android"}]}];
+        let myChart;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            renderAll();
+            
+            
+            setupThemeToggle();
+            setupSort();
+            setupChart();
+            setupFilters();
+        });
+
+        function renderAll() {
+            renderRepoCards(groupsData, 'default');
+            updateActiveFilterButton('all');
+        }
+
+        function setupThemeToggle() {
+            const themeToggle = document.getElementById('theme-toggle');
+            themeToggle.addEventListener('click', () => {
+                const html = document.documentElement;
+                if (html.classList.contains('dark')) {
+                    html.classList.remove('dark');
+                    html.classList.add('light');
+                    themeToggle.textContent = '🌙';
+                } else {
+                    html.classList.remove('light');
+                    html.classList.add('dark');
+                    themeToggle.textContent = '☀️';
+                }
+            });
+        }
+        
+        function setupSort() {
+            const sortBy = document.getElementById('sort-by');
+            sortBy.addEventListener('change', (e) => {
+                const lang = document.querySelector('.filter-btn.active').dataset.lang;
+                const sortMethod = e.target.value;
+                if (lang === 'all') {
+                    renderRepoCards(groupsData, sortMethod);
+                } else {
+                    const filteredData = groupsData.filter(g => g.GroupName === lang);
+                    renderRepoCards(filteredData, sortMethod);
+                }
+            });
+        }
+
+        function setupFilters() {
+            const filtersContainer = document.getElementById('filters-container');
+            groupsData.forEach(group => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.dataset.lang = group.GroupName;
+                btn.textContent = group.GroupName;
+                btn.addEventListener('click', () => {
+                    filterByLanguage(group.GroupName);
+                });
+                filtersContainer.appendChild(btn);
+            });
+
+            document.querySelector('.filter-btn[data-lang="all"]').addEventListener('click', () => {
+                renderAll();
+                document.getElementById('sort-by').value = 'default';
+            });
+        }
+        
+        function filterByLanguage(lang) {
+            const filteredData = groupsData.filter(g => g.GroupName === lang);
+            renderRepoCards(filteredData, document.getElementById('sort-by').value);
+            updateActiveFilterButton(lang);
+        }
+
+        function updateActiveFilterButton(lang) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.filter-btn[data-lang="${lang}"]`).classList.add('active');
+        }
+
+        function setupChart() {
+            const ctx = document.getElementById('lang-chart').getContext('2d');
+            const labels = groupsData.map(g => g.GroupName);
+            const data = groupsData.map(g => g.Repos.length);
+
+            myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Repos per language',
+                        data: data,
+                        backgroundColor: [
+                            '#3498db', '#f1c40f', '#2ecc71', '#e74c3c', '#9b59b6',
+                            '#34495e', '#1abc9c', '#e67e22', '#d35400', '#c0392b'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: false
+                        }
+                    },
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            const chartElement = elements[0];
+                            const lang = myChart.data.labels[chartElement.index];
+                            filterByLanguage(lang);
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderRepoCards(data, sortBy) {
+            const repoList = document.getElementById('repo-list');
+            repoList.innerHTML = '';
+            
+            let allRepos = data.flatMap(g => g.Repos);
+            
+            if (sortBy === 'stars') {
+                allRepos.sort((a, b) => b.Stars - a.Stars);
+            } else if (sortBy === 'name') {
+                allRepos.sort((a, b) => a.Name.localeCompare(b.Name));
+            }
+
+            if(allRepos.length === 0) {
+                repoList.innerHTML = '<p>No repositories found for this selection.</p>';
+                return;
+            }
+
+            allRepos.forEach(repo => {
+                const card = document.createElement('div');
+                card.className = 'repo-card';
+                card.innerHTML = `
+                    <div class="repo-header">
+                        <div class="repo-name">
+                            <a href="${repo.URL}" target="_blank">${repo.Name}</a>
+                        </div>
+                        <div class="repo-stars">🌟 ${repo.Stars}</div>
+                    </div>
+                    <div class="repo-lang" style="font-size: 0.9em; opacity: 0.7; margin-top: 5px;">${repo.Language}</div>
+                    <div class="repo-desc">${repo.Description || ''}</div>
+                `;
+                repoList.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
