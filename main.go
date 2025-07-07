@@ -10,8 +10,6 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
-	"path/filepath"
-	"sort"
 	"time"
 
 	"github.com/andygrunwald/go-trending"
@@ -74,24 +72,6 @@ func renderTemplateToFile(templateFile string, data interface{}, outputFilename 
 	}
 
 	return nil
-}
-
-func getArchiveFiles(dailyDir string) ([]string, error) {
-	var files []string
-	err := filepath.Walk(dailyDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if !info.IsDir() && filepath.Ext(path) == ".html" {
-			files = append(files, info.Name())
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, fmt.Errorf("error walking directory: %v", err)
-	}
-	sort.Sort(sort.Reverse(sort.StringSlice(files)))
-	return files, nil
 }
 
 func main() {
@@ -179,17 +159,11 @@ func main() {
 		log.Fatalf("Failed to marshal data to JSON: %v", err)
 	}
 
-	archiveFiles, err := getArchiveFiles("daily_trending")
-	if err != nil {
-		log.Printf("Warning: could not get archive files: %v", err)
-	}
-
 	templateFile := "templates/index.tmpl"
 	data := map[string]interface{}{
-		"Today":        todayStr,
-		"Year":         time.Now().Year(),
-		"GroupsJSON":   template.JS(jsonData),
-		"ArchiveFiles": archiveFiles,
+		"Today":      todayStr,
+		"Year":       time.Now().Year(),
+		"GroupsJSON": template.JS(jsonData),
 	}
 
 	// Render to the root index.html first
