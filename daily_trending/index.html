@@ -443,6 +443,12 @@
             margin-left: 10px;
         }
         
+        .calendar-svg {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 4px;
+        }
+        
 
         
 
@@ -485,10 +491,10 @@
     
     <div class="view-toggle">
         <button class="toggle-btn active" onclick="switchView('month')">
-            📅 月份分组
+            <span class="calendar-svg"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.2em;"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg></span> 月卡片盒
         </button>
         <button class="toggle-btn" onclick="switchView('timeline')">
-            ⏰ 竖直时间线
+            <span class="calendar-svg"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.2em;"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3h10.5M6.75 21h10.5M6.75 3v3.375c0 1.192.464 2.335 1.293 3.182l2.457 2.4a3.75 3.75 0 0 1 0 5.086l-2.457 2.4A4.5 4.5 0 0 0 6.75 17.625V21m10.5-18v3.375c0 1.192-.464 2.335-1.293 3.182l-2.457 2.4a3.75 3.75 0 0 0 0 5.086l2.457 2.4c.829.808 1.293 1.95 1.293 3.182V21"/></svg></span> 时间线
         </button>
     </div>
     
@@ -497,7 +503,7 @@
         <div class="month-group">
             <div class="month-header" onclick="toggleMonth('2025-07')">
                 <div class="month-title">
-                    📅 2025年7月
+                    <span class="calendar-svg"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.2em;"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg></span> 2025年7月
                     <span class="month-count">13</span>
                 </div>
                 <div class="month-toggle expanded">▼</div>
@@ -505,15 +511,15 @@
             <div class="month-content expanded">
                 <div class="month-files">
                 <div class="file-item latest" onclick="window.open('2025-07-19.html', '_blank')">
-                    <div class="file-icon">📅</div>
+                    <div class="file-icon"><span class="calendar-svg"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.2em;"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg></span></div>
                     <div class="file-info">
                         <div class="file-name">2025-07-19.html<span class="latest-badge">最新</span></div>
                         <div class="file-date">2025年7月19日</div>
                     </div>
-                    <div class="file-size">34KB</div>
+                    <div class="file-size">42KB</div>
                 </div>
                 <div class="file-item" onclick="window.open('2025-07-18.html', '_blank')">
-                    <div class="file-icon">📅</div>
+                    <div class="file-icon"><span class="calendar-svg"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.2em;"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg></span></div>
                     <div class="file-info">
                         <div class="file-name">2025-07-18.html</div>
                         <div class="file-date">2025年7月18日</div>
@@ -521,7 +527,7 @@
                     <div class="file-size">40KB</div>
                 </div>
                 <div class="file-item" onclick="window.open('2025-07-17.html', '_blank')">
-                    <div class="file-icon">📅</div>
+                    <div class="file-icon"><span class="calendar-svg"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.2em;"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg></span></div>
                     <div class="file-info">
                         <div class="file-name">2025-07-17.html</div>
                         <div class="file-date">2025年7月17日</div>
@@ -529,7 +535,7 @@
                     <div class="file-size">41KB</div>
                 </div>
                 <div class="file-item" onclick="window.open('2025-07-16.html', '_blank')">
-                    <div class="file-icon">📅</div>
+                    <div class="file-icon"><span class="calendar-svg"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.2em;"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg></span></div>
                     <div class="file-info">
                         <div class="file-name">2025-07-16.html</div>
                         <div class="file-date">2025年7月16日</div>
@@ -537,7 +543,7 @@
                     <div class="file-size">42KB</div>
                 </div>
                 <div class="file-item" onclick="window.open('2025-07-15.html', '_blank')">
-                    <div class="file-icon">📅</div>
+                    <div class="file-icon"><span class="calendar-svg"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.2em;"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg></span></div>
                     <div class="file-info">
                         <div class="file-name">2025-07-15.html</div>
                         <div class="file-date">2025年7月15日</div>
@@ -545,7 +551,7 @@
                     <div class="file-size">42KB</div>
                 </div>
                 <div class="file-item" onclick="window.open('2025-07-14.html', '_blank')">
-                    <div class="file-icon">📅</div>
+                    <div class="file-icon"><span class="calendar-svg"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.2em;"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg></span></div>
                     <div class="file-info">
                         <div class="file-name">2025-07-14.html</div>
                         <div class="file-date">2025年7月14日</div>
@@ -553,7 +559,7 @@
                     <div class="file-size">40KB</div>
                 </div>
                 <div class="file-item" onclick="window.open('2025-07-13.html', '_blank')">
-                    <div class="file-icon">📅</div>
+                    <div class="file-icon"><span class="calendar-svg"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.2em;"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg></span></div>
                     <div class="file-info">
                         <div class="file-name">2025-07-13.html</div>
                         <div class="file-date">2025年7月13日</div>
@@ -561,7 +567,7 @@
                     <div class="file-size">42KB</div>
                 </div>
                 <div class="file-item" onclick="window.open('2025-07-12.html', '_blank')">
-                    <div class="file-icon">📅</div>
+                    <div class="file-icon"><span class="calendar-svg"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.2em;"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg></span></div>
                     <div class="file-info">
                         <div class="file-name">2025-07-12.html</div>
                         <div class="file-date">2025年7月12日</div>
@@ -569,7 +575,7 @@
                     <div class="file-size">41KB</div>
                 </div>
                 <div class="file-item" onclick="window.open('2025-07-11.html', '_blank')">
-                    <div class="file-icon">📅</div>
+                    <div class="file-icon"><span class="calendar-svg"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.2em;"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg></span></div>
                     <div class="file-info">
                         <div class="file-name">2025-07-11.html</div>
                         <div class="file-date">2025年7月11日</div>
@@ -577,7 +583,7 @@
                     <div class="file-size">42KB</div>
                 </div>
                 <div class="file-item" onclick="window.open('2025-07-10.html', '_blank')">
-                    <div class="file-icon">📅</div>
+                    <div class="file-icon"><span class="calendar-svg"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.2em;"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg></span></div>
                     <div class="file-info">
                         <div class="file-name">2025-07-10.html</div>
                         <div class="file-date">2025年7月10日</div>
@@ -585,7 +591,7 @@
                     <div class="file-size">42KB</div>
                 </div>
                 <div class="file-item" onclick="window.open('2025-07-09.html', '_blank')">
-                    <div class="file-icon">📅</div>
+                    <div class="file-icon"><span class="calendar-svg"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.2em;"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg></span></div>
                     <div class="file-info">
                         <div class="file-name">2025-07-09.html</div>
                         <div class="file-date">2025年7月9日</div>
@@ -593,7 +599,7 @@
                     <div class="file-size">40KB</div>
                 </div>
                 <div class="file-item" onclick="window.open('2025-07-08.html', '_blank')">
-                    <div class="file-icon">📅</div>
+                    <div class="file-icon"><span class="calendar-svg"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.2em;"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg></span></div>
                     <div class="file-info">
                         <div class="file-name">2025-07-08.html</div>
                         <div class="file-date">2025年7月8日</div>
@@ -601,7 +607,7 @@
                     <div class="file-size">37KB</div>
                 </div>
                 <div class="file-item" onclick="window.open('2025-07-07.html', '_blank')">
-                    <div class="file-icon">📅</div>
+                    <div class="file-icon"><span class="calendar-svg"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.2em;"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg></span></div>
                     <div class="file-info">
                         <div class="file-name">2025-07-07.html</div>
                         <div class="file-date">2025年7月7日</div>
@@ -619,7 +625,7 @@
             <div class="timeline-card latest" onclick="window.open('2025-07-19.html', '_blank')">
                 <div class="timeline-date">2025年7月19日</div>
                 <div class="timeline-title">2025-07-19.html<span class="latest-badge">最新</span></div>
-                <div class="timeline-size">34KB</div>
+                <div class="timeline-size">42KB</div>
             </div>
             <div class="timeline-card" onclick="window.open('2025-07-18.html', '_blank')">
                 <div class="timeline-date">2025年7月18日</div>

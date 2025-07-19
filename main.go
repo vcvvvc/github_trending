@@ -105,7 +105,7 @@ func main() {
 	var groupedItems []LanguageGroup
 
 	// 假设有一个语言列表变量，比如：
-	languages := []string{"C++", "Python", "Go", "Solidity"}
+	languages := []string{"", "C++", "Python", "Go", "Rust", "Solidity"}
 
 	idCounter := 1
 	for _, langName := range languages {

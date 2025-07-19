@@ -8,6 +8,9 @@ import (
 	"time"
 )
 
+var calendarSVG = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.2em;"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg>`
+var hourglassSVG = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.2em;"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3h10.5M6.75 21h10.5M6.75 3v3.375c0 1.192.464 2.335 1.293 3.182l2.457 2.4a3.75 3.75 0 0 1 0 5.086l-2.457 2.4A4.5 4.5 0 0 0 6.75 17.625V21m10.5-18v3.375c0 1.192-.464 2.335-1.293 3.182l-2.457 2.4a3.75 3.75 0 0 0 0 5.086l2.457 2.4c.829.808 1.293 1.95 1.293 3.182V21"/></svg>`
+
 // 文件信息结构
 type FileInfo struct {
 	Name     string
@@ -587,6 +590,12 @@ func GenerateDailyIndex() error {
             margin-left: 10px;
         }
         
+        .calendar-svg {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 4px;
+        }
+        
 
         
 
@@ -629,10 +638,10 @@ func GenerateDailyIndex() error {
     
     <div class="view-toggle">
         <button class="toggle-btn active" onclick="switchView('month')">
-            📅 月份分组
+            <span class="calendar-svg">` + calendarSVG + `</span> 月卡片盒
         </button>
         <button class="toggle-btn" onclick="switchView('timeline')">
-            ⏰ 竖直时间线
+            <span class="calendar-svg">` + hourglassSVG + `</span> 时间线
         </button>
     </div>
     
@@ -650,13 +659,13 @@ func GenerateDailyIndex() error {
         <div class="month-group">
             <div class="month-header" onclick="toggleMonth('%s')">
                 <div class="month-title">
-                    📅 %s
+                    <span class="calendar-svg">%s</span> %s
                     <span class="month-count">%d</span>
                 </div>
                 <div class="month-toggle%s">▼</div>
             </div>
             <div class="month-content%s">
-                <div class="month-files">`, group.YearMonth, group.DisplayName, len(group.Files), expandedClass, expandedClass)
+                <div class="month-files">`, group.YearMonth, calendarSVG, group.DisplayName, len(group.Files), expandedClass, expandedClass)
 		
 		// 添加该月份的文件
 		for _, file := range group.Files {
@@ -669,13 +678,13 @@ func GenerateDailyIndex() error {
 			
 			htmlContent += fmt.Sprintf(`
                 <div class="file-item%s" onclick="window.open('%s', '_blank')">
-                    <div class="file-icon">📅</div>
+                    <div class="file-icon"><span class="calendar-svg">%s</span></div>
                     <div class="file-info">
                         <div class="file-name">%s%s</div>
                         <div class="file-date">%s</div>
                     </div>
                     <div class="file-size">%s</div>
-                </div>`, latestClass, file.Name, file.Name, latestBadge, file.Date, file.Size)
+                </div>`, latestClass, file.Name, calendarSVG, file.Name, latestBadge, file.Date, file.Size)
 		}
 		
 		htmlContent += `
