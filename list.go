@@ -14,6 +14,15 @@ type FileInfo struct {
 	Date     string
 	Size     string
 	IsLatest bool
+	YearMonth string
+}
+
+// 月份分组结构
+type MonthGroup struct {
+	YearMonth string
+	DisplayName string
+	Files     []FileInfo
+	IsExpanded bool
 }
 
 // 生成文件列表数据
@@ -48,10 +57,11 @@ func generateFileListData() ([]FileInfo, error) {
 			isLatest := date.Format("2006-01-02") == time.Now().Format("2006-01-02")
 			
 			files = append(files, FileInfo{
-				Name:     entry.Name(),
-				Date:     date.Format("2006年1月2日"),
-				Size:     size,
-				IsLatest: isLatest,
+				Name:      entry.Name(),
+				Date:      date.Format("2006年1月2日"),
+				Size:      size,
+				IsLatest:  isLatest,
+				YearMonth: date.Format("2006-01"),
 			})
 		}
 	}
@@ -66,6 +76,41 @@ func generateFileListData() ([]FileInfo, error) {
 	return files, nil
 }
 
+// 按月份分组文件
+func groupFilesByMonth(files []FileInfo) []MonthGroup {
+	monthMap := make(map[string][]FileInfo)
+	
+	// 按月份分组
+	for _, file := range files {
+		monthMap[file.YearMonth] = append(monthMap[file.YearMonth], file)
+	}
+	
+	// 转换为MonthGroup切片
+	var groups []MonthGroup
+	for yearMonth, monthFiles := range monthMap {
+		// 解析年月来生成显示名称
+		date, _ := time.Parse("2006-01", yearMonth)
+		displayName := date.Format("2006年1月")
+		
+		// 最新月份默认展开
+		isExpanded := yearMonth == files[0].YearMonth
+		
+		groups = append(groups, MonthGroup{
+			YearMonth:  yearMonth,
+			DisplayName: displayName,
+			Files:      monthFiles,
+			IsExpanded: isExpanded,
+		})
+	}
+	
+	// 按年月倒序排序
+	sort.Slice(groups, func(i, j int) bool {
+		return groups[i].YearMonth > groups[j].YearMonth
+	})
+	
+	return groups
+}
+
 // 生成daily_trending/index.html文件
 func GenerateDailyIndex() error {
 	files, err := generateFileListData()
@@ -76,6 +121,9 @@ func GenerateDailyIndex() error {
 	if len(files) == 0 {
 		return fmt.Errorf("No HTML files found in daily_trending directory")
 	}
+	
+	// 按月份分组
+	monthGroups := groupFilesByMonth(files)
 	
 	// 计算统计信息
 	startDate := strings.TrimSuffix(files[len(files)-1].Name, ".html")
@@ -191,6 +239,251 @@ func GenerateDailyIndex() error {
         .counter.animate {
             transform: scale(1.1);
             color: #ffd700;
+        }
+        
+        .view-toggle {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 10px;
+        }
+        
+        .toggle-btn {
+            padding: 10px 20px;
+            border: 2px solid #0366d6;
+            background: white;
+            color: #0366d6;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .toggle-btn:hover {
+            background: #0366d6;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(3, 102, 214, 0.3);
+        }
+        
+        .toggle-btn.active {
+            background: #0366d6;
+            color: white;
+        }
+        
+        .timeline-view {
+            display: none;
+        }
+        
+        .timeline-view.active {
+            display: block;
+        }
+        
+        .month-view {
+            display: block;
+        }
+        
+        .month-view.hidden {
+            display: none;
+        }
+        
+        .vertical-timeline {
+            position: relative;
+            padding: 20px 0;
+            max-height: 70vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #0366d6 #f1f1f1;
+        }
+        
+        .vertical-timeline::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .vertical-timeline::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .vertical-timeline::-webkit-scrollbar-thumb {
+            background: #0366d6;
+            border-radius: 4px;
+        }
+        
+        .vertical-timeline::-webkit-scrollbar-thumb:hover {
+            background: #0256cc;
+        }
+        
+        .vertical-timeline::before {
+            content: '';
+            position: absolute;
+            left: 50px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, #0366d6, #28a745);
+            border-radius: 2px;
+        }
+        
+        .timeline-card {
+            position: relative;
+            margin: 20px 0;
+            margin-left: 80px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-left: 4px solid #0366d6;
+        }
+        
+        .timeline-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-left-color: #28a745;
+        }
+        
+        .timeline-card.latest {
+            border-left-color: #28a745;
+            background: linear-gradient(135deg, #f8fff9 0%%, #e8f5e8 100%%);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.2);
+        }
+        
+        .timeline-card::before {
+            content: '';
+            position: absolute;
+            left: -35px;
+            top: 25px;
+            width: 12px;
+            height: 12px;
+            background: #0366d6;
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px #0366d6;
+        }
+        
+        .timeline-card.latest::before {
+            background: #28a745;
+            box-shadow: 0 0 0 3px #28a745;
+        }
+        
+        .timeline-card::after {
+            content: '';
+            position: absolute;
+            left: -25px;
+            top: 31px;
+            width: 0;
+            height: 0;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            border-right: 8px solid white;
+        }
+        
+        .timeline-card.latest::after {
+            border-right-color: #f8fff9;
+        }
+        
+        .timeline-date {
+            font-size: 0.9em;
+            color: #586069;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .timeline-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #0366d6;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-card.latest .timeline-title {
+            color: #28a745;
+        }
+        
+        .timeline-size {
+            font-size: 0.8em;
+            color: #586069;
+            margin-top: 5px;
+        }
+        
+        .latest-badge {
+            background: #28a745;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+        
+        .month-group {
+            margin-bottom: 20px;
+            border: 1px solid #e1e4e8;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+        }
+        
+        .month-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%%, #e9ecef 100%%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #e1e4e8;
+        }
+        
+        .month-header:hover {
+            background: linear-gradient(135deg, #e9ecef 0%%, #dee2e6 100%%);
+        }
+        
+        .month-title {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: #24292e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .month-count {
+            background: #0366d6;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+        
+        .month-toggle {
+            font-size: 1.2em;
+            color: #586069;
+            transition: transform 0.3s ease;
+        }
+        
+        .month-toggle.expanded {
+            transform: rotate(180deg);
+        }
+        
+        .month-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .month-content.expanded {
+            max-height: 2000px;
+        }
+        
+        .month-files {
+            padding: 0;
         }
         
         .file-list {
@@ -322,9 +615,71 @@ func GenerateDailyIndex() error {
         <span>🔄 最近更新: %s</span>
     </div>
     
-    <div class="file-list">`, len(files), startDate, endDate, endDate)
+    <div class="view-toggle">
+        <button class="toggle-btn active" onclick="switchView('month')">
+            📅 月份分组
+        </button>
+        <button class="toggle-btn" onclick="switchView('timeline')">
+            ⏰ 竖直时间线
+        </button>
+    </div>
+    
+    <div class="month-view" id="month-view">
+        <div class="file-list">`, len(files), startDate, endDate, endDate)
 	
-	// 添加文件列表
+	// 添加月份分组
+	for _, group := range monthGroups {
+		expandedClass := ""
+		if group.IsExpanded {
+			expandedClass = " expanded"
+		}
+		
+		htmlContent += fmt.Sprintf(`
+        <div class="month-group">
+            <div class="month-header" onclick="toggleMonth('%s')">
+                <div class="month-title">
+                    📅 %s
+                    <span class="month-count">%d</span>
+                </div>
+                <div class="month-toggle%s">▼</div>
+            </div>
+            <div class="month-content%s">
+                <div class="month-files">`, group.YearMonth, group.DisplayName, len(group.Files), expandedClass, expandedClass)
+		
+		// 添加该月份的文件
+		for _, file := range group.Files {
+			latestClass := ""
+			latestBadge := ""
+			if file.IsLatest {
+				latestClass = " latest"
+				latestBadge = `<span class="latest-badge">最新</span>`
+			}
+			
+			htmlContent += fmt.Sprintf(`
+                <div class="file-item%s" onclick="window.open('%s', '_blank')">
+                    <div class="file-icon">📅</div>
+                    <div class="file-info">
+                        <div class="file-name">%s%s</div>
+                        <div class="file-date">%s</div>
+                    </div>
+                    <div class="file-size">%s</div>
+                </div>`, latestClass, file.Name, file.Name, latestBadge, file.Date, file.Size)
+		}
+		
+		htmlContent += `
+                </div>
+            </div>
+        </div>`
+	}
+	
+	htmlContent += `
+    </div>
+    </div>
+    
+    <div class="timeline-view" id="timeline-view">
+        <div class="vertical-timeline">`
+	
+	// 添加时间线卡片
 	for _, file := range files {
 		latestClass := ""
 		latestBadge := ""
@@ -334,17 +689,15 @@ func GenerateDailyIndex() error {
 		}
 		
 		htmlContent += fmt.Sprintf(`
-        <div class="file-item%s" onclick="window.open('%s', '_blank')">
-            <div class="file-icon">📅</div>
-            <div class="file-info">
-                <div class="file-name">%s%s</div>
-                <div class="file-date">%s</div>
-            </div>
-            <div class="file-size">%s</div>
-        </div>`, latestClass, file.Name, file.Name, latestBadge, file.Date, file.Size)
+            <div class="timeline-card%s" onclick="window.open('%s', '_blank')">
+                <div class="timeline-date">%s</div>
+                <div class="timeline-title">%s%s</div>
+                <div class="timeline-size">%s</div>
+            </div>`, latestClass, file.Name, file.Date, file.Name, latestBadge, file.Size)
 	}
 	
 	htmlContent += `
+        </div>
     </div>
     
     <a href="../index.html" class="back-link">← 返回主页</a>
@@ -370,8 +723,43 @@ func GenerateDailyIndex() error {
             }, 16);
         }
         
+        // 视图切换函数
+        function switchView(viewType) {
+            const monthView = document.getElementById('month-view');
+            const timelineView = document.getElementById('timeline-view');
+            const monthBtn = document.querySelector('[onclick="switchView(\'month\')"]');
+            const timelineBtn = document.querySelector('[onclick="switchView(\'timeline\')"]');
+            
+            if (viewType === 'month') {
+                monthView.classList.remove('hidden');
+                timelineView.classList.remove('active');
+                monthBtn.classList.add('active');
+                timelineBtn.classList.remove('active');
+            } else {
+                monthView.classList.add('hidden');
+                timelineView.classList.add('active');
+                monthBtn.classList.remove('active');
+                timelineBtn.classList.add('active');
+            }
+        }
+        
+        // 月份折叠切换函数
+        function toggleMonth(yearMonth) {
+            const monthGroup = document.querySelector('[onclick="toggleMonth(\'' + yearMonth + '\')"]').closest('.month-group');
+            const content = monthGroup.querySelector('.month-content');
+            const toggle = monthGroup.querySelector('.month-toggle');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                toggle.classList.remove('expanded');
+            } else {
+                content.classList.add('expanded');
+                toggle.classList.add('expanded');
+            }
+        }
+        
         // 添加点击效果
-        document.querySelectorAll('.file-item').forEach(item => {
+        document.querySelectorAll('.file-item, .timeline-card').forEach(item => {
             item.addEventListener('click', function() {
                 this.style.transform = 'scale(0.98)';
                 setTimeout(() => {
@@ -391,16 +779,28 @@ func GenerateDailyIndex() error {
                 }, 500);
             }
             
-            // 文件列表动画
-            const items = document.querySelectorAll('.file-item');
-            items.forEach((item, index) => {
-                item.style.opacity = '0';
-                item.style.transform = 'translateY(20px)';
+            // 月份组动画
+            const monthGroups = document.querySelectorAll('.month-group');
+            monthGroups.forEach((group, groupIndex) => {
+                group.style.opacity = '0';
+                group.style.transform = 'translateY(20px)';
                 setTimeout(() => {
-                    item.style.transition = 'all 0.5s ease';
-                    item.style.opacity = '1';
-                    item.style.transform = 'translateY(0)';
-                }, index * 100 + 800); // 延迟启动，等数字动画完成
+                    group.style.transition = 'all 0.5s ease';
+                    group.style.opacity = '1';
+                    group.style.transform = 'translateY(0)';
+                }, groupIndex * 200 + 800);
+                
+                // 文件项动画
+                const items = group.querySelectorAll('.file-item');
+                items.forEach((item, index) => {
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateY(10px)';
+                    setTimeout(() => {
+                        item.style.transition = 'all 0.3s ease';
+                        item.style.opacity = '1';
+                        item.style.transform = 'translateY(0)';
+                    }, groupIndex * 200 + 1000 + index * 50);
+                });
             });
         });
     </script>
