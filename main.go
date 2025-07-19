@@ -104,12 +104,11 @@ func main() {
 	trend := trending.NewTrendingWithClient(client)
 	var groupedItems []LanguageGroup
 
-	lists := []string{
-		"", "Go", "Rust", 
-	}
+	// 假设有一个语言列表变量，比如：
+	languages := []string{"C++", "Python", "Go", "Solidity"}
 
 	idCounter := 1
-	for _, langName := range lists {
+	for _, langName := range languages {
 		fmt.Printf("Fetching trending projects for: %s\n", langName)
 
 		projects, err := trend.GetProjects(trending.TimeToday, langName)

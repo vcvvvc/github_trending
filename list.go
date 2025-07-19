@@ -129,6 +129,18 @@ func GenerateDailyIndex() error {
 	startDate := strings.TrimSuffix(files[len(files)-1].Name, ".html")
 	endDate := strings.TrimSuffix(files[0].Name, ".html")
 	
+	// 格式化日期显示
+	startDateFormatted := startDate
+	endDateFormatted := endDate
+	
+	// 尝试解析并格式化日期
+	if startDateParsed, err := time.Parse("2006-01-02", startDate); err == nil {
+		startDateFormatted = startDateParsed.Format("2006年1月2日")
+	}
+	if endDateParsed, err := time.Parse("2006-01-02", endDate); err == nil {
+		endDateFormatted = endDateParsed.Format("2006年1月2日")
+	}
+	
 	// 生成HTML内容
 	htmlContent := fmt.Sprintf(`<!DOCTYPE html>
 <html lang="zh-CN">
@@ -158,6 +170,33 @@ func GenerateDailyIndex() error {
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
             position: relative;
             overflow: hidden;
+        }
+        
+        .back-home-link {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            background: linear-gradient(145deg, #0366d6, #0256cc);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 20px;
+            transition: all 0.3s ease-out;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .back-home-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+            background: linear-gradient(145deg, #0256cc, #0147a3);
         }
         
         .header::before {
@@ -296,26 +335,12 @@ func GenerateDailyIndex() error {
             padding: 20px 0;
             max-height: 70vh;
             overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: #0366d6 #f1f1f1;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
         }
         
         .vertical-timeline::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        .vertical-timeline::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 4px;
-        }
-        
-        .vertical-timeline::-webkit-scrollbar-thumb {
-            background: #0366d6;
-            border-radius: 4px;
-        }
-        
-        .vertical-timeline::-webkit-scrollbar-thumb:hover {
-            background: #0256cc;
+            display: none;
         }
         
         .vertical-timeline::before {
@@ -564,20 +589,7 @@ func GenerateDailyIndex() error {
         
 
         
-        .back-link {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background: #0366d6;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            transition: background-color 0.3s ease;
-        }
-        
-        .back-link:hover {
-            background: #0256cc;
-        }
+
         
         @media (max-width: 600px) {
             body {
@@ -610,9 +622,9 @@ func GenerateDailyIndex() error {
     </div>
     
     <div class="stats">
-        <span>📊 总计: <span class="counter" data-target="%d">0</span> 个历史文件</span>
-        <span>📅 时间跨度: %s 至 %s</span>
-        <span>🔄 最近更新: %s</span>
+        <span>📊 总计: <span class="counter" data-target="` + fmt.Sprintf("%d", len(files)) + `">0</span> 个历史文件</span>
+        <span>📅 时间跨度: ` + startDateFormatted + ` 至 ` + endDateFormatted + `</span>
+        <span>🔄 最近更新: ` + files[0].Date + `</span>
     </div>
     
     <div class="view-toggle">
@@ -625,7 +637,7 @@ func GenerateDailyIndex() error {
     </div>
     
     <div class="month-view" id="month-view">
-        <div class="file-list">`, len(files), startDate, endDate, endDate)
+        <div class="file-list">`)
 	
 	// 添加月份分组
 	for _, group := range monthGroups {
@@ -700,7 +712,7 @@ func GenerateDailyIndex() error {
         </div>
     </div>
     
-    <a href="../index.html" class="back-link">← 返回主页</a>
+    <a href="../index.html" class="back-home-link" title="返回主页">🏠</a>
     
     <script>
         // 数字增长动画函数

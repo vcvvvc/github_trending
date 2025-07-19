@@ -28,6 +28,33 @@
             overflow: hidden;
         }
         
+        .back-home-link {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            background: linear-gradient(145deg, #0366d6, #0256cc);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 20px;
+            transition: all 0.3s ease-out;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .back-home-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+            background: linear-gradient(145deg, #0256cc, #0147a3);
+        }
+        
         .header::before {
             content: '';
             position: absolute;
@@ -164,26 +191,12 @@
             padding: 20px 0;
             max-height: 70vh;
             overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: #0366d6 #f1f1f1;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
         }
         
         .vertical-timeline::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        .vertical-timeline::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 4px;
-        }
-        
-        .vertical-timeline::-webkit-scrollbar-thumb {
-            background: #0366d6;
-            border-radius: 4px;
-        }
-        
-        .vertical-timeline::-webkit-scrollbar-thumb:hover {
-            background: #0256cc;
+            display: none;
         }
         
         .vertical-timeline::before {
@@ -231,7 +244,7 @@
             height: 12px;
             background: #0366d6;
             border: 3px solid white;
-            border-radius: 50%!;(int=14)
+            border-radius: 50%!;(MISSING)
             box-shadow: 0 0 0 3px #0366d6;
         }
         
@@ -432,20 +445,7 @@
         
 
         
-        .back-link {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background: #0366d6;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            transition: background-color 0.3s ease;
-        }
-        
-        .back-link:hover {
-            background: #0256cc;
-        }
+
         
         @media (max-width: 600px) {
             body {
@@ -478,9 +478,9 @@
     </div>
     
     <div class="stats">
-        <span>📊 总计: <span class="counter" data-target="%!d(string=2025-06-01)">0</span> 个历史文件</span>
-        <span>📅 时间跨度: 2025-07-19 至 2025-07-19</span>
-        <span>🔄 最近更新: %!s(MISSING)</span>
+        <span>📊 总计: <span class="counter" data-target="13">0</span> 个历史文件</span>
+        <span>📅 时间跨度: 2025年7月7日 至 2025年7月19日</span>
+        <span>🔄 最近更新: 2025年7月19日</span>
     </div>
     
     <div class="view-toggle">
@@ -510,7 +510,7 @@
                         <div class="file-name">2025-07-19.html<span class="latest-badge">最新</span></div>
                         <div class="file-date">2025年7月19日</div>
                     </div>
-                    <div class="file-size">31KB</div>
+                    <div class="file-size">34KB</div>
                 </div>
                 <div class="file-item" onclick="window.open('2025-07-18.html', '_blank')">
                     <div class="file-icon">📅</div>
@@ -611,27 +611,6 @@
                 </div>
             </div>
         </div>
-        <div class="month-group">
-            <div class="month-header" onclick="toggleMonth('2025-06')">
-                <div class="month-title">
-                    📅 2025年6月
-                    <span class="month-count">1</span>
-                </div>
-                <div class="month-toggle">▼</div>
-            </div>
-            <div class="month-content">
-                <div class="month-files">
-                <div class="file-item" onclick="window.open('2025-06-01.html', '_blank')">
-                    <div class="file-icon">📅</div>
-                    <div class="file-info">
-                        <div class="file-name">2025-06-01.html</div>
-                        <div class="file-date">2025年6月1日</div>
-                    </div>
-                    <div class="file-size">37KB</div>
-                </div>
-                </div>
-            </div>
-        </div>
     </div>
     </div>
     
@@ -640,7 +619,7 @@
             <div class="timeline-card latest" onclick="window.open('2025-07-19.html', '_blank')">
                 <div class="timeline-date">2025年7月19日</div>
                 <div class="timeline-title">2025-07-19.html<span class="latest-badge">最新</span></div>
-                <div class="timeline-size">31KB</div>
+                <div class="timeline-size">34KB</div>
             </div>
             <div class="timeline-card" onclick="window.open('2025-07-18.html', '_blank')">
                 <div class="timeline-date">2025年7月18日</div>
@@ -702,15 +681,10 @@
                 <div class="timeline-title">2025-07-07.html</div>
                 <div class="timeline-size">37KB</div>
             </div>
-            <div class="timeline-card" onclick="window.open('2025-06-01.html', '_blank')">
-                <div class="timeline-date">2025年6月1日</div>
-                <div class="timeline-title">2025-06-01.html</div>
-                <div class="timeline-size">37KB</div>
-            </div>
         </div>
     </div>
     
-    <a href="../index.html" class="back-link">← 返回主页</a>
+    <a href="../index.html" class="back-home-link" title="返回主页">🏠</a>
     
     <script>
         // 数字增长动画函数
