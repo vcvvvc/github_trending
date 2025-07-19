@@ -20,7 +20,7 @@ jobs:
           go-version: '1.21'
 
       - name: Run application
-        run: go run main.go
+        run: go run .
         env:
           GITHUB_ACTIONS: "true"
 

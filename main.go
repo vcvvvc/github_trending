@@ -182,6 +182,14 @@ func main() {
 		fmt.Println("Daily archive file saved successfully:", dailyFilename)
 	}
 
+	// 生成daily_trending/index.html文件列表
+	err = GenerateDailyIndex()
+	if err != nil {
+		fmt.Printf("Error generating daily_trending/index.html: %v\n", err)
+	} else {
+		fmt.Println("Daily_trending/index.html updated successfully.")
+	}
+
 	if os.Getenv("GITHUB_ACTIONS") != "true" {
 		open("index.html")
 	}
