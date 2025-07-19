@@ -156,17 +156,41 @@ func GenerateDailyIndex() error {
             padding: 20px;
             background: linear-gradient(135deg, #667eea 0%%, #764ba2 100%%);
             border-radius: 12px;
-            font-size: 1em;
+            font-size: 0.95em;
             color: white;
             font-weight: 500;
             font-family: 'Inter', sans-serif;
             box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+            flex-wrap: wrap;
+            gap: 15px;
         }
         
         .stats span {
             display: flex;
             align-items: center;
             gap: 8px;
+            white-space: nowrap;
+        }
+        
+        @media (max-width: 768px) {
+            .stats {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+        }
+        
+        .counter {
+            display: inline-block;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .counter.animate {
+            transform: scale(1.1);
+            color: #ffd700;
         }
         
         .file-list {
@@ -293,11 +317,12 @@ func GenerateDailyIndex() error {
     </div>
     
     <div class="stats">
-        <span>📊 总计: %d 个历史文件</span>
+        <span>📊 总计: <span class="counter" data-target="%d">0</span> 个历史文件</span>
         <span>📅 时间跨度: %s 至 %s</span>
+        <span>🔄 最近更新: %s</span>
     </div>
     
-    <div class="file-list">`, len(files), startDate, endDate)
+    <div class="file-list">`, len(files), startDate, endDate, endDate)
 	
 	// 添加文件列表
 	for _, file := range files {
@@ -325,6 +350,26 @@ func GenerateDailyIndex() error {
     <a href="../index.html" class="back-link">← 返回主页</a>
     
     <script>
+        // 数字增长动画函数
+        function animateCounter(element, target, duration = 2000) {
+            const start = 0;
+            const increment = target / (duration / 16); // 60fps
+            let current = start;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                    element.classList.add('animate');
+                    setTimeout(() => {
+                        element.classList.remove('animate');
+                    }, 500);
+                }
+                element.textContent = Math.floor(current);
+            }, 16);
+        }
+        
         // 添加点击效果
         document.querySelectorAll('.file-item').forEach(item => {
             item.addEventListener('click', function() {
@@ -337,6 +382,16 @@ func GenerateDailyIndex() error {
         
         // 页面加载动画
         document.addEventListener('DOMContentLoaded', function() {
+            // 启动数字增长动画
+            const counter = document.querySelector('.counter');
+            if (counter) {
+                const target = parseInt(counter.getAttribute('data-target'));
+                setTimeout(() => {
+                    animateCounter(counter, target, 1500);
+                }, 500);
+            }
+            
+            // 文件列表动画
             const items = document.querySelectorAll('.file-item');
             items.forEach((item, index) => {
                 item.style.opacity = '0';
@@ -345,7 +400,7 @@ func GenerateDailyIndex() error {
                     item.style.transition = 'all 0.5s ease';
                     item.style.opacity = '1';
                     item.style.transform = 'translateY(0)';
-                }, index * 100);
+                }, index * 100 + 800); // 延迟启动，等数字动画完成
             });
         });
     </script>
