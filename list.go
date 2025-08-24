@@ -835,5 +835,63 @@ func GenerateDailyIndex() error {
 		return fmt.Errorf("Error saving daily_trending/index.html: %v", err)
 	}
 	
+	// 生成sitemap.xml
+	err = generateSitemap(files)
+	if err != nil {
+		return fmt.Errorf("Error generating sitemap: %v", err)
+	}
+	
 	return nil
-} 
+}
+
+// 生成sitemap.xml文件
+func generateSitemap(files []FileInfo) error {
+	baseURL := "https://vcvvvc.github.io/github_trending"
+	currentTime := time.Now().Format("2006-01-02T15:04:05-07:00")
+	
+	// 构建sitemap XML内容
+	sitemapContent := `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+	<url>
+		<loc>` + baseURL + `/</loc>
+		<lastmod>` + currentTime + `</lastmod>
+		<changefreq>daily</changefreq>
+		<priority>1.0</priority>
+	</url>
+	<url>
+		<loc>` + baseURL + `/daily_trending/</loc>
+		<lastmod>` + currentTime + `</lastmod>
+		<changefreq>daily</changefreq>
+		<priority>0.9</priority>
+	</url>`
+	
+	// 添加每日趋势页面
+	for _, file := range files {
+		// 解析日期用于lastmod
+		dateStr := strings.TrimSuffix(file.Name, ".html")
+		date, err := time.Parse("2006-01-02", dateStr)
+		if err != nil {
+			continue
+		}
+		
+		lastmod := date.Format("2006-01-02T15:04:05-07:00")
+		sitemapContent += `
+	<url>
+		<loc>` + baseURL + `/daily_trending/` + file.Name + `</loc>
+		<lastmod>` + lastmod + `</lastmod>
+		<changefreq>weekly</changefreq>
+		<priority>0.8</priority>
+	</url>`
+	}
+	
+	sitemapContent += `
+</urlset>`
+	
+	// 保存sitemap.xml文件
+	err := os.WriteFile("sitemap.xml", []byte(sitemapContent), 0644)
+	if err != nil {
+		return fmt.Errorf("Error writing sitemap.xml: %v", err)
+	}
+	
+	return nil
+}
