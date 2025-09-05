@@ -340,7 +340,8 @@
                 <h2>Language Distribution</h2>
                 <canvas id="lang-chart"></canvas>
                 <div class="filters" id="filters-container">
-                    <button class="filter-btn active" data-lang="all">All</button>
+                    <button class="filter-btn" data-lang="all">All</button>
+                    <button class="filter-btn active" data-lang="Overall">Overall</button>
                 </div>
             </aside>
             
@@ -375,7 +376,9 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             // Initial render
-            renderAll();
+            const filteredData = groupsData.filter(g => g.GroupName === 'Overall');
+            renderRepoCards(filteredData, 'default');
+            updateActiveFilterButton('Overall');
             
             // Setup controls
             setupThemeToggle();
@@ -556,7 +559,9 @@
             const logo = document.getElementById('logo-link');
             logo.addEventListener('click', (e) => {
                 e.preventDefault();
-                renderAll();
+                const filteredData = groupsData.filter(g => g.GroupName === 'Overall');
+                renderRepoCards(filteredData, 'default');
+                updateActiveFilterButton('Overall');
                 document.getElementById('sort-by').value = 'default';
             });
         }
