@@ -379,7 +379,7 @@
             const filteredData = groupsData.filter(g => g.GroupName === 'Overall');
             renderRepoCards(filteredData, 'default');
             updateActiveFilterButton('Overall');
-            
+
             // Setup controls
             setupThemeToggle();
             setupSort();
@@ -388,6 +388,28 @@
             setupBackToTopButton();
             setupLogoLink();
         });
+
+        function setupFilters() {
+            const filtersContainer = document.getElementById('filters-container');
+            const uniqueGroups = [...new Set(groupsData.map(g => g.GroupName))];
+            uniqueGroups.forEach(group => {
+                if (group !== 'Overall') { // Exclude the unwanted "Overall" button
+                    const btn = document.createElement('button');
+                    btn.className = 'filter-btn';
+                    btn.dataset.lang = group;
+                    btn.textContent = group;
+                    btn.addEventListener('click', () => {
+                        filterByLanguage(group);
+                    });
+                    filtersContainer.appendChild(btn);
+                }
+            });
+
+            document.querySelector('.filter-btn[data-lang="all"]').addEventListener('click', () => {
+                renderAll();
+                document.getElementById('sort-by').value = 'default';
+            });
+        }
 
         function renderAll() {
             renderRepoCards(groupsData, 'default');
@@ -432,15 +454,18 @@
 
         function setupFilters() {
             const filtersContainer = document.getElementById('filters-container');
-            groupsData.forEach(group => {
-                const btn = document.createElement('button');
-                btn.className = 'filter-btn';
-                btn.dataset.lang = group.GroupName;
-                btn.textContent = group.GroupName;
-                btn.addEventListener('click', () => {
-                    filterByLanguage(group.GroupName);
-                });
-                filtersContainer.appendChild(btn);
+            const uniqueGroups = [...new Set(groupsData.map(g => g.GroupName))];
+            uniqueGroups.forEach(group => {
+                if (group !== 'Overall') { // Exclude the unwanted "Overall" button
+                    const btn = document.createElement('button');
+                    btn.className = 'filter-btn';
+                    btn.dataset.lang = group;
+                    btn.textContent = group;
+                    btn.addEventListener('click', () => {
+                        filterByLanguage(group);
+                    });
+                    filtersContainer.appendChild(btn);
+                }
             });
 
             document.querySelector('.filter-btn[data-lang="all"]').addEventListener('click', () => {
