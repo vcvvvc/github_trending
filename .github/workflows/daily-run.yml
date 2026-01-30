@@ -3,7 +3,7 @@ name: Daily Trending
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 4 * * *' # Runs at 4:00 AM UTC, which is 12:00 PM Beijing Time
+    - cron: '0 2 * * *'
 
 jobs:
   build-and-commit:
