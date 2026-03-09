@@ -907,6 +907,7 @@
         const groups = Array.isArray(rawGroups) ? rawGroups : [];
         const THEME_STORAGE_KEY = "gh-trending-theme";
         const VALID_SORT_MODES = new Set(["default", "stars_desc", "name_asc"]);
+        const SEARCH_DEBOUNCE_MS = 120;
 
         const elements = {
             root: document.documentElement,
@@ -930,6 +931,24 @@
             sortMode: "default"
         };
         const viewGroups = buildViewGroups(groups);
+        const repoSearchTextCache = new WeakMap();
+
+        function normalizeText(value) {
+            return String(value || "").trim().toLowerCase();
+        }
+
+        function createDebounced(fn, waitMs) {
+            let timerId = null;
+            return (...args) => {
+                if (timerId !== null) {
+                    clearTimeout(timerId);
+                }
+                timerId = setTimeout(() => {
+                    timerId = null;
+                    fn(...args);
+                }, waitMs);
+            };
+        }
 
         function loadThemeMode() {
             try {
@@ -986,6 +1005,19 @@
             applyTheme();
         }
 
+        function bindMediaQueryChange(onChange) {
+            if (typeof onChange !== "function") {
+                return;
+            }
+            if (typeof themeMediaQuery.addEventListener === "function") {
+                themeMediaQuery.addEventListener("change", onChange);
+                return;
+            }
+            if (typeof themeMediaQuery.addListener === "function") {
+                themeMediaQuery.addListener(onChange);
+            }
+        }
+
         function buildViewGroups(sourceGroups) {
             if (!Array.isArray(sourceGroups) || sourceGroups.length === 0) {
                 return [];
@@ -1032,15 +1064,20 @@
         }
 
         function filterRepos(repos) {
-            if (!state.keyword) {
+            const keyword = normalizeText(state.keyword);
+            if (!keyword) {
                 return repos;
             }
-            const keyword = state.keyword.toLowerCase();
             return repos.filter(repo => {
-                const name = String(repo?.Name || "").toLowerCase();
-                const desc = String(repo?.Description || "").toLowerCase();
-                const lang = String(repo?.Language || "").toLowerCase();
-                return name.includes(keyword) || desc.includes(keyword) || lang.includes(keyword);
+                if (!repo || typeof repo !== "object") {
+                    return false;
+                }
+                let searchText = repoSearchTextCache.get(repo);
+                if (!searchText) {
+                    searchText = normalizeText(`${repo?.Name || ""} ${repo?.Description || ""} ${repo?.Language || ""}`);
+                    repoSearchTextCache.set(repo, searchText);
+                }
+                return searchText.includes(keyword);
             });
         }
 
@@ -1130,8 +1167,19 @@
 
         function bindEvents() {
             if (elements.searchInput) {
+                const onSearchInput = createDebounced(() => {
+                    renderRepos();
+                }, SEARCH_DEBOUNCE_MS);
                 elements.searchInput.addEventListener("input", event => {
                     state.keyword = String(event.target.value || "").trim();
+                    onSearchInput();
+                });
+                elements.searchInput.addEventListener("keydown", event => {
+                    if (event.key !== "Escape" || !elements.searchInput.value) {
+                        return;
+                    }
+                    elements.searchInput.value = "";
+                    state.keyword = "";
                     renderRepos();
                 });
             }
@@ -1167,19 +1215,11 @@
                 elements.themeToggle.addEventListener("click", toggleTheme);
             }
 
-            if (typeof themeMediaQuery.addEventListener === "function") {
-                themeMediaQuery.addEventListener("change", () => {
-                    if (state.themeMode === "system") {
-                        applyTheme();
-                    }
-                });
-            } else if (typeof themeMediaQuery.addListener === "function") {
-                themeMediaQuery.addListener(() => {
-                    if (state.themeMode === "system") {
-                        applyTheme();
-                    }
-                });
-            }
+            bindMediaQueryChange(() => {
+                if (state.themeMode === "system") {
+                    applyTheme();
+                }
+            });
         }
 
         function bindBackToTop() {
@@ -1191,11 +1231,24 @@
                 const visible = window.scrollY > 280;
                 elements.backToTop.classList.toggle("visible", visible);
             };
+            const queueNextFrame = typeof window.requestAnimationFrame === "function"
+                ? window.requestAnimationFrame.bind(window)
+                : callback => setTimeout(callback, 16);
+            let pendingFrame = null;
+            const scheduleVisibilityUpdate = () => {
+                if (pendingFrame !== null) {
+                    return;
+                }
+                pendingFrame = queueNextFrame(() => {
+                    pendingFrame = null;
+                    updateBackToTopVisibility();
+                });
+            };
 
             elements.backToTop.addEventListener("click", () => {
                 window.scrollTo({top: 0, behavior: "smooth"});
             });
-            window.addEventListener("scroll", updateBackToTopVisibility, {passive: true});
+            window.addEventListener("scroll", scheduleVisibilityUpdate, {passive: true});
             updateBackToTopVisibility();
         }
 

@@ -328,8 +328,112 @@
             word-break: break-word;
         }
 
-        .months {
+        .archive-layout {
             margin-top: 16px;
+            display: grid;
+            grid-template-columns: 280px minmax(0, 1fr);
+            gap: 12px;
+            align-items: start;
+        }
+
+        .archive-tools {
+            position: sticky;
+            top: 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--panel-bg);
+            box-shadow: var(--panel-shadow);
+            padding: 12px;
+            backdrop-filter: blur(8px);
+        }
+
+        .tools-title {
+            margin: 0;
+            font-size: 13px;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            font-weight: 700;
+        }
+
+        .history-search-wrap {
+            margin-top: 10px;
+        }
+
+        .history-search-input {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--card);
+            color: var(--card-foreground);
+            padding: 9px 10px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .history-search-input:focus {
+            border-color: var(--ring);
+            box-shadow: var(--focus-ring);
+        }
+
+        .history-search-meta {
+            margin-top: 8px;
+            color: var(--muted-foreground);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .month-index {
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            max-height: 420px;
+            overflow: auto;
+            padding-right: 2px;
+        }
+
+        .month-index-btn {
+            appearance: none;
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--card);
+            color: var(--foreground);
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 700;
+            transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+        }
+
+        .month-index-btn:hover {
+            border-color: var(--ring);
+            background: var(--muted);
+            transform: translateY(-1px);
+        }
+
+        .month-index-btn-count {
+            font-size: 11px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--muted);
+            color: var(--muted-foreground);
+            padding: 2px 7px;
+            flex-shrink: 0;
+        }
+
+        .month-index-btn[hidden] {
+            display: none;
+        }
+
+        .months {
             display: grid;
             gap: 12px;
         }
@@ -403,6 +507,24 @@
 
         .month.open .month-body {
             display: block;
+        }
+
+        .entry-head {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr auto;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            background: color-mix(in oklab, var(--muted) 78%, transparent);
+            color: var(--muted-foreground);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+
+        .entry-head-size {
+            justify-self: end;
         }
 
         .entry {
@@ -579,6 +701,20 @@
             .stats {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
+
+            .archive-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .archive-tools {
+                position: static;
+            }
+
+            .month-index {
+                max-height: none;
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
         }
 
         @media (max-width: 760px) {
@@ -621,6 +757,10 @@
                 font-size: 18px;
             }
 
+            .entry-head {
+                display: none;
+            }
+
             .entry {
                 grid-template-columns: 1fr;
                 gap: 6px;
@@ -631,6 +771,10 @@
             }
 
             .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .month-index {
                 grid-template-columns: 1fr;
             }
 
@@ -711,28 +855,53 @@
         </div>
     </section>
 
-    <section class="months">
-        {{range .Months}}
-        {{- $monthID := printf "month-%s" .YearMonth -}}
-        <article class="month {{if .IsExpanded}}open{{end}}">
-            <button class="month-head" type="button" aria-expanded="{{if .IsExpanded}}true{{else}}false{{end}}" aria-controls="{{$monthID}}">
-                <h2 class="month-name">{{.DisplayName}}</h2>
-                <span class="month-right">
-                    <span class="month-count">{{len .Files}} 条</span>
-                    <span class="caret" aria-hidden="true"></span>
-                </span>
-            </button>
-            <div class="month-body" id="{{$monthID}}">
-                {{range .Files}}
-                <a class="entry {{if .IsLatest}}latest{{end}}" href="{{.Name}}" target="_blank" rel="noopener">
-                    <span class="entry-name">{{.Name}}</span>
-                    <span class="entry-date">{{.DateDisplay}}</span>
-                    <span class="entry-size">{{.SizeDisplay}}</span>
-                </a>
-                {{end}}
+    <section class="archive-layout">
+        <aside class="archive-tools" aria-label="历史筛选与索引">
+            <h2 class="tools-title">快速定位</h2>
+            <div class="history-search-wrap">
+                <input class="history-search-input" id="history-search" type="search" placeholder="搜索文件名、日期">
             </div>
-        </article>
-        {{end}}
+            <div class="history-search-meta" id="history-search-meta">显示 {{.TotalFiles}} / {{.TotalFiles}} 条</div>
+            <nav class="month-index" id="month-index" aria-label="月份索引">
+                {{range .Months}}
+                {{- $monthArticleID := printf "month-group-%s" .YearMonth -}}
+                <button class="month-index-btn" type="button" data-target="{{$monthArticleID}}">
+                    <span>{{.DisplayName}}</span>
+                    <span class="month-index-btn-count">{{len .Files}}</span>
+                </button>
+                {{end}}
+            </nav>
+        </aside>
+
+        <section class="months" id="months-list">
+            {{range .Months}}
+            {{- $monthBodyID := printf "month-body-%s" .YearMonth -}}
+            {{- $monthArticleID := printf "month-group-%s" .YearMonth -}}
+            <article class="month {{if .IsExpanded}}open{{end}}" id="{{$monthArticleID}}" data-display-name="{{.DisplayName}}">
+                <button class="month-head" type="button" aria-expanded="{{if .IsExpanded}}true{{else}}false{{end}}" aria-controls="{{$monthBodyID}}">
+                    <h2 class="month-name">{{.DisplayName}}</h2>
+                    <span class="month-right">
+                        <span class="month-count" data-month-count data-total="{{len .Files}}">{{len .Files}} 条</span>
+                        <span class="caret" aria-hidden="true"></span>
+                    </span>
+                </button>
+                <div class="month-body" id="{{$monthBodyID}}">
+                    <div class="entry-head" aria-hidden="true">
+                        <span>文件名</span>
+                        <span>日期</span>
+                        <span class="entry-head-size">大小</span>
+                    </div>
+                    {{range .Files}}
+                    <a class="entry {{if .IsLatest}}latest{{end}}" href="{{.Name}}" target="_blank" rel="noopener">
+                        <span class="entry-name">{{.Name}}</span>
+                        <span class="entry-date">{{.DateDisplay}}</span>
+                        <span class="entry-size">{{.SizeDisplay}}</span>
+                    </a>
+                    {{end}}
+                </div>
+            </article>
+            {{end}}
+        </section>
     </section>
 
     <footer class="footer">
@@ -756,16 +925,38 @@
 <script>
     (() => {
         const THEME_STORAGE_KEY = "gh-trending-theme";
+        const SEARCH_DEBOUNCE_MS = 120;
         const root = document.documentElement;
         const themeToggle = document.getElementById("theme-toggle");
         const monthsContainer = document.querySelector(".months");
+        const monthIndex = document.getElementById("month-index");
+        const historySearch = document.getElementById("history-search");
+        const historySearchMeta = document.getElementById("history-search-meta");
         const backToTop = document.getElementById("back-to-top");
         const themeMediaQuery = window.matchMedia
             ? window.matchMedia("(prefers-color-scheme: dark)")
             : {matches: false};
         const state = {
-            themeMode: "system"
+            themeMode: "system",
+            searchKeyword: ""
         };
+
+        function normalizeText(value) {
+            return String(value || "").trim().toLowerCase();
+        }
+
+        function createDebounced(fn, waitMs) {
+            let timerId = null;
+            return (...args) => {
+                if (timerId !== null) {
+                    clearTimeout(timerId);
+                }
+                timerId = setTimeout(() => {
+                    timerId = null;
+                    fn(...args);
+                }, waitMs);
+            };
+        }
 
         function loadThemeMode() {
             try {
@@ -822,24 +1013,29 @@
             applyTheme();
         }
 
+        function bindMediaQueryChange(onChange) {
+            if (typeof onChange !== "function") {
+                return;
+            }
+            if (typeof themeMediaQuery.addEventListener === "function") {
+                themeMediaQuery.addEventListener("change", onChange);
+                return;
+            }
+            if (typeof themeMediaQuery.addListener === "function") {
+                themeMediaQuery.addListener(onChange);
+            }
+        }
+
         function bindThemeEvents() {
             if (themeToggle) {
                 themeToggle.addEventListener("click", toggleTheme);
             }
 
-            if (typeof themeMediaQuery.addEventListener === "function") {
-                themeMediaQuery.addEventListener("change", () => {
-                    if (state.themeMode === "system") {
-                        applyTheme();
-                    }
-                });
-            } else if (typeof themeMediaQuery.addListener === "function") {
-                themeMediaQuery.addListener(() => {
-                    if (state.themeMode === "system") {
-                        applyTheme();
-                    }
-                });
-            }
+            bindMediaQueryChange(() => {
+                if (state.themeMode === "system") {
+                    applyTheme();
+                }
+            });
         }
 
         function bindMonthToggles() {
@@ -863,6 +1059,144 @@
             });
         }
 
+        function setMonthExpanded(month, expanded) {
+            month.classList.toggle("open", expanded);
+            const head = month.querySelector(".month-head");
+            if (head) {
+                head.setAttribute("aria-expanded", expanded ? "true" : "false");
+            }
+        }
+
+        function bindArchiveTools() {
+            if (!monthsContainer) {
+                return;
+            }
+
+            const monthRows = Array.from(monthsContainer.querySelectorAll(".month")).map(month => {
+                const entries = Array.from(month.querySelectorAll(".entry"));
+                return {
+                    month,
+                    displayName: normalizeText(
+                        month.dataset.displayName
+                        || month.querySelector(".month-name")?.textContent
+                    ),
+                    entries,
+                    entryTexts: entries.map(entry => normalizeText(entry.textContent)),
+                    total: entries.length,
+                    countNode: month.querySelector("[data-month-count]"),
+                    defaultExpanded: month.classList.contains("open")
+                };
+            });
+            const totalEntries = monthRows.reduce((sum, row) => sum + row.total, 0);
+            const indexButtonMap = new Map(
+                Array.from(monthIndex?.querySelectorAll(".month-index-btn") || [])
+                    .map(button => [button.dataset.target || "", button])
+            );
+
+            function updateSearchMeta(visibleEntries, visibleMonths) {
+                if (!historySearchMeta) {
+                    return;
+                }
+                historySearchMeta.textContent = `显示 ${visibleEntries} / ${totalEntries} 条 · ${visibleMonths} / ${monthRows.length} 个月`;
+            }
+
+            function updateMonthCount(row, visibleCount, queryActive) {
+                if (!row.countNode) {
+                    return;
+                }
+                if (queryActive) {
+                    row.countNode.textContent = `${visibleCount}/${row.total} 条`;
+                    return;
+                }
+                row.countNode.textContent = `${row.total} 条`;
+            }
+
+            function applyFilter() {
+                const query = normalizeText(state.searchKeyword);
+                const queryActive = query !== "";
+                let visibleEntries = 0;
+                let visibleMonths = 0;
+
+                monthRows.forEach(row => {
+                    const matchedByMonth = queryActive && row.displayName.includes(query);
+                    let visibleCount = 0;
+
+                    row.entries.forEach((entry, index) => {
+                        const matched = !queryActive
+                            || matchedByMonth
+                            || row.entryTexts[index].includes(query);
+                        entry.hidden = !matched;
+                        if (matched) {
+                            visibleCount += 1;
+                        }
+                    });
+
+                    const monthVisible = visibleCount > 0;
+                    row.month.hidden = !monthVisible;
+                    if (!monthVisible) {
+                        setMonthExpanded(row.month, false);
+                    } else if (queryActive) {
+                        setMonthExpanded(row.month, true);
+                    } else {
+                        setMonthExpanded(row.month, row.defaultExpanded);
+                    }
+
+                    const indexButton = indexButtonMap.get(row.month.id);
+                    if (indexButton) {
+                        indexButton.hidden = !monthVisible;
+                    }
+
+                    updateMonthCount(row, visibleCount, queryActive);
+                    if (monthVisible) {
+                        visibleMonths += 1;
+                        visibleEntries += visibleCount;
+                    }
+                });
+
+                updateSearchMeta(visibleEntries, visibleMonths);
+            }
+
+            if (historySearch) {
+                const onSearchInput = createDebounced(() => {
+                    applyFilter();
+                }, SEARCH_DEBOUNCE_MS);
+                historySearch.addEventListener("input", event => {
+                    state.searchKeyword = String(event.target.value || "").trim();
+                    onSearchInput();
+                });
+                historySearch.addEventListener("keydown", event => {
+                    if (event.key !== "Escape" || !historySearch.value) {
+                        return;
+                    }
+                    historySearch.value = "";
+                    state.searchKeyword = "";
+                    applyFilter();
+                });
+            }
+
+            if (monthIndex) {
+                monthIndex.addEventListener("click", event => {
+                    const button = event.target.closest(".month-index-btn");
+                    if (!button || !monthIndex.contains(button)) {
+                        return;
+                    }
+                    const targetId = button.dataset.target;
+                    if (!targetId) {
+                        return;
+                    }
+                    const targetMonth = document.getElementById(targetId);
+                    if (!targetMonth || targetMonth.hidden) {
+                        return;
+                    }
+
+                    setMonthExpanded(targetMonth, true);
+                    targetMonth.scrollIntoView({behavior: "smooth", block: "start"});
+                });
+            }
+
+            applyFilter();
+        }
+
         function bindBackToTop() {
             if (!backToTop) {
                 return;
@@ -872,11 +1206,24 @@
                 const visible = window.scrollY > 280;
                 backToTop.classList.toggle("visible", visible);
             };
+            const queueNextFrame = typeof window.requestAnimationFrame === "function"
+                ? window.requestAnimationFrame.bind(window)
+                : callback => setTimeout(callback, 16);
+            let pendingFrame = null;
+            const scheduleVisibilityUpdate = () => {
+                if (pendingFrame !== null) {
+                    return;
+                }
+                pendingFrame = queueNextFrame(() => {
+                    pendingFrame = null;
+                    updateBackToTopVisibility();
+                });
+            };
 
             backToTop.addEventListener("click", () => {
                 window.scrollTo({top: 0, behavior: "smooth"});
             });
-            window.addEventListener("scroll", updateBackToTopVisibility, {passive: true});
+            window.addEventListener("scroll", scheduleVisibilityUpdate, {passive: true});
             updateBackToTopVisibility();
         }
 
@@ -894,6 +1241,7 @@
             state.themeMode = loadThemeMode();
             bindThemeEvents();
             bindMonthToggles();
+            bindArchiveTools();
             bindBackToTop();
             initMonthExpandedState();
             applyTheme();
