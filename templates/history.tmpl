@@ -1,69 +1,298 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trending 历史归档</title>
+    <title>Trending 历史归档 - {{.EndDate}}</title>
+    <script>
+        (() => {
+            const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+            document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
+        })();
+    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap");
 
         :root {
-            --bg: #f6f7fb;
-            --ink: #1d2433;
-            --muted: #5e6572;
-            --line: #d8dce7;
-            --card: #ffffff;
-            --accent: #1976d2;
-            --accent-2: #0a5ea8;
-            --ok: #128a5e;
-            --radius: 16px;
-            --shadow: 0 14px 30px rgba(24, 37, 62, 0.09);
+            --radius: 14px;
+        }
+
+        :root[data-theme="light"] {
+            color-scheme: light;
+            --background: hsl(38 42% 97%);
+            --foreground: hsl(223 29% 14%);
+            --card: hsl(0 0% 100%);
+            --card-foreground: hsl(223 29% 14%);
+            --muted: hsl(33 34% 93%);
+            --muted-foreground: hsl(220 12% 39%);
+            --primary: hsl(213 91% 45%);
+            --primary-foreground: hsl(0 0% 100%);
+            --border: hsl(34 23% 84%);
+            --ring: hsl(213 91% 45%);
+            --shadow: 0 18px 40px rgba(31, 41, 55, 0.1);
+            --hero-glow: radial-gradient(980px 500px at 8% -16%, rgba(42, 124, 236, 0.2), transparent 65%);
+            --hero-glow-2: radial-gradient(900px 480px at 92% -22%, rgba(247, 146, 86, 0.16), transparent 68%);
+            --hero-bg: linear-gradient(136deg, rgba(255, 252, 247, 0.96), rgba(248, 251, 255, 0.93));
+            --hero-bloom: radial-gradient(circle, rgba(42, 124, 236, 0.2), rgba(42, 124, 236, 0));
+            --panel-bg: rgba(255, 255, 255, 0.88);
+            --panel-shadow: 0 10px 24px rgba(31, 46, 63, 0.08);
+            --focus-ring: 0 0 0 3px rgba(42, 124, 236, 0.18);
+            --link-foreground: hsl(212 78% 38%);
+            --link-border: rgba(33, 96, 186, 0.32);
+            --link-border-hover: rgba(33, 96, 186, 0.56);
+            --month-head-bg: linear-gradient(135deg, #ffffff, #f5f9ff);
+            --month-count-bg: hsl(214 57% 94%);
+            --month-count-foreground: hsl(214 44% 35%);
+            --entry-hover: hsl(212 44% 97%);
+            --entry-border: hsl(214 20% 88%);
+            --latest-bg: linear-gradient(90deg, rgba(42, 124, 236, 0.12), rgba(42, 124, 236, 0.04));
+            --latest-badge-bg: hsl(213 91% 45%);
+            --latest-badge-foreground: #fff;
+        }
+
+        :root[data-theme="dark"] {
+            color-scheme: dark;
+            --background: hsl(224 31% 8%);
+            --foreground: hsl(214 32% 93%);
+            --card: hsl(222 26% 13%);
+            --card-foreground: hsl(214 32% 93%);
+            --muted: hsl(223 20% 19%);
+            --muted-foreground: hsl(216 13% 67%);
+            --primary: hsl(209 96% 58%);
+            --primary-foreground: hsl(222 34% 10%);
+            --border: hsl(220 20% 24%);
+            --ring: hsl(209 96% 58%);
+            --shadow: 0 20px 40px rgba(0, 0, 0, 0.38);
+            --hero-glow: radial-gradient(900px 460px at 10% -15%, rgba(47, 141, 235, 0.33), transparent 65%);
+            --hero-glow-2: radial-gradient(880px 440px at 90% -20%, rgba(14, 189, 177, 0.24), transparent 68%);
+            --hero-bg: linear-gradient(132deg, hsl(223 29% 14% / 0.94), hsl(220 31% 11% / 0.92));
+            --hero-bloom: radial-gradient(circle, rgba(14, 189, 177, 0.3), rgba(14, 189, 177, 0));
+            --panel-bg: hsl(223 26% 12% / 0.88);
+            --panel-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+            --focus-ring: 0 0 0 3px rgba(47, 141, 235, 0.24);
+            --link-foreground: hsl(209 85% 67%);
+            --link-border: rgba(79, 159, 235, 0.5);
+            --link-border-hover: rgba(79, 159, 235, 0.75);
+            --month-head-bg: linear-gradient(135deg, hsl(223 26% 14%), hsl(222 29% 12%));
+            --month-count-bg: hsl(216 27% 24%);
+            --month-count-foreground: hsl(210 76% 78%);
+            --entry-hover: hsl(222 20% 16%);
+            --entry-border: hsl(220 17% 24%);
+            --latest-bg: linear-gradient(90deg, rgba(47, 141, 235, 0.2), rgba(47, 141, 235, 0.06));
+            --latest-badge-bg: hsl(209 96% 58%);
+            --latest-badge-foreground: hsl(222 34% 10%);
         }
 
         * {
             box-sizing: border-box;
         }
 
+        html,
         body {
             margin: 0;
+            padding: 0;
+        }
+
+        body {
             font-family: "Noto Sans SC", sans-serif;
-            color: var(--ink);
-            background:
-                radial-gradient(1000px 450px at 100% -20%, rgba(25, 118, 210, 0.16), transparent 65%),
-                radial-gradient(800px 380px at -10% -20%, rgba(18, 138, 94, 0.14), transparent 65%),
-                var(--bg);
+            color: var(--foreground);
+            background: var(--hero-glow), var(--hero-glow-2), var(--background);
+            min-height: 100vh;
         }
 
         .page {
-            max-width: 1080px;
+            width: min(1220px, 100%);
             margin: 0 auto;
-            padding: 24px 16px 48px;
+            padding: 28px 18px 54px;
+        }
+
+        .top-nav {
+            margin-bottom: 14px;
+            background: color-mix(in oklab, var(--muted) 82%, transparent);
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            box-shadow: var(--panel-shadow);
+            padding: 4px 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .nav-menu {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            padding: 0;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .nav-left {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+            flex: 1 1 auto;
+            position: relative;
+        }
+
+        .nav-logo {
+            display: inline-flex;
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: var(--card);
+            flex-shrink: 0;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .nav-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            border: 0;
+            border-radius: 8px;
+            padding: 8px 13px;
+            color: var(--foreground);
+            background: transparent;
+            font-size: 15px;
+            font-weight: 700;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+
+        .nav-link:hover {
+            background: color-mix(in oklab, var(--card) 90%, transparent);
+        }
+
+        .nav-link.active {
+            background: var(--card);
+            color: var(--foreground);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+        }
+
+        .nav-theme {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            background: transparent;
+            border: 0;
+            border-left: 1px solid var(--border);
+            border-radius: 0;
+            padding: 0 0 0 10px;
+            margin-left: auto;
+        }
+
+        .nav-date {
+            font-size: 13px;
+            color: var(--muted-foreground);
+            font-weight: 700;
+        }
+
+        .nav-theme-label {
+            font-size: 13px;
+            color: var(--muted-foreground);
+            font-weight: 700;
+        }
+
+        .theme-toggle {
+            appearance: none;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--foreground);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-1px);
+            border-color: var(--ring);
+            background: var(--muted);
+        }
+
+        .theme-toggle svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .theme-toggle .icon-sun,
+        .theme-toggle .icon-moon {
+            display: none;
+        }
+
+        .theme-toggle[data-active-theme="light"] .icon-sun {
+            display: block;
+        }
+
+        .theme-toggle[data-active-theme="dark"] .icon-moon {
+            display: block;
         }
 
         .hero {
-            background: linear-gradient(140deg, #f9fcff, #f6fffb);
-            border: 1px solid var(--line);
-            border-radius: var(--radius);
-            padding: 24px;
+            background: var(--hero-bg);
+            border: 1px solid var(--border);
+            border-radius: calc(var(--radius) + 6px);
             box-shadow: var(--shadow);
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            right: -130px;
+            top: -120px;
+            width: 290px;
+            height: 290px;
+            border-radius: 50%;
+            background: var(--hero-bloom);
+            pointer-events: none;
         }
 
         .title {
             margin: 0;
             font-family: "Manrope", sans-serif;
-            font-size: clamp(30px, 5vw, 48px);
+            font-size: clamp(30px, 4.8vw, 52px);
+            line-height: 1.05;
             letter-spacing: -0.03em;
-            line-height: 1.02;
         }
 
         .desc {
             margin: 12px 0 0;
-            color: var(--muted);
+            color: var(--muted-foreground);
             font-size: 15px;
         }
 
         .stats {
-            margin-top: 14px;
+            margin-top: 16px;
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 10px;
@@ -71,45 +300,22 @@
 
         .stat {
             border-radius: 12px;
-            border: 1px solid var(--line);
-            background: #fff;
+            border: 1px solid var(--border);
+            background: var(--card);
             padding: 10px;
         }
 
-        .k {
-            color: var(--muted);
+        .stat-k {
+            color: var(--muted-foreground);
             font-size: 12px;
             margin-bottom: 4px;
         }
 
-        .v {
-            font-weight: 700;
+        .stat-v {
             font-size: 14px;
-            word-break: break-word;
-        }
-
-        .topbar {
-            margin-top: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .go-home {
-            text-decoration: none;
-            color: #fff;
-            background: linear-gradient(120deg, var(--accent), var(--accent-2));
-            border-radius: 12px;
-            padding: 10px 14px;
             font-weight: 700;
-            box-shadow: 0 8px 20px rgba(25, 118, 210, 0.26);
-        }
-
-        .stamp {
-            font-size: 12px;
-            color: var(--muted);
+            color: var(--card-foreground);
+            word-break: break-word;
         }
 
         .months {
@@ -119,46 +325,70 @@
         }
 
         .month {
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--panel-bg);
+            box-shadow: var(--panel-shadow);
             overflow: hidden;
-            box-shadow: var(--shadow);
             opacity: 0;
             transform: translateY(8px);
-            animation: reveal 0.42s ease forwards;
+            animation: reveal 0.35s ease forwards;
         }
 
         .month-head {
             width: 100%;
             border: 0;
-            background: linear-gradient(130deg, #fbfdff, #f9fbff);
+            background: var(--month-head-bg);
+            color: var(--foreground);
             padding: 14px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            cursor: pointer;
             text-align: left;
+            cursor: pointer;
+            gap: 10px;
         }
 
         .month-name {
+            margin: 0;
             font-family: "Manrope", sans-serif;
             font-size: 20px;
-            margin: 0;
+            letter-spacing: -0.02em;
+        }
+
+        .month-right {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
         }
 
         .month-count {
             font-size: 12px;
             border-radius: 999px;
-            padding: 4px 10px;
-            border: 1px solid #c8d8eb;
-            color: #255b86;
-            background: #edf6ff;
+            border: 1px solid var(--border);
+            background: var(--month-count-bg);
+            color: var(--month-count-foreground);
+            padding: 3px 8px;
+            font-weight: 700;
+        }
+
+        .caret {
+            width: 8px;
+            height: 8px;
+            border-right: 2px solid var(--muted-foreground);
+            border-bottom: 2px solid var(--muted-foreground);
+            transform: rotate(45deg);
+            transition: transform 0.16s ease;
+        }
+
+        .month.open .caret {
+            transform: rotate(225deg) translate(-2px, -2px);
         }
 
         .month-body {
             display: none;
-            border-top: 1px solid var(--line);
+            border-top: 1px solid var(--border);
         }
 
         .month.open .month-body {
@@ -168,21 +398,21 @@
         .entry {
             display: grid;
             grid-template-columns: 1.5fr 1fr auto;
-            gap: 12px;
             align-items: center;
+            gap: 12px;
             text-decoration: none;
             color: inherit;
             padding: 12px 16px;
-            border-bottom: 1px dashed #e8eaf0;
-            transition: background 0.16s ease;
-        }
-
-        .entry:hover {
-            background: #f8fbff;
+            border-bottom: 1px dashed var(--entry-border);
+            transition: background-color 0.15s ease;
         }
 
         .entry:last-child {
             border-bottom: 0;
+        }
+
+        .entry:hover {
+            background: var(--entry-hover);
         }
 
         .entry-name {
@@ -191,32 +421,97 @@
         }
 
         .entry-date {
-            color: var(--muted);
             font-size: 13px;
+            color: var(--muted-foreground);
         }
 
         .entry-size {
+            justify-self: end;
             font-size: 12px;
-            color: #445f79;
-            border: 1px solid #c9d8e8;
+            border: 1px solid var(--border);
             border-radius: 999px;
             padding: 3px 8px;
-            justify-self: end;
+            color: var(--muted-foreground);
         }
 
         .entry.latest {
-            background: linear-gradient(90deg, rgba(18, 138, 94, 0.1), rgba(18, 138, 94, 0.02));
+            background: var(--latest-bg);
         }
 
         .entry.latest .entry-name::after {
             content: "最新";
             margin-left: 8px;
             font-size: 11px;
-            padding: 2px 8px;
             border-radius: 999px;
-            background: #128a5e;
-            color: #fff;
+            padding: 2px 8px;
+            background: var(--latest-badge-bg);
+            color: var(--latest-badge-foreground);
             vertical-align: middle;
+        }
+
+        .footer {
+            margin-top: 22px;
+            padding: 6px 2px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: var(--muted-foreground);
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .footer-logo {
+            width: 92px;
+            height: 92px;
+            border-radius: 999px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: var(--card);
+            box-shadow: var(--panel-shadow);
+        }
+
+        .footer-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .footer-main {
+            display: inline-flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .footer-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted-foreground);
+            opacity: 0.9;
+        }
+
+        .footer-link {
+            color: var(--link-foreground);
+            text-decoration: none;
+            border-bottom: 1px solid var(--link-border);
+            padding-bottom: 1px;
+        }
+
+        .footer-link:hover {
+            color: var(--primary);
+            border-bottom-color: var(--link-border-hover);
+        }
+
+        .footer-stats {
+            font-size: 12px;
+            color: var(--muted-foreground);
+            opacity: 0.9;
+            letter-spacing: 0.02em;
         }
 
         @keyframes reveal {
@@ -226,13 +521,52 @@
             }
         }
 
-        @media (max-width: 880px) {
+        @media (max-width: 960px) {
             .stats {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
         }
 
-        @media (max-width: 640px) {
+        @media (max-width: 760px) {
+            .nav-left {
+                width: 100%;
+                flex: 1 1 100%;
+                position: static;
+            }
+
+            .nav-menu {
+                width: auto;
+                flex: 1 1 auto;
+                justify-content: center;
+            }
+
+            .nav-logo {
+                position: static;
+                transform: none;
+            }
+
+            .nav-link {
+                text-align: center;
+                flex: 1 1 auto;
+            }
+
+            .nav-theme {
+                width: 100%;
+                margin-left: 0;
+                padding-left: 0;
+                border-left: 0;
+                border-top: 1px solid var(--border);
+                padding-top: 8px;
+            }
+
+            .month-head {
+                padding: 12px;
+            }
+
+            .month-name {
+                font-size: 18px;
+            }
+
             .entry {
                 grid-template-columns: 1fr;
                 gap: 6px;
@@ -245,54 +579,74 @@
             .stats {
                 grid-template-columns: 1fr;
             }
+
+            .footer {
+                justify-content: center;
+                text-align: center;
+            }
         }
 
-        .site-signature {
-            margin-top: 20px;
-            text-align: center;
-            color: #5f6875;
-            font-size: 13px;
-        }
-
-        .site-signature a {
-            color: #1c5f9c;
-            text-decoration: none;
-            border-bottom: 1px solid rgba(28, 95, 156, 0.35);
-            padding-bottom: 1px;
-        }
-
-        .site-signature a:hover {
-            color: #0a5ea8;
-            border-bottom-color: rgba(10, 94, 168, 0.55);
+        @media (max-width: 560px) {
+            .page {
+                padding: 16px 12px 36px;
+            }
         }
     </style>
 </head>
 <body>
 <main class="page">
+    <header class="top-nav" aria-label="主导航">
+        <div class="nav-left">
+            <a class="nav-logo" href="../index.html" aria-label="返回首页">
+                <img src="../templates/logo.png" alt="GitHub Trending Logo">
+            </a>
+            <nav class="nav-menu">
+                <a class="nav-link" href="../index.html">首页</a>
+                <a class="nav-link active" href="history.html">历史归档</a>
+            </nav>
+        </div>
+        <div class="nav-theme">
+            <span class="nav-date">Date: {{.GeneratedAt}}</span>
+            <span class="nav-theme-label">主题</span>
+            <button class="theme-toggle" id="theme-toggle" type="button" aria-label="切换主题">
+                <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="4"></circle>
+                    <path d="M12 2v2"></path>
+                    <path d="M12 20v2"></path>
+                    <path d="m4.93 4.93 1.41 1.41"></path>
+                    <path d="m17.66 17.66 1.41 1.41"></path>
+                    <path d="M2 12h2"></path>
+                    <path d="M20 12h2"></path>
+                    <path d="m6.34 17.66-1.41 1.41"></path>
+                    <path d="m19.07 4.93-1.41 1.41"></path>
+                </svg>
+                <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 3a8.5 8.5 0 1 0 9 9 7 7 0 1 1-9-9z"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
     <section class="hero">
         <h1 class="title">Trending 历史归档</h1>
         <p class="desc">按月查看历史抓取结果，点击文件可直接打开对应日期页面。</p>
         <div class="stats">
             <div class="stat">
-                <div class="k">文件总数</div>
-                <div class="v">{{.TotalFiles}}</div>
+                <div class="stat-k">文件总数</div>
+                <div class="stat-v">{{.TotalFiles}}</div>
             </div>
             <div class="stat">
-                <div class="k">起始日期</div>
-                <div class="v">{{.StartDate}}</div>
+                <div class="stat-k">起始日期</div>
+                <div class="stat-v">{{.StartDate}}</div>
             </div>
             <div class="stat">
-                <div class="k">最近日期</div>
-                <div class="v">{{.EndDate}}</div>
+                <div class="stat-k">最近日期</div>
+                <div class="stat-v">{{.EndDate}}</div>
             </div>
             <div class="stat">
-                <div class="k">最新记录</div>
-                <div class="v">{{.LatestDate}}</div>
+                <div class="stat-k">最新记录</div>
+                <div class="stat-v">{{.LatestDate}}</div>
             </div>
-        </div>
-        <div class="topbar">
-            <a class="go-home" href="../index.html">返回主页</a>
-            <span class="stamp">生成时间：{{.GeneratedAt}}</span>
         </div>
     </section>
 
@@ -301,7 +655,10 @@
         <article class="month {{if .IsExpanded}}open{{end}}">
             <button class="month-head" type="button">
                 <h2 class="month-name">{{.DisplayName}}</h2>
-                <span class="month-count">{{len .Files}} 条</span>
+                <span class="month-right">
+                    <span class="month-count">{{len .Files}} 条</span>
+                    <span class="caret" aria-hidden="true"></span>
+                </span>
             </button>
             <div class="month-body">
                 {{range .Files}}
@@ -316,18 +673,89 @@
         {{end}}
     </section>
 
-    <footer class="site-signature">
-        by <a href="https://github.com/vcvvvc/github_trending" target="_blank" rel="noopener">github.com/vcvvvc/github_trending</a>
+    <footer class="footer">
+        <a class="footer-logo" href="../index.html" aria-label="返回首页">
+            <img src="../templates/logo.png" alt="GitHub Trending Logo">
+        </a>
+        <div class="footer-main">
+            <span class="footer-label">Source</span>
+            <a class="footer-link" href="https://github.com/vcvvvc/github_trending" target="_blank" rel="noopener">github.com/vcvvvc/github_trending</a>
+        </div>
+        <div class="footer-stats">Months: {{len .Months}} · Files: {{.TotalFiles}}</div>
     </footer>
 </main>
 
 <script>
+    const root = document.documentElement;
+    const themeToggle = document.getElementById("theme-toggle");
+    const themeMediaQuery = window.matchMedia
+        ? window.matchMedia("(prefers-color-scheme: dark)")
+        : {matches: false};
+
+    let themeMode = "system";
+
+    function getSystemTheme() {
+        return themeMediaQuery.matches ? "dark" : "light";
+    }
+
+    function getActiveTheme() {
+        if (themeMode === "system") {
+            return getSystemTheme();
+        }
+        return themeMode;
+    }
+
+    function updateThemeToggle(activeTheme) {
+        if (!themeToggle) {
+            return;
+        }
+
+        themeToggle.dataset.activeTheme = activeTheme;
+        const nextTheme = activeTheme === "dark" ? "light" : "dark";
+        const nextThemeText = nextTheme === "dark" ? "深色" : "浅色";
+        const label = `切换到${nextThemeText}主题`;
+        themeToggle.setAttribute("aria-label", label);
+        themeToggle.setAttribute("title", label);
+    }
+
+    function applyTheme() {
+        const activeTheme = getActiveTheme();
+        root.setAttribute("data-theme", activeTheme);
+        updateThemeToggle(activeTheme);
+    }
+
+    function toggleTheme() {
+        const activeTheme = getActiveTheme();
+        themeMode = activeTheme === "dark" ? "light" : "dark";
+        applyTheme();
+    }
+
+    if (themeToggle) {
+        themeToggle.addEventListener("click", toggleTheme);
+    }
+
+    if (typeof themeMediaQuery.addEventListener === "function") {
+        themeMediaQuery.addEventListener("change", () => {
+            if (themeMode === "system") {
+                applyTheme();
+            }
+        });
+    } else if (typeof themeMediaQuery.addListener === "function") {
+        themeMediaQuery.addListener(() => {
+            if (themeMode === "system") {
+                applyTheme();
+            }
+        });
+    }
+
     document.querySelectorAll(".month-head").forEach(head => {
         head.addEventListener("click", () => {
             const month = head.closest(".month");
             month.classList.toggle("open");
         });
     });
+
+    applyTheme();
 </script>
 </body>
 </html>

@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/andygrunwald/go-trending"
@@ -40,6 +41,20 @@ type HomePageData struct {
 	GroupCount int
 	RepoCount  int
 	GroupsJSON template.JS
+}
+
+func countUniqueReposForHome(groups []LanguageGroup) int {
+	seen := make(map[string]struct{})
+	for _, group := range groups {
+		for _, repo := range group.Repos {
+			key := strings.TrimSpace(repo.URL)
+			if key == "" {
+				key = fmt.Sprintf("%s-%d", repo.Name, repo.Stars)
+			}
+			seen[key] = struct{}{}
+		}
+	}
+	return len(seen)
 }
 
 func open(url string) {
@@ -109,7 +124,6 @@ func main() {
 
 	trend := trending.NewTrendingWithClient(client)
 	var groupedItems []LanguageGroup
-	totalRepos := 0
 
 	fetchGroups := []FetchLanguageGroup{
 		{DisplayName: "Trending", QueryTargets: []string{""}},
@@ -151,7 +165,6 @@ func main() {
 					Description: project.Description,
 				}
 				repoByURL[repoURL] = repo
-				totalRepos++
 			}
 			time.Sleep(1 * time.Second)
 		}
@@ -186,7 +199,7 @@ func main() {
 	homeData := HomePageData{
 		Today:      todayStr,
 		GroupCount: len(groupedItems),
-		RepoCount:  totalRepos,
+		RepoCount:  countUniqueReposForHome(groupedItems),
 		GroupsJSON: template.JS(jsonData),
 	}
 
@@ -206,9 +219,9 @@ func main() {
 
 	err = GenerateDailyIndex()
 	if err != nil {
-		fmt.Printf("Error generating daily_trending/index.html: %v\n", err)
+		fmt.Printf("Error generating daily_trending/history.html: %v\n", err)
 	} else {
-		fmt.Println("Daily_trending/index.html updated successfully.")
+		fmt.Println("Daily_trending/history.html updated successfully.")
 	}
 
 	if os.Getenv("GITHUB_ACTIONS") != "true" {

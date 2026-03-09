@@ -135,11 +135,11 @@ func GenerateDailyIndex() error {
 		StartDate:   files[len(files)-1].DateDisplay,
 		EndDate:     files[0].DateDisplay,
 		LatestDate:  files[0].DateDisplay,
-		GeneratedAt: time.Now().Format("2006-01-02 15:04 MST"),
+		GeneratedAt: time.Now().Format("2006-01-02"),
 		Months:      monthGroups,
 	}
 
-	if err := renderTemplateToFile("templates/history.tmpl", data, "daily_trending/index.html"); err != nil {
+	if err := renderTemplateToFile("templates/history.tmpl", data, "daily_trending/history.html"); err != nil {
 		return fmt.Errorf("render archive template: %w", err)
 	}
 	if err := generateSitemap(files); err != nil {

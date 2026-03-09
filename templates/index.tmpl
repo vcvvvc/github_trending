@@ -1,51 +1,141 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Trending Daily</title>
+    <title>GitHub Trending Daily - {{.Today}}</title>
+    <script>
+        (() => {
+            const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+            document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
+        })();
+    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap');
+        @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap");
 
         :root {
-            --bg: #f3efe7;
-            --ink: #1f2522;
-            --panel: #fffaf2;
-            --line: #e0d4c2;
-            --signal: #0a8f6a;
-            --signal-2: #fa7e1e;
-            --muted: #6d726d;
-            --shadow: 0 16px 40px rgba(38, 27, 11, 0.12);
-            --radius: 20px;
+            --radius: 14px;
+        }
+
+        :root[data-theme="light"] {
+            color-scheme: light;
+            --background: hsl(38 42% 97%);
+            --foreground: hsl(223 29% 14%);
+            --card: hsl(0 0% 100%);
+            --card-foreground: hsl(223 29% 14%);
+            --muted: hsl(33 34% 93%);
+            --muted-foreground: hsl(220 12% 39%);
+            --primary: hsl(213 91% 45%);
+            --primary-foreground: hsl(0 0% 100%);
+            --border: hsl(34 23% 84%);
+            --ring: hsl(213 91% 45%);
+            --shadow: 0 18px 40px rgba(31, 41, 55, 0.1);
+            --hero-glow: radial-gradient(980px 500px at 8% -16%, rgba(42, 124, 236, 0.2), transparent 65%);
+            --hero-glow-2: radial-gradient(900px 480px at 92% -22%, rgba(247, 146, 86, 0.16), transparent 68%);
+            --hero-bg: linear-gradient(136deg, rgba(255, 252, 247, 0.96), rgba(248, 251, 255, 0.93));
+            --hero-bloom: radial-gradient(circle, rgba(42, 124, 236, 0.2), rgba(42, 124, 236, 0));
+            --panel-bg: rgba(255, 255, 255, 0.88);
+            --panel-shadow: 0 10px 24px rgba(31, 46, 63, 0.08);
+            --btn-primary-shadow: 0 10px 22px rgba(42, 124, 236, 0.3);
+            --focus-ring: 0 0 0 3px rgba(42, 124, 236, 0.18);
+            --language-hover-border: hsl(214 42% 70%);
+            --language-active-bg: linear-gradient(130deg, hsl(213 92% 47%), hsl(195 88% 42%));
+            --language-active-foreground: #fff;
+            --language-active-shadow: 0 10px 22px rgba(42, 124, 236, 0.28);
+            --language-count-bg: rgba(255, 255, 255, 0.76);
+            --language-count-foreground: hsl(220 18% 29%);
+            --language-count-active-bg: rgba(255, 255, 255, 0.2);
+            --language-count-active-foreground: #fff;
+            --repo-bg: linear-gradient(155deg, #ffffff, #f9fbff);
+            --repo-hover-border: hsl(214 45% 72%);
+            --repo-hover-shadow: 0 11px 24px rgba(31, 46, 63, 0.14);
+            --star-bg: hsl(49 100% 92%);
+            --star-border: hsl(40 78% 78%);
+            --star-foreground: hsl(26 92% 24%);
+            --repo-desc: hsl(220 14% 35%);
+            --tag-foreground: hsl(220 14% 30%);
+            --empty-border: hsl(34 26% 78%);
+            --empty-bg: hsl(36 44% 97%);
+            --empty-foreground: hsl(220 10% 42%);
+            --link-foreground: hsl(212 78% 38%);
+            --link-border: rgba(33, 96, 186, 0.32);
+            --link-border-hover: rgba(33, 96, 186, 0.56);
+        }
+
+        :root[data-theme="dark"] {
+            color-scheme: dark;
+            --background: hsl(224 31% 8%);
+            --foreground: hsl(214 32% 93%);
+            --card: hsl(222 26% 13%);
+            --card-foreground: hsl(214 32% 93%);
+            --muted: hsl(223 20% 19%);
+            --muted-foreground: hsl(216 13% 67%);
+            --primary: hsl(209 96% 58%);
+            --primary-foreground: hsl(222 34% 10%);
+            --border: hsl(220 20% 24%);
+            --ring: hsl(209 96% 58%);
+            --shadow: 0 20px 40px rgba(0, 0, 0, 0.38);
+            --hero-glow: radial-gradient(900px 460px at 10% -15%, rgba(47, 141, 235, 0.33), transparent 65%);
+            --hero-glow-2: radial-gradient(880px 440px at 90% -20%, rgba(14, 189, 177, 0.24), transparent 68%);
+            --hero-bg: linear-gradient(132deg, hsl(223 29% 14% / 0.94), hsl(220 31% 11% / 0.92));
+            --hero-bloom: radial-gradient(circle, rgba(14, 189, 177, 0.3), rgba(14, 189, 177, 0));
+            --panel-bg: hsl(223 26% 12% / 0.88);
+            --panel-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+            --btn-primary-shadow: 0 10px 22px rgba(47, 141, 235, 0.35);
+            --focus-ring: 0 0 0 3px rgba(47, 141, 235, 0.24);
+            --language-hover-border: hsl(209 62% 58%);
+            --language-active-bg: linear-gradient(130deg, hsl(210 98% 43%), hsl(192 95% 37%));
+            --language-active-foreground: hsl(222 34% 10%);
+            --language-active-shadow: 0 10px 22px rgba(47, 141, 235, 0.32);
+            --language-count-bg: hsl(224 18% 22%);
+            --language-count-foreground: hsl(214 30% 86%);
+            --language-count-active-bg: hsl(222 34% 10% / 0.2);
+            --language-count-active-foreground: hsl(222 34% 10%);
+            --repo-bg: linear-gradient(155deg, hsl(224 25% 14%), hsl(222 28% 12%));
+            --repo-hover-border: hsl(209 60% 55%);
+            --repo-hover-shadow: 0 12px 24px rgba(0, 0, 0, 0.34);
+            --star-bg: hsl(43 42% 18%);
+            --star-border: hsl(43 45% 35%);
+            --star-foreground: hsl(48 98% 76%);
+            --repo-desc: hsl(216 14% 74%);
+            --tag-foreground: hsl(213 24% 84%);
+            --empty-border: hsl(222 14% 34%);
+            --empty-bg: hsl(223 25% 12%);
+            --empty-foreground: hsl(216 12% 68%);
+            --link-foreground: hsl(209 85% 67%);
+            --link-border: rgba(79, 159, 235, 0.5);
+            --link-border-hover: rgba(79, 159, 235, 0.75);
         }
 
         * {
             box-sizing: border-box;
         }
 
+        html,
         body {
             margin: 0;
+            padding: 0;
+        }
+
+        body {
             font-family: "Noto Sans SC", sans-serif;
-            background:
-                radial-gradient(1200px 500px at 5% -10%, rgba(10, 143, 106, 0.18), transparent 60%),
-                radial-gradient(1200px 500px at 95% -15%, rgba(250, 126, 30, 0.17), transparent 65%),
-                var(--bg);
-            color: var(--ink);
+            color: var(--foreground);
+            background: var(--hero-glow), var(--hero-glow-2), var(--background);
             min-height: 100vh;
         }
 
-        .shell {
-            max-width: 1180px;
+        .page {
+            width: min(1220px, 100%);
             margin: 0 auto;
-            padding: 28px 18px 56px;
+            padding: 28px 18px 54px;
         }
 
         .hero {
-            border: 1px solid var(--line);
-            border-radius: var(--radius);
-            padding: 26px;
-            background: linear-gradient(145deg, #fff7eb, #f6fffb);
+            background: var(--hero-bg);
+            border: 1px solid var(--border);
+            border-radius: calc(var(--radius) + 6px);
             box-shadow: var(--shadow);
+            padding: 28px;
             position: relative;
             overflow: hidden;
         }
@@ -53,254 +143,870 @@
         .hero::after {
             content: "";
             position: absolute;
-            right: -90px;
-            top: -80px;
-            width: 260px;
-            height: 260px;
+            right: -130px;
+            top: -120px;
+            width: 290px;
+            height: 290px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(10, 143, 106, 0.2), rgba(10, 143, 106, 0));
+            background: var(--hero-bloom);
             pointer-events: none;
         }
 
-        .title {
+        .brand {
             margin: 0;
-            font-family: "Space Grotesk", sans-serif;
-            font-size: clamp(32px, 6vw, 56px);
-            line-height: 1.05;
-            letter-spacing: -0.03em;
+            font-family: "Manrope", sans-serif;
+            font-size: clamp(33px, 5.7vw, 58px);
+            line-height: 1;
+            letter-spacing: -0.04em;
         }
 
-        .subtitle {
+        .hero-subtitle {
             margin: 14px 0 0;
-            color: var(--muted);
-            font-size: 16px;
+            color: var(--muted-foreground);
+            font-size: 15px;
         }
 
-        .meta {
-            margin-top: 18px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .pill {
-            border: 1px solid var(--line);
-            border-radius: 999px;
-            padding: 7px 14px;
-            background: #fff;
-            font-size: 13px;
-            color: #303735;
-        }
-
-        .quick {
-            margin-top: 16px;
-            display: inline-flex;
-            gap: 8px;
-            align-items: center;
-            color: #fff;
-            background: linear-gradient(120deg, #0a8f6a, #1aa780);
+        .btn {
+            border: 1px solid transparent;
+            border-radius: 12px;
             text-decoration: none;
-            border-radius: 14px;
-            padding: 10px 14px;
             font-weight: 700;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            box-shadow: 0 8px 20px rgba(10, 143, 106, 0.26);
+            font-size: 14px;
+            line-height: 1;
+            padding: 11px 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
         }
 
-        .quick:hover {
+        .btn:hover {
             transform: translateY(-1px);
-            box-shadow: 0 12px 24px rgba(10, 143, 106, 0.32);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--primary-foreground);
+            box-shadow: var(--btn-primary-shadow);
+        }
+
+        .btn-secondary {
+            background: var(--card);
+            border-color: var(--border);
+            color: var(--foreground);
+        }
+
+        .theme-toggle {
+            appearance: none;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--foreground);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-1px);
+            border-color: var(--language-hover-border);
+            background: var(--muted);
+        }
+
+        .theme-toggle svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .theme-toggle .icon-sun,
+        .theme-toggle .icon-moon {
+            display: none;
+        }
+
+        .theme-toggle[data-active-theme="light"] .icon-sun {
+            display: block;
+        }
+
+        .theme-toggle[data-active-theme="dark"] .icon-moon {
+            display: block;
+        }
+
+        .top-nav {
+            margin-bottom: 14px;
+            background: color-mix(in oklab, var(--muted) 82%, transparent);
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            box-shadow: var(--panel-shadow);
+            padding: 4px 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .nav-menu {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            padding: 0;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .nav-left {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+            flex: 1 1 auto;
+            position: relative;
+        }
+
+        .nav-logo {
+            display: inline-flex;
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: var(--card);
+            flex-shrink: 0;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .nav-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            border: 0;
+            border-radius: 8px;
+            padding: 8px 13px;
+            color: var(--foreground);
+            background: transparent;
+            font-size: 15px;
+            font-weight: 700;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+
+        .nav-link:hover {
+            background: color-mix(in oklab, var(--card) 90%, transparent);
+        }
+
+        .nav-link.active {
+            background: var(--card);
+            color: var(--foreground);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+        }
+
+        .nav-theme {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            background: transparent;
+            border: 0;
+            border-left: 1px solid var(--border);
+            border-radius: 0;
+            padding: 0 0 0 10px;
+            margin-left: auto;
+        }
+
+        .nav-date {
+            font-size: 13px;
+            color: var(--muted-foreground);
+            font-weight: 700;
+        }
+
+        .nav-theme-label {
+            font-size: 13px;
+            color: var(--muted-foreground);
+            font-weight: 700;
+        }
+
+        .layout {
+            margin-top: 18px;
+            display: grid;
+            grid-template-columns: 290px minmax(0, 1fr);
+            gap: 14px;
+            align-items: start;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--panel-shadow);
+            padding: 14px;
+            backdrop-filter: blur(8px);
+        }
+
+        .side-panel {
+            position: sticky;
+            top: 14px;
         }
 
         .section-title {
-            margin: 28px 0 12px;
-            font-family: "Space Grotesk", sans-serif;
-            font-size: 20px;
+            margin: 0;
+            font-size: 13px;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            font-weight: 700;
+        }
+
+        .group-value {
+            margin: 8px 0 12px;
+            font-family: "Manrope", sans-serif;
+            font-size: 24px;
+            line-height: 1;
             letter-spacing: -0.02em;
         }
 
-        .language-bar {
+        .search-wrap {
+            margin-top: 12px;
+            position: relative;
+        }
+
+        .input {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            background: var(--card);
+            color: var(--card-foreground);
+            padding: 10px 12px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .input:focus {
+            border-color: var(--ring);
+            box-shadow: var(--focus-ring);
+        }
+
+        .language-list {
+            margin-top: 12px;
             display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding-bottom: 8px;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .language-btn {
-            border: 1px solid #d6cab8;
-            background: #fff;
-            border-radius: 12px;
-            padding: 10px 14px;
-            white-space: nowrap;
-            font-size: 14px;
-            color: #3b403d;
+            appearance: none;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--foreground);
+            border-radius: 10px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
             cursor: pointer;
-            transition: all 0.18s ease;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+            text-align: left;
         }
 
         .language-btn:hover {
-            border-color: #b6a89a;
             transform: translateY(-1px);
+            border-color: var(--language-hover-border);
         }
 
         .language-btn.active {
-            background: linear-gradient(120deg, #fa7e1e, #ef6b00);
-            color: #fff;
+            background: var(--language-active-bg);
             border-color: transparent;
-            box-shadow: 0 8px 18px rgba(250, 126, 30, 0.3);
+            color: var(--language-active-foreground);
+            box-shadow: var(--language-active-shadow);
         }
 
-        .cards {
-            margin-top: 12px;
+        .language-btn .count {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: var(--language-count-bg);
+            color: var(--language-count-foreground);
+        }
+
+        .language-btn.active .count {
+            background: var(--language-count-active-bg);
+            color: var(--language-count-active-foreground);
+        }
+
+        .repos-header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .repos-title {
+            margin: 0;
+            font-family: "Manrope", sans-serif;
+            font-size: 22px;
+            letter-spacing: -0.02em;
+        }
+
+        .repos-meta {
+            color: var(--muted-foreground);
+            font-size: 13px;
+        }
+
+        .repos-tools {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .sort-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--muted-foreground);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .sort-select {
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--foreground);
+            border-radius: 8px;
+            padding: 6px 8px;
+            font-size: 12px;
+            font-weight: 700;
+            outline: none;
+        }
+
+        .sort-select:focus {
+            border-color: var(--ring);
+            box-shadow: var(--focus-ring);
+        }
+
+        .repo-grid {
+            margin-top: 14px;
             display: grid;
-            grid-template-columns: repeat(12, 1fr);
+            grid-template-columns: repeat(12, minmax(0, 1fr));
             gap: 12px;
         }
 
         .repo-card {
             grid-column: span 6;
-            border: 1px solid var(--line);
-            background: var(--panel);
-            border-radius: 14px;
-            padding: 14px;
             text-decoration: none;
             color: inherit;
-            box-shadow: 0 6px 14px rgba(40, 28, 14, 0.08);
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background: var(--repo-bg);
+            padding: 14px;
+            transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+            animation: float-up 0.33s ease forwards;
             opacity: 0;
-            transform: translateY(10px);
-            animation: rise 0.42s ease forwards;
-            transition: transform 0.16s ease, box-shadow 0.16s ease;
+            transform: translateY(8px);
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .repo-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 22px rgba(20, 16, 10, 0.16);
+            border-color: var(--repo-hover-border);
+            box-shadow: var(--repo-hover-shadow);
         }
 
         .repo-head {
             display: flex;
-            justify-content: space-between;
-            gap: 10px;
             align-items: flex-start;
+            justify-content: space-between;
+            gap: 8px;
         }
 
         .repo-name {
             margin: 0;
-            font-family: "Space Grotesk", sans-serif;
             font-size: 18px;
-            color: #0f4436;
+            font-family: "Manrope", sans-serif;
+            line-height: 1.2;
             letter-spacing: -0.01em;
             word-break: break-word;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .repo-stars {
+        .repo-rank {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 30px;
+            height: 28px;
+            padding: 0 8px;
             border-radius: 999px;
-            border: 1px solid #ffcc9f;
-            background: #fff3e5;
+            border: 1px solid var(--border);
+            background: var(--muted);
+            color: var(--tag-foreground);
             font-size: 12px;
-            color: #8f4c08;
-            padding: 4px 8px;
+            font-weight: 800;
             flex-shrink: 0;
+            letter-spacing: 0.04em;
+        }
+
+        .repo-rank.top {
+            background: var(--primary);
+            color: var(--primary-foreground);
+            border-color: transparent;
+        }
+
+        .star {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: var(--star-bg);
+            border: 1px solid var(--star-border);
+            color: var(--star-foreground);
+            flex-shrink: 0;
+            font-weight: 700;
         }
 
         .repo-desc {
-            margin: 10px 0 0;
-            color: #4a4f4c;
+            margin: 0;
+            color: var(--repo-desc);
             font-size: 14px;
             line-height: 1.45;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .repo-foot {
-            margin-top: 10px;
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
             font-size: 12px;
-            color: #6a6f6c;
+            color: var(--muted-foreground);
+        }
+
+        .tag {
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--muted);
+            color: var(--tag-foreground);
+            padding: 3px 8px;
+            font-weight: 600;
         }
 
         .empty {
-            border: 1px dashed #ccb79e;
-            border-radius: 14px;
-            padding: 26px;
+            border: 1px dashed var(--empty-border);
+            background: var(--empty-bg);
+            border-radius: 13px;
+            padding: 30px 16px;
             text-align: center;
-            color: #6f6f6f;
-            background: rgba(255, 255, 255, 0.7);
+            color: var(--empty-foreground);
+            font-size: 14px;
+            grid-column: span 12;
         }
 
-        @keyframes rise {
+        .footer {
+            margin-top: 22px;
+            padding: 6px 2px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            color: var(--muted-foreground);
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .footer-logo {
+            width: 92px;
+            height: 92px;
+            border-radius: 999px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: var(--card);
+            box-shadow: var(--panel-shadow);
+        }
+
+        .footer-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .footer-main {
+            display: inline-flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .footer-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted-foreground);
+            opacity: 0.9;
+        }
+
+        .footer-link {
+            color: var(--link-foreground);
+            text-decoration: none;
+            border-bottom: 1px solid var(--link-border);
+            padding-bottom: 1px;
+        }
+
+        .footer-link:hover {
+            color: var(--primary);
+            border-bottom-color: var(--link-border-hover);
+        }
+
+        .footer-stats {
+            font-size: 12px;
+            color: var(--muted-foreground);
+            opacity: 0.9;
+            letter-spacing: 0.02em;
+        }
+
+        @keyframes float-up {
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
 
-        @media (max-width: 900px) {
+        @media (max-width: 960px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .side-panel {
+                position: static;
+            }
+
+            .language-list {
+                flex-direction: row;
+                overflow-x: auto;
+                padding-bottom: 8px;
+            }
+
+            .language-btn {
+                min-width: 186px;
+                flex-shrink: 0;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .nav-left {
+                width: 100%;
+                flex: 1 1 100%;
+                position: static;
+            }
+
+            .nav-menu {
+                width: auto;
+                flex: 1 1 auto;
+                justify-content: center;
+            }
+
+            .nav-logo {
+                position: static;
+                transform: none;
+            }
+
+            .nav-link {
+                text-align: center;
+                flex: 1 1 auto;
+            }
+
+            .nav-theme {
+                width: 100%;
+                margin-left: 0;
+                padding-left: 0;
+                border-left: 0;
+                border-top: 1px solid var(--border);
+                padding-top: 8px;
+            }
+
+            .footer {
+                justify-content: center;
+                text-align: center;
+            }
+
             .repo-card {
                 grid-column: span 12;
             }
 
-            .title {
-                font-size: clamp(28px, 7vw, 42px);
+            .brand {
+                font-size: clamp(29px, 10vw, 44px);
+            }
+
+            .hero {
+                padding: 20px;
             }
         }
 
-        .site-signature {
-            margin-top: 26px;
-            text-align: center;
-            color: #5f655f;
-            font-size: 13px;
-        }
-
-        .site-signature a {
-            color: #0f5d4a;
-            text-decoration: none;
-            border-bottom: 1px solid rgba(15, 93, 74, 0.35);
-            padding-bottom: 1px;
-        }
-
-        .site-signature a:hover {
-            color: #0a8f6a;
-            border-bottom-color: rgba(10, 143, 106, 0.55);
+        @media (max-width: 560px) {
+            .page {
+                padding: 16px 12px 36px;
+            }
         }
     </style>
 </head>
 <body>
-<main class="shell">
-    <section class="hero">
-        <h1 class="title">GitHub Trending<br>Daily Feed</h1>
-        <p class="subtitle">每日抓取热门仓库，按语言快速浏览并可跳转历史记录。</p>
-        <div class="meta">
-            <span class="pill">日期：{{.Today}}</span>
-            <span class="pill">语言分组：{{.GroupCount}}</span>
-            <span class="pill">仓库总数：{{.RepoCount}}</span>
+<main class="page">
+    <header class="top-nav" aria-label="主导航">
+        <div class="nav-left">
+            <a class="nav-logo" href="index.html" aria-label="返回首页">
+                <img src="templates/logo.png" alt="GitHub Trending Logo">
+            </a>
+            <nav class="nav-menu">
+                <a class="nav-link active" href="index.html">首页</a>
+                <a class="nav-link" href="daily_trending/history.html">历史归档</a>
+            </nav>
         </div>
-        <a class="quick" href="daily_trending/index.html">查看历史归档</a>
+        <div class="nav-theme">
+            <span class="nav-date">Date: {{.Today}}</span>
+            <span class="nav-theme-label">主题</span>
+            <button class="theme-toggle" id="theme-toggle" type="button" aria-label="切换主题">
+                <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="4"></circle>
+                    <path d="M12 2v2"></path>
+                    <path d="M12 20v2"></path>
+                    <path d="m4.93 4.93 1.41 1.41"></path>
+                    <path d="m17.66 17.66 1.41 1.41"></path>
+                    <path d="M2 12h2"></path>
+                    <path d="M20 12h2"></path>
+                    <path d="m6.34 17.66-1.41 1.41"></path>
+                    <path d="m19.07 4.93-1.41 1.41"></path>
+                </svg>
+                <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 3a8.5 8.5 0 1 0 9 9 7 7 0 1 1-9-9z"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1 class="brand">GitHub Trending Daily</h1>
+        <p class="hero-subtitle">每天自动抓取热门仓库，按语言分组，主页看今天，历史页查过往。</p>
     </section>
 
-    <h2 class="section-title">语言切换</h2>
-    <div class="language-bar" id="language-bar"></div>
+    <section class="layout">
+        <aside class="panel side-panel">
+            <h2 class="section-title">Language Filter</h2>
+            <div class="group-value" id="active-language">-</div>
+            <div class="search-wrap">
+                <input class="input" id="search-input" type="search" placeholder="搜索仓库名、描述或语言">
+            </div>
+            <div class="language-list" id="language-list"></div>
+        </aside>
 
-    <h2 class="section-title">今日仓库</h2>
-    <div class="cards" id="repo-cards"></div>
+        <section class="panel">
+            <div class="repos-header">
+                <h2 class="repos-title" id="repos-title">今日仓库</h2>
+                <div class="repos-tools">
+                    <label class="sort-wrap" for="sort-select">
+                        Sort
+                        <select class="sort-select" id="sort-select">
+                            <option value="default">Default</option>
+                            <option value="stars_desc">Star</option>
+                            <option value="name_asc">Name</option>
+                        </select>
+                    </label>
+                    <span class="repos-meta" id="repos-meta">0 items</span>
+                </div>
+            </div>
+            <div class="repo-grid" id="repo-grid"></div>
+        </section>
+    </section>
 
-    <footer class="site-signature">
-        by <a href="https://github.com/vcvvvc/github_trending" target="_blank" rel="noopener">github.com/vcvvvc/github_trending</a>
+    <footer class="footer">
+        <a class="footer-logo" href="index.html" aria-label="返回首页">
+            <img src="templates/logo.png" alt="GitHub Trending Logo">
+        </a>
+        <div class="footer-main">
+            <span class="footer-label">Source</span>
+            <a class="footer-link" href="https://github.com/vcvvvc/github_trending" target="_blank" rel="noopener">github.com/vcvvvc/github_trending</a>
+        </div>
+        <div class="footer-stats">Groups: {{.GroupCount}} · Repositories: {{.RepoCount}}</div>
     </footer>
 </main>
 
 <script>
     const groups = {{.GroupsJSON}};
-    const languageBar = document.getElementById("language-bar");
-    const repoCards = document.getElementById("repo-cards");
-    let active = 0;
+    const viewGroups = buildViewGroups(groups);
+
+    const root = document.documentElement;
+    const themeToggle = document.getElementById("theme-toggle");
+    const themeMediaQuery = window.matchMedia
+        ? window.matchMedia("(prefers-color-scheme: dark)")
+        : {matches: false};
+    const languageList = document.getElementById("language-list");
+    const repoGrid = document.getElementById("repo-grid");
+    const reposMeta = document.getElementById("repos-meta");
+    const reposTitle = document.getElementById("repos-title");
+    const sortSelect = document.getElementById("sort-select");
+    const activeLanguage = document.getElementById("active-language");
+    const searchInput = document.getElementById("search-input");
+
+    let themeMode = "system";
+    let activeIndex = 0;
+    let keyword = "";
+    let sortMode = "default";
+
+    function getSystemTheme() {
+        return themeMediaQuery.matches ? "dark" : "light";
+    }
+
+    function getActiveTheme() {
+        if (themeMode === "system") {
+            return getSystemTheme();
+        }
+        return themeMode;
+    }
+
+    function updateThemeToggle(activeTheme) {
+        if (!themeToggle) {
+            return;
+        }
+
+        themeToggle.dataset.activeTheme = activeTheme;
+        const nextTheme = activeTheme === "dark" ? "light" : "dark";
+        const nextThemeText = nextTheme === "dark" ? "深色" : "浅色";
+        const label = `切换到${nextThemeText}主题`;
+        themeToggle.setAttribute("aria-label", label);
+        themeToggle.setAttribute("title", label);
+    }
+
+    function applyTheme() {
+        const activeTheme = getActiveTheme();
+        root.setAttribute("data-theme", activeTheme);
+        updateThemeToggle(activeTheme);
+    }
+
+    function toggleTheme() {
+        const activeTheme = getActiveTheme();
+        themeMode = activeTheme === "dark" ? "light" : "dark";
+        applyTheme();
+    }
+
+    function buildViewGroups(sourceGroups) {
+        if (!Array.isArray(sourceGroups) || sourceGroups.length === 0) {
+            return [];
+        }
+
+        const uniqueByUrl = new Map();
+        sourceGroups.forEach(group => {
+            const repos = Array.isArray(group?.Repos) ? group.Repos : [];
+            repos.forEach(repo => {
+                const key = String(repo?.URL || "").trim() || `${repo?.Name || "repo"}-${repo?.Stars || 0}`;
+                if (!uniqueByUrl.has(key)) {
+                    uniqueByUrl.set(key, repo);
+                }
+            });
+        });
+
+        const allRepos = Array.from(uniqueByUrl.values());
+        return [{ GroupName: "ALL", Repos: allRepos }, ...sourceGroups];
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll("\"", "&quot;")
+            .replaceAll("'", "&#39;");
+    }
+
+    function safeRepoUrl(value) {
+        try {
+            const parsed = new URL(String(value));
+            if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+                return parsed.href;
+            }
+        } catch (_error) {
+        }
+        return "#";
+    }
+
+    function filterRepos(repos) {
+        if (!keyword) {
+            return repos;
+        }
+        const q = keyword.toLowerCase();
+        return repos.filter(repo => {
+            const name = String(repo.Name || "").toLowerCase();
+            const desc = String(repo.Description || "").toLowerCase();
+            const lang = String(repo.Language || "").toLowerCase();
+            return name.includes(q) || desc.includes(q) || lang.includes(q);
+        });
+    }
+
+    function sortRepos(repos) {
+        const sorted = [...repos];
+        if (sortMode === "name_asc") {
+            sorted.sort((a, b) => String(a?.Name || "").localeCompare(String(b?.Name || ""), "en", {sensitivity: "base"}));
+            return sorted;
+        }
+        if (sortMode === "stars_desc") {
+            sorted.sort((a, b) => Number(b?.Stars || 0) - Number(a?.Stars || 0));
+        }
+        return sorted;
+    }
 
     function renderLanguages() {
-        languageBar.innerHTML = groups.map((group, index) => {
-            const activeClass = index === active ? "active" : "";
-            return `<button class="language-btn ${activeClass}" data-index="${index}">${group.GroupName} (${group.Repos.length})</button>`;
+        if (!Array.isArray(viewGroups) || viewGroups.length === 0) {
+            languageList.innerHTML = "<div class=\"empty\">没有可显示的语言分组。</div>";
+            activeLanguage.textContent = "-";
+            return;
+        }
+
+        languageList.innerHTML = viewGroups.map((group, index) => {
+            const isActive = index === activeIndex;
+            return `
+                <button class="language-btn ${isActive ? "active" : ""}" type="button" data-index="${index}">
+                    <span>${escapeHtml(group.GroupName || "Unknown")}</span>
+                    <span class="count">${Number(group.Repos?.length || 0)}</span>
+                </button>
+            `;
         }).join("");
 
-        languageBar.querySelectorAll(".language-btn").forEach(btn => {
-            btn.addEventListener("click", () => {
-                active = Number(btn.dataset.index);
+        languageList.querySelectorAll(".language-btn").forEach(button => {
+            button.addEventListener("click", () => {
+                activeIndex = Number(button.dataset.index);
                 renderLanguages();
                 renderRepos();
             });
@@ -308,28 +1014,87 @@
     }
 
     function renderRepos() {
-        const repos = groups[active]?.Repos || [];
-        if (!repos.length) {
-            repoCards.innerHTML = `<div class="empty">该分组暂无仓库。</div>`;
+        if (!Array.isArray(viewGroups) || viewGroups.length === 0) {
+            repoGrid.innerHTML = "<div class=\"empty\">未抓取到仓库数据。</div>";
+            reposMeta.textContent = "0 items";
+            reposTitle.textContent = "今日仓库";
             return;
         }
 
-        repoCards.innerHTML = repos.map((repo, idx) => {
-            const desc = repo.Description || "暂无描述";
-            const lang = repo.Language || groups[active].GroupName;
+        const currentGroup = viewGroups[activeIndex] || viewGroups[0];
+        const groupName = currentGroup.GroupName || "Unknown";
+        const repos = Array.isArray(currentGroup.Repos) ? currentGroup.Repos : [];
+        const filtered = filterRepos(repos);
+        const sorted = sortRepos(filtered);
+
+        activeLanguage.textContent = groupName;
+        reposTitle.textContent = `${groupName} Trending`;
+        reposMeta.textContent = `${sorted.length} / ${repos.length} items`;
+
+        if (sorted.length === 0) {
+            repoGrid.innerHTML = "<div class=\"empty\">当前过滤条件下没有结果。</div>";
+            return;
+        }
+
+        repoGrid.innerHTML = sorted.map((repo, idx) => {
+            const name = escapeHtml(repo.Name || "Unnamed repository");
+            const description = escapeHtml(repo.Description || "No description.");
+            const language = escapeHtml(repo.Language || groupName);
+            const stars = Number(repo.Stars || 0).toLocaleString();
+            const url = safeRepoUrl(repo.URL);
+            const rankClass = idx < 3 ? "repo-rank top" : "repo-rank";
+            const rankText = String(idx + 1).padStart(2, "0");
+
             return `
-                <a class="repo-card" href="${repo.URL}" target="_blank" rel="noopener" style="animation-delay:${idx * 0.03}s">
+                <a class="repo-card" href="${url}" target="_blank" rel="noopener" style="animation-delay:${idx * 0.025}s">
                     <div class="repo-head">
-                        <h3 class="repo-name">${repo.Name}</h3>
-                        <span class="repo-stars">★ ${Number(repo.Stars).toLocaleString()}</span>
+                        <h3 class="repo-name"><span class="${rankClass}">${rankText}</span><span>${name}</span></h3>
+                        <span class="star">★ ${stars}</span>
                     </div>
-                    <p class="repo-desc">${desc}</p>
-                    <div class="repo-foot">Language: ${lang}</div>
+                    <p class="repo-desc">${description}</p>
+                    <div class="repo-foot">
+                        <span class="tag">${language}</span>
+                    </div>
                 </a>
             `;
         }).join("");
     }
 
+    searchInput.addEventListener("input", (event) => {
+        keyword = String(event.target.value || "").trim();
+        renderRepos();
+    });
+
+    if (sortSelect) {
+        sortSelect.addEventListener("change", (event) => {
+            const mode = String(event.target.value || "default");
+            if (mode !== "default" && mode !== "stars_desc" && mode !== "name_asc") {
+                return;
+            }
+            sortMode = mode;
+            renderRepos();
+        });
+    }
+
+    if (themeToggle) {
+        themeToggle.addEventListener("click", toggleTheme);
+    }
+
+    if (typeof themeMediaQuery.addEventListener === "function") {
+        themeMediaQuery.addEventListener("change", () => {
+            if (themeMode === "system") {
+                applyTheme();
+            }
+        });
+    } else if (typeof themeMediaQuery.addListener === "function") {
+        themeMediaQuery.addListener(() => {
+            if (themeMode === "system") {
+                applyTheme();
+            }
+        });
+    }
+
+    applyTheme();
     renderLanguages();
     renderRepos();
 </script>

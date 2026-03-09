@@ -1,51 +1,141 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Trending Daily</title>
+    <title>GitHub Trending Daily - 2026-03-09</title>
+    <script>
+        (() => {
+            const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+            document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
+        })();
+    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap');
+        @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap");
 
         :root {
-            --bg: #f3efe7;
-            --ink: #1f2522;
-            --panel: #fffaf2;
-            --line: #e0d4c2;
-            --signal: #0a8f6a;
-            --signal-2: #fa7e1e;
-            --muted: #6d726d;
-            --shadow: 0 16px 40px rgba(38, 27, 11, 0.12);
-            --radius: 20px;
+            --radius: 14px;
+        }
+
+        :root[data-theme="light"] {
+            color-scheme: light;
+            --background: hsl(38 42% 97%);
+            --foreground: hsl(223 29% 14%);
+            --card: hsl(0 0% 100%);
+            --card-foreground: hsl(223 29% 14%);
+            --muted: hsl(33 34% 93%);
+            --muted-foreground: hsl(220 12% 39%);
+            --primary: hsl(213 91% 45%);
+            --primary-foreground: hsl(0 0% 100%);
+            --border: hsl(34 23% 84%);
+            --ring: hsl(213 91% 45%);
+            --shadow: 0 18px 40px rgba(31, 41, 55, 0.1);
+            --hero-glow: radial-gradient(980px 500px at 8% -16%, rgba(42, 124, 236, 0.2), transparent 65%);
+            --hero-glow-2: radial-gradient(900px 480px at 92% -22%, rgba(247, 146, 86, 0.16), transparent 68%);
+            --hero-bg: linear-gradient(136deg, rgba(255, 252, 247, 0.96), rgba(248, 251, 255, 0.93));
+            --hero-bloom: radial-gradient(circle, rgba(42, 124, 236, 0.2), rgba(42, 124, 236, 0));
+            --panel-bg: rgba(255, 255, 255, 0.88);
+            --panel-shadow: 0 10px 24px rgba(31, 46, 63, 0.08);
+            --btn-primary-shadow: 0 10px 22px rgba(42, 124, 236, 0.3);
+            --focus-ring: 0 0 0 3px rgba(42, 124, 236, 0.18);
+            --language-hover-border: hsl(214 42% 70%);
+            --language-active-bg: linear-gradient(130deg, hsl(213 92% 47%), hsl(195 88% 42%));
+            --language-active-foreground: #fff;
+            --language-active-shadow: 0 10px 22px rgba(42, 124, 236, 0.28);
+            --language-count-bg: rgba(255, 255, 255, 0.76);
+            --language-count-foreground: hsl(220 18% 29%);
+            --language-count-active-bg: rgba(255, 255, 255, 0.2);
+            --language-count-active-foreground: #fff;
+            --repo-bg: linear-gradient(155deg, #ffffff, #f9fbff);
+            --repo-hover-border: hsl(214 45% 72%);
+            --repo-hover-shadow: 0 11px 24px rgba(31, 46, 63, 0.14);
+            --star-bg: hsl(49 100% 92%);
+            --star-border: hsl(40 78% 78%);
+            --star-foreground: hsl(26 92% 24%);
+            --repo-desc: hsl(220 14% 35%);
+            --tag-foreground: hsl(220 14% 30%);
+            --empty-border: hsl(34 26% 78%);
+            --empty-bg: hsl(36 44% 97%);
+            --empty-foreground: hsl(220 10% 42%);
+            --link-foreground: hsl(212 78% 38%);
+            --link-border: rgba(33, 96, 186, 0.32);
+            --link-border-hover: rgba(33, 96, 186, 0.56);
+        }
+
+        :root[data-theme="dark"] {
+            color-scheme: dark;
+            --background: hsl(224 31% 8%);
+            --foreground: hsl(214 32% 93%);
+            --card: hsl(222 26% 13%);
+            --card-foreground: hsl(214 32% 93%);
+            --muted: hsl(223 20% 19%);
+            --muted-foreground: hsl(216 13% 67%);
+            --primary: hsl(209 96% 58%);
+            --primary-foreground: hsl(222 34% 10%);
+            --border: hsl(220 20% 24%);
+            --ring: hsl(209 96% 58%);
+            --shadow: 0 20px 40px rgba(0, 0, 0, 0.38);
+            --hero-glow: radial-gradient(900px 460px at 10% -15%, rgba(47, 141, 235, 0.33), transparent 65%);
+            --hero-glow-2: radial-gradient(880px 440px at 90% -20%, rgba(14, 189, 177, 0.24), transparent 68%);
+            --hero-bg: linear-gradient(132deg, hsl(223 29% 14% / 0.94), hsl(220 31% 11% / 0.92));
+            --hero-bloom: radial-gradient(circle, rgba(14, 189, 177, 0.3), rgba(14, 189, 177, 0));
+            --panel-bg: hsl(223 26% 12% / 0.88);
+            --panel-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+            --btn-primary-shadow: 0 10px 22px rgba(47, 141, 235, 0.35);
+            --focus-ring: 0 0 0 3px rgba(47, 141, 235, 0.24);
+            --language-hover-border: hsl(209 62% 58%);
+            --language-active-bg: linear-gradient(130deg, hsl(210 98% 43%), hsl(192 95% 37%));
+            --language-active-foreground: hsl(222 34% 10%);
+            --language-active-shadow: 0 10px 22px rgba(47, 141, 235, 0.32);
+            --language-count-bg: hsl(224 18% 22%);
+            --language-count-foreground: hsl(214 30% 86%);
+            --language-count-active-bg: hsl(222 34% 10% / 0.2);
+            --language-count-active-foreground: hsl(222 34% 10%);
+            --repo-bg: linear-gradient(155deg, hsl(224 25% 14%), hsl(222 28% 12%));
+            --repo-hover-border: hsl(209 60% 55%);
+            --repo-hover-shadow: 0 12px 24px rgba(0, 0, 0, 0.34);
+            --star-bg: hsl(43 42% 18%);
+            --star-border: hsl(43 45% 35%);
+            --star-foreground: hsl(48 98% 76%);
+            --repo-desc: hsl(216 14% 74%);
+            --tag-foreground: hsl(213 24% 84%);
+            --empty-border: hsl(222 14% 34%);
+            --empty-bg: hsl(223 25% 12%);
+            --empty-foreground: hsl(216 12% 68%);
+            --link-foreground: hsl(209 85% 67%);
+            --link-border: rgba(79, 159, 235, 0.5);
+            --link-border-hover: rgba(79, 159, 235, 0.75);
         }
 
         * {
             box-sizing: border-box;
         }
 
+        html,
         body {
             margin: 0;
+            padding: 0;
+        }
+
+        body {
             font-family: "Noto Sans SC", sans-serif;
-            background:
-                radial-gradient(1200px 500px at 5% -10%, rgba(10, 143, 106, 0.18), transparent 60%),
-                radial-gradient(1200px 500px at 95% -15%, rgba(250, 126, 30, 0.17), transparent 65%),
-                var(--bg);
-            color: var(--ink);
+            color: var(--foreground);
+            background: var(--hero-glow), var(--hero-glow-2), var(--background);
             min-height: 100vh;
         }
 
-        .shell {
-            max-width: 1180px;
+        .page {
+            width: min(1220px, 100%);
             margin: 0 auto;
-            padding: 28px 18px 56px;
+            padding: 28px 18px 54px;
         }
 
         .hero {
-            border: 1px solid var(--line);
-            border-radius: var(--radius);
-            padding: 26px;
-            background: linear-gradient(145deg, #fff7eb, #f6fffb);
+            background: var(--hero-bg);
+            border: 1px solid var(--border);
+            border-radius: calc(var(--radius) + 6px);
             box-shadow: var(--shadow);
+            padding: 28px;
             position: relative;
             overflow: hidden;
         }
@@ -53,254 +143,870 @@
         .hero::after {
             content: "";
             position: absolute;
-            right: -90px;
-            top: -80px;
-            width: 260px;
-            height: 260px;
+            right: -130px;
+            top: -120px;
+            width: 290px;
+            height: 290px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(10, 143, 106, 0.2), rgba(10, 143, 106, 0));
+            background: var(--hero-bloom);
             pointer-events: none;
         }
 
-        .title {
+        .brand {
             margin: 0;
-            font-family: "Space Grotesk", sans-serif;
-            font-size: clamp(32px, 6vw, 56px);
-            line-height: 1.05;
-            letter-spacing: -0.03em;
+            font-family: "Manrope", sans-serif;
+            font-size: clamp(33px, 5.7vw, 58px);
+            line-height: 1;
+            letter-spacing: -0.04em;
         }
 
-        .subtitle {
+        .hero-subtitle {
             margin: 14px 0 0;
-            color: var(--muted);
-            font-size: 16px;
+            color: var(--muted-foreground);
+            font-size: 15px;
         }
 
-        .meta {
-            margin-top: 18px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .pill {
-            border: 1px solid var(--line);
-            border-radius: 999px;
-            padding: 7px 14px;
-            background: #fff;
-            font-size: 13px;
-            color: #303735;
-        }
-
-        .quick {
-            margin-top: 16px;
-            display: inline-flex;
-            gap: 8px;
-            align-items: center;
-            color: #fff;
-            background: linear-gradient(120deg, #0a8f6a, #1aa780);
+        .btn {
+            border: 1px solid transparent;
+            border-radius: 12px;
             text-decoration: none;
-            border-radius: 14px;
-            padding: 10px 14px;
             font-weight: 700;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            box-shadow: 0 8px 20px rgba(10, 143, 106, 0.26);
+            font-size: 14px;
+            line-height: 1;
+            padding: 11px 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
         }
 
-        .quick:hover {
+        .btn:hover {
             transform: translateY(-1px);
-            box-shadow: 0 12px 24px rgba(10, 143, 106, 0.32);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--primary-foreground);
+            box-shadow: var(--btn-primary-shadow);
+        }
+
+        .btn-secondary {
+            background: var(--card);
+            border-color: var(--border);
+            color: var(--foreground);
+        }
+
+        .theme-toggle {
+            appearance: none;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--foreground);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-1px);
+            border-color: var(--language-hover-border);
+            background: var(--muted);
+        }
+
+        .theme-toggle svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .theme-toggle .icon-sun,
+        .theme-toggle .icon-moon {
+            display: none;
+        }
+
+        .theme-toggle[data-active-theme="light"] .icon-sun {
+            display: block;
+        }
+
+        .theme-toggle[data-active-theme="dark"] .icon-moon {
+            display: block;
+        }
+
+        .top-nav {
+            margin-bottom: 14px;
+            background: color-mix(in oklab, var(--muted) 82%, transparent);
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            box-shadow: var(--panel-shadow);
+            padding: 4px 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .nav-menu {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            padding: 0;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .nav-left {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+            flex: 1 1 auto;
+            position: relative;
+        }
+
+        .nav-logo {
+            display: inline-flex;
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: var(--card);
+            flex-shrink: 0;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .nav-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            border: 0;
+            border-radius: 8px;
+            padding: 8px 13px;
+            color: var(--foreground);
+            background: transparent;
+            font-size: 15px;
+            font-weight: 700;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+
+        .nav-link:hover {
+            background: color-mix(in oklab, var(--card) 90%, transparent);
+        }
+
+        .nav-link.active {
+            background: var(--card);
+            color: var(--foreground);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+        }
+
+        .nav-theme {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            background: transparent;
+            border: 0;
+            border-left: 1px solid var(--border);
+            border-radius: 0;
+            padding: 0 0 0 10px;
+            margin-left: auto;
+        }
+
+        .nav-date {
+            font-size: 13px;
+            color: var(--muted-foreground);
+            font-weight: 700;
+        }
+
+        .nav-theme-label {
+            font-size: 13px;
+            color: var(--muted-foreground);
+            font-weight: 700;
+        }
+
+        .layout {
+            margin-top: 18px;
+            display: grid;
+            grid-template-columns: 290px minmax(0, 1fr);
+            gap: 14px;
+            align-items: start;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--panel-shadow);
+            padding: 14px;
+            backdrop-filter: blur(8px);
+        }
+
+        .side-panel {
+            position: sticky;
+            top: 14px;
         }
 
         .section-title {
-            margin: 28px 0 12px;
-            font-family: "Space Grotesk", sans-serif;
-            font-size: 20px;
+            margin: 0;
+            font-size: 13px;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            font-weight: 700;
+        }
+
+        .group-value {
+            margin: 8px 0 12px;
+            font-family: "Manrope", sans-serif;
+            font-size: 24px;
+            line-height: 1;
             letter-spacing: -0.02em;
         }
 
-        .language-bar {
+        .search-wrap {
+            margin-top: 12px;
+            position: relative;
+        }
+
+        .input {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            background: var(--card);
+            color: var(--card-foreground);
+            padding: 10px 12px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .input:focus {
+            border-color: var(--ring);
+            box-shadow: var(--focus-ring);
+        }
+
+        .language-list {
+            margin-top: 12px;
             display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding-bottom: 8px;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .language-btn {
-            border: 1px solid #d6cab8;
-            background: #fff;
-            border-radius: 12px;
-            padding: 10px 14px;
-            white-space: nowrap;
-            font-size: 14px;
-            color: #3b403d;
+            appearance: none;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--foreground);
+            border-radius: 10px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
             cursor: pointer;
-            transition: all 0.18s ease;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+            text-align: left;
         }
 
         .language-btn:hover {
-            border-color: #b6a89a;
             transform: translateY(-1px);
+            border-color: var(--language-hover-border);
         }
 
         .language-btn.active {
-            background: linear-gradient(120deg, #fa7e1e, #ef6b00);
-            color: #fff;
+            background: var(--language-active-bg);
             border-color: transparent;
-            box-shadow: 0 8px 18px rgba(250, 126, 30, 0.3);
+            color: var(--language-active-foreground);
+            box-shadow: var(--language-active-shadow);
         }
 
-        .cards {
-            margin-top: 12px;
+        .language-btn .count {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: var(--language-count-bg);
+            color: var(--language-count-foreground);
+        }
+
+        .language-btn.active .count {
+            background: var(--language-count-active-bg);
+            color: var(--language-count-active-foreground);
+        }
+
+        .repos-header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .repos-title {
+            margin: 0;
+            font-family: "Manrope", sans-serif;
+            font-size: 22px;
+            letter-spacing: -0.02em;
+        }
+
+        .repos-meta {
+            color: var(--muted-foreground);
+            font-size: 13px;
+        }
+
+        .repos-tools {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .sort-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--muted-foreground);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .sort-select {
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--foreground);
+            border-radius: 8px;
+            padding: 6px 8px;
+            font-size: 12px;
+            font-weight: 700;
+            outline: none;
+        }
+
+        .sort-select:focus {
+            border-color: var(--ring);
+            box-shadow: var(--focus-ring);
+        }
+
+        .repo-grid {
+            margin-top: 14px;
             display: grid;
-            grid-template-columns: repeat(12, 1fr);
+            grid-template-columns: repeat(12, minmax(0, 1fr));
             gap: 12px;
         }
 
         .repo-card {
             grid-column: span 6;
-            border: 1px solid var(--line);
-            background: var(--panel);
-            border-radius: 14px;
-            padding: 14px;
             text-decoration: none;
             color: inherit;
-            box-shadow: 0 6px 14px rgba(40, 28, 14, 0.08);
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background: var(--repo-bg);
+            padding: 14px;
+            transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+            animation: float-up 0.33s ease forwards;
             opacity: 0;
-            transform: translateY(10px);
-            animation: rise 0.42s ease forwards;
-            transition: transform 0.16s ease, box-shadow 0.16s ease;
+            transform: translateY(8px);
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .repo-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 22px rgba(20, 16, 10, 0.16);
+            border-color: var(--repo-hover-border);
+            box-shadow: var(--repo-hover-shadow);
         }
 
         .repo-head {
             display: flex;
-            justify-content: space-between;
-            gap: 10px;
             align-items: flex-start;
+            justify-content: space-between;
+            gap: 8px;
         }
 
         .repo-name {
             margin: 0;
-            font-family: "Space Grotesk", sans-serif;
             font-size: 18px;
-            color: #0f4436;
+            font-family: "Manrope", sans-serif;
+            line-height: 1.2;
             letter-spacing: -0.01em;
             word-break: break-word;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .repo-stars {
+        .repo-rank {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 30px;
+            height: 28px;
+            padding: 0 8px;
             border-radius: 999px;
-            border: 1px solid #ffcc9f;
-            background: #fff3e5;
+            border: 1px solid var(--border);
+            background: var(--muted);
+            color: var(--tag-foreground);
             font-size: 12px;
-            color: #8f4c08;
-            padding: 4px 8px;
+            font-weight: 800;
             flex-shrink: 0;
+            letter-spacing: 0.04em;
+        }
+
+        .repo-rank.top {
+            background: var(--primary);
+            color: var(--primary-foreground);
+            border-color: transparent;
+        }
+
+        .star {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: var(--star-bg);
+            border: 1px solid var(--star-border);
+            color: var(--star-foreground);
+            flex-shrink: 0;
+            font-weight: 700;
         }
 
         .repo-desc {
-            margin: 10px 0 0;
-            color: #4a4f4c;
+            margin: 0;
+            color: var(--repo-desc);
             font-size: 14px;
             line-height: 1.45;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .repo-foot {
-            margin-top: 10px;
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
             font-size: 12px;
-            color: #6a6f6c;
+            color: var(--muted-foreground);
+        }
+
+        .tag {
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--muted);
+            color: var(--tag-foreground);
+            padding: 3px 8px;
+            font-weight: 600;
         }
 
         .empty {
-            border: 1px dashed #ccb79e;
-            border-radius: 14px;
-            padding: 26px;
+            border: 1px dashed var(--empty-border);
+            background: var(--empty-bg);
+            border-radius: 13px;
+            padding: 30px 16px;
             text-align: center;
-            color: #6f6f6f;
-            background: rgba(255, 255, 255, 0.7);
+            color: var(--empty-foreground);
+            font-size: 14px;
+            grid-column: span 12;
         }
 
-        @keyframes rise {
+        .footer {
+            margin-top: 22px;
+            padding: 6px 2px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            color: var(--muted-foreground);
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .footer-logo {
+            width: 92px;
+            height: 92px;
+            border-radius: 999px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: var(--card);
+            box-shadow: var(--panel-shadow);
+        }
+
+        .footer-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .footer-main {
+            display: inline-flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .footer-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted-foreground);
+            opacity: 0.9;
+        }
+
+        .footer-link {
+            color: var(--link-foreground);
+            text-decoration: none;
+            border-bottom: 1px solid var(--link-border);
+            padding-bottom: 1px;
+        }
+
+        .footer-link:hover {
+            color: var(--primary);
+            border-bottom-color: var(--link-border-hover);
+        }
+
+        .footer-stats {
+            font-size: 12px;
+            color: var(--muted-foreground);
+            opacity: 0.9;
+            letter-spacing: 0.02em;
+        }
+
+        @keyframes float-up {
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
 
-        @media (max-width: 900px) {
+        @media (max-width: 960px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .side-panel {
+                position: static;
+            }
+
+            .language-list {
+                flex-direction: row;
+                overflow-x: auto;
+                padding-bottom: 8px;
+            }
+
+            .language-btn {
+                min-width: 186px;
+                flex-shrink: 0;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .nav-left {
+                width: 100%;
+                flex: 1 1 100%;
+                position: static;
+            }
+
+            .nav-menu {
+                width: auto;
+                flex: 1 1 auto;
+                justify-content: center;
+            }
+
+            .nav-logo {
+                position: static;
+                transform: none;
+            }
+
+            .nav-link {
+                text-align: center;
+                flex: 1 1 auto;
+            }
+
+            .nav-theme {
+                width: 100%;
+                margin-left: 0;
+                padding-left: 0;
+                border-left: 0;
+                border-top: 1px solid var(--border);
+                padding-top: 8px;
+            }
+
+            .footer {
+                justify-content: center;
+                text-align: center;
+            }
+
             .repo-card {
                 grid-column: span 12;
             }
 
-            .title {
-                font-size: clamp(28px, 7vw, 42px);
+            .brand {
+                font-size: clamp(29px, 10vw, 44px);
+            }
+
+            .hero {
+                padding: 20px;
             }
         }
 
-        .site-signature {
-            margin-top: 26px;
-            text-align: center;
-            color: #5f655f;
-            font-size: 13px;
-        }
-
-        .site-signature a {
-            color: #0f5d4a;
-            text-decoration: none;
-            border-bottom: 1px solid rgba(15, 93, 74, 0.35);
-            padding-bottom: 1px;
-        }
-
-        .site-signature a:hover {
-            color: #0a8f6a;
-            border-bottom-color: rgba(10, 143, 106, 0.55);
+        @media (max-width: 560px) {
+            .page {
+                padding: 16px 12px 36px;
+            }
         }
     </style>
 </head>
 <body>
-<main class="shell">
-    <section class="hero">
-        <h1 class="title">GitHub Trending<br>Daily Feed</h1>
-        <p class="subtitle">每日抓取热门仓库，按语言快速浏览并可跳转历史记录。</p>
-        <div class="meta">
-            <span class="pill">日期：2026-03-09</span>
-            <span class="pill">语言分组：7</span>
-            <span class="pill">仓库总数：123</span>
+<main class="page">
+    <header class="top-nav" aria-label="主导航">
+        <div class="nav-left">
+            <a class="nav-logo" href="index.html" aria-label="返回首页">
+                <img src="templates/logo.png" alt="GitHub Trending Logo">
+            </a>
+            <nav class="nav-menu">
+                <a class="nav-link active" href="index.html">首页</a>
+                <a class="nav-link" href="daily_trending/history.html">历史归档</a>
+            </nav>
         </div>
-        <a class="quick" href="daily_trending/index.html">查看历史归档</a>
+        <div class="nav-theme">
+            <span class="nav-date">Date: 2026-03-09</span>
+            <span class="nav-theme-label">主题</span>
+            <button class="theme-toggle" id="theme-toggle" type="button" aria-label="切换主题">
+                <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="4"></circle>
+                    <path d="M12 2v2"></path>
+                    <path d="M12 20v2"></path>
+                    <path d="m4.93 4.93 1.41 1.41"></path>
+                    <path d="m17.66 17.66 1.41 1.41"></path>
+                    <path d="M2 12h2"></path>
+                    <path d="M20 12h2"></path>
+                    <path d="m6.34 17.66-1.41 1.41"></path>
+                    <path d="m19.07 4.93-1.41 1.41"></path>
+                </svg>
+                <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 3a8.5 8.5 0 1 0 9 9 7 7 0 1 1-9-9z"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1 class="brand">GitHub Trending Daily</h1>
+        <p class="hero-subtitle">每天自动抓取热门仓库，按语言分组，主页看今天，历史页查过往。</p>
     </section>
 
-    <h2 class="section-title">语言切换</h2>
-    <div class="language-bar" id="language-bar"></div>
+    <section class="layout">
+        <aside class="panel side-panel">
+            <h2 class="section-title">Language Filter</h2>
+            <div class="group-value" id="active-language">-</div>
+            <div class="search-wrap">
+                <input class="input" id="search-input" type="search" placeholder="搜索仓库名、描述或语言">
+            </div>
+            <div class="language-list" id="language-list"></div>
+        </aside>
 
-    <h2 class="section-title">今日仓库</h2>
-    <div class="cards" id="repo-cards"></div>
+        <section class="panel">
+            <div class="repos-header">
+                <h2 class="repos-title" id="repos-title">今日仓库</h2>
+                <div class="repos-tools">
+                    <label class="sort-wrap" for="sort-select">
+                        Sort
+                        <select class="sort-select" id="sort-select">
+                            <option value="default">Default</option>
+                            <option value="stars_desc">Star</option>
+                            <option value="name_asc">Name</option>
+                        </select>
+                    </label>
+                    <span class="repos-meta" id="repos-meta">0 items</span>
+                </div>
+            </div>
+            <div class="repo-grid" id="repo-grid"></div>
+        </section>
+    </section>
 
-    <footer class="site-signature">
-        by <a href="https://github.com/vcvvvc/github_trending" target="_blank" rel="noopener">github.com/vcvvvc/github_trending</a>
+    <footer class="footer">
+        <a class="footer-logo" href="index.html" aria-label="返回首页">
+            <img src="templates/logo.png" alt="GitHub Trending Logo">
+        </a>
+        <div class="footer-main">
+            <span class="footer-label">Source</span>
+            <a class="footer-link" href="https://github.com/vcvvvc/github_trending" target="_blank" rel="noopener">github.com/vcvvvc/github_trending</a>
+        </div>
+        <div class="footer-stats">Groups: 7 · Repositories: 111</div>
     </footer>
 </main>
 
 <script>
-    const groups = [{"GroupName":"Trending","Repos":[{"URL":"https://github.com/openclaw/openclaw","Name":"openclaw/openclaw","Language":"TypeScript","Stars":286357,"Description":"Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞"},{"URL":"https://github.com/shadcn-ui/ui","Name":"shadcn-ui/ui","Language":"TypeScript","Stars":108957,"Description":"A set of beautifully-designed, accessible components and a code distribution platform. Works with your favorite frameworks. Open Source. Open Code."},{"URL":"https://github.com/toeverything/AFFiNE","Name":"toeverything/AFFiNE","Language":"TypeScript","Stars":65467,"Description":"There can be more than Notion and Miro. AFFiNE(pronounced [ə‘fain]) is a next-gen knowledge base that brings planning, sorting and creating all together. Privacy first, open-source, customizable and ready to use."},{"URL":"https://github.com/virattt/ai-hedge-fund","Name":"virattt/ai-hedge-fund","Language":"Python","Stars":46969,"Description":"An AI Hedge Fund Team"},{"URL":"https://github.com/shareAI-lab/learn-claude-code","Name":"shareAI-lab/learn-claude-code","Language":"TypeScript","Stars":24305,"Description":"Bash is all you need - A nano Claude Code–like agent, built from 0 to 1"},{"URL":"https://github.com/GoogleCloudPlatform/generative-ai","Name":"GoogleCloudPlatform/generative-ai","Language":"Jupyter Notebook","Stars":14931,"Description":"Sample code and notebooks for Generative AI on Google Cloud, with Gemini on Vertex AI"},{"URL":"https://github.com/openai/skills","Name":"openai/skills","Language":"Python","Stars":13503,"Description":"Skills Catalog for Codex"},{"URL":"https://github.com/is-a-dev/register","Name":"is-a-dev/register","Language":"JavaScript","Stars":9910,"Description":"Grab your own sweet-looking '.is-a.dev' subdomain."},{"URL":"https://github.com/666ghj/MiroFish","Name":"666ghj/MiroFish","Language":"Python","Stars":8303,"Description":"A Simple and Universal Swarm Intelligence Engine, Predicting Anything. 简洁通用的群体智能引擎，预测万物"},{"URL":"https://github.com/teng-lin/notebooklm-py","Name":"teng-lin/notebooklm-py","Language":"Python","Stars":3927,"Description":"Unofficial Python API for Google NotebookLM"},{"URL":"https://github.com/Ed1s0nZ/CyberStrikeAI","Name":"Ed1s0nZ/CyberStrikeAI","Language":"Go","Stars":2504,"Description":"CyberStrikeAI is an AI-native security testing platform built in Go. It integrates 100+ security tools, an intelligent orchestration engine, role-based testing with predefined security roles, a skills system with specialized testing skills, and comprehensive lifecycle management capabilities."},{"URL":"https://github.com/pbakaus/impeccable","Name":"pbakaus/impeccable","Language":"JavaScript","Stars":2381,"Description":"The design language that makes your AI harness better at design."}]},{"GroupName":"C++","Repos":[{"URL":"https://github.com/tensorflow/tensorflow","Name":"tensorflow/tensorflow","Language":"C++","Stars":194057,"Description":"An Open Source Machine Learning Framework for Everyone"},{"URL":"https://github.com/ggml-org/llama.cpp","Name":"ggml-org/llama.cpp","Language":"C++","Stars":97262,"Description":"LLM inference in C/C++"},{"URL":"https://github.com/nlohmann/json","Name":"nlohmann/json","Language":"C++","Stars":49067,"Description":"JSON for Modern C++"},{"URL":"https://github.com/aseprite/aseprite","Name":"aseprite/aseprite","Language":"C++","Stars":36008,"Description":"Animated sprite editor \u0026 pixel art tool (Windows, macOS, Linux)"},{"URL":"https://github.com/LizardByte/Sunshine","Name":"LizardByte/Sunshine","Language":"C++","Stars":35082,"Description":"Self-hosted game stream host for Moonlight."},{"URL":"https://github.com/moonlight-stream/moonlight-qt","Name":"moonlight-stream/moonlight-qt","Language":"C++","Stars":16422,"Description":"GameStream client for PCs (Windows, Mac, Linux, and Steam Link)"},{"URL":"https://github.com/NixOS/nix","Name":"NixOS/nix","Language":"C++","Stars":16292,"Description":"Nix, the purely functional package manager"},{"URL":"https://github.com/official-stockfish/Stockfish","Name":"official-stockfish/Stockfish","Language":"C++","Stars":14962,"Description":"A free and strong UCI chess engine"},{"URL":"https://github.com/M2Team/NanaZip","Name":"M2Team/NanaZip","Language":"C++","Stars":13489,"Description":"The 7-Zip derivative intended for the modern Windows experience"},{"URL":"https://github.com/hrydgard/ppsspp","Name":"hrydgard/ppsspp","Language":"C++","Stars":13483,"Description":"A PSP emulator for Android, Windows, Mac and Linux, written in C++. Want to contribute? Join us on Discord at https://discord.gg/5NJB6dD or just send pull requests / issues. For discussion use the forums at forums.ppsspp.org."},{"URL":"https://github.com/OrcaSlicer/OrcaSlicer","Name":"OrcaSlicer/OrcaSlicer","Language":"C++","Stars":12812,"Description":"G-code generator for 3D printers (Bambu, Prusa, Voron, VzBot, RatRig, Creality, etc.)"},{"URL":"https://github.com/assimp/assimp","Name":"assimp/assimp","Language":"C++","Stars":12780,"Description":"The official Open-Asset-Importer-Library Repository. Loads 40+ 3D-file-formats into one unified and clean data structure."},{"URL":"https://github.com/luanti-org/luanti","Name":"luanti-org/luanti","Language":"C++","Stars":12412,"Description":"Luanti (formerly Minetest) is an open source voxel game-creation platform with easy modding and game creation"},{"URL":"https://github.com/imputnet/helium","Name":"imputnet/helium","Language":"C++","Stars":12188,"Description":"Private, fast, and honest web browser"},{"URL":"https://github.com/rhasspy/piper","Name":"rhasspy/piper","Language":"C++","Stars":10654,"Description":"A fast, local neural text to speech system"},{"URL":"https://github.com/WasmEdge/WasmEdge","Name":"WasmEdge/WasmEdge","Language":"C++","Stars":10503,"Description":"WasmEdge is a lightweight, high-performance, and extensible WebAssembly runtime for cloud native, edge, and decentralized applications. It powers serverless apps, embedded functions, microservices, smart contracts, and IoT devices."},{"URL":"https://github.com/TrinityCore/TrinityCore","Name":"TrinityCore/TrinityCore","Language":"C++","Stars":10445,"Description":"TrinityCore Open Source MMO Framework (master = 12.0.1.66263, 3.3.5 = 3.3.5a.12340, cata classic = 4.4.2.60895)"},{"URL":"https://github.com/amnezia-vpn/amnezia-client","Name":"amnezia-vpn/amnezia-client","Language":"C++","Stars":10418,"Description":"Amnezia VPN Client (Desktop+Mobile)"},{"URL":"https://github.com/justcallmekoko/ESP32Marauder","Name":"justcallmekoko/ESP32Marauder","Language":"C++","Stars":10107,"Description":"A suite of WiFi/Bluetooth offensive and defensive tools for the ESP32"},{"URL":"https://github.com/juce-framework/JUCE","Name":"juce-framework/JUCE","Language":"C++","Stars":8146,"Description":"JUCE is an open-source cross-platform C++ application framework for desktop and mobile applications, including VST, VST3, AU, AUv3, LV2 and AAX audio plug-ins."},{"URL":"https://github.com/cloudflare/workerd","Name":"cloudflare/workerd","Language":"C++","Stars":7566,"Description":"The JavaScript / Wasm runtime that powers Cloudflare Workers"},{"URL":"https://github.com/allenk/GeminiWatermarkTool","Name":"allenk/GeminiWatermarkTool","Language":"C++","Stars":1728,"Description":"Gemini Nano Banana / Pro watermark maintenance tool"}]},{"GroupName":"Python","Repos":[{"URL":"https://github.com/virattt/ai-hedge-fund","Name":"virattt/ai-hedge-fund","Language":"Python","Stars":46969,"Description":"An AI Hedge Fund Team"},{"URL":"https://github.com/QwenLM/Qwen-Agent","Name":"QwenLM/Qwen-Agent","Language":"Python","Stars":15239,"Description":"Agent framework and applications built upon Qwen\u003e=3.0, featuring Function Calling, MCP, Code Interpreter, RAG, Chrome extension, etc."},{"URL":"https://github.com/Free-TV/IPTV","Name":"Free-TV/IPTV","Language":"Python","Stars":14641,"Description":"M3U Playlist for free TV channels"},{"URL":"https://github.com/openai/skills","Name":"openai/skills","Language":"Python","Stars":13503,"Description":"Skills Catalog for Codex"},{"URL":"https://github.com/p-e-w/heretic","Name":"p-e-w/heretic","Language":"Python","Stars":10945,"Description":"Fully automatic censorship removal for language models"},{"URL":"https://github.com/666ghj/MiroFish","Name":"666ghj/MiroFish","Language":"Python","Stars":8303,"Description":"A Simple and Universal Swarm Intelligence Engine, Predicting Anything. 简洁通用的群体智能引擎，预测万物"},{"URL":"https://github.com/Jeffallan/claude-skills","Name":"Jeffallan/claude-skills","Language":"Python","Stars":5834,"Description":"66 Specialized Skills for Full-Stack Developers. Transform Claude Code into your expert pair programmer."},{"URL":"https://github.com/teng-lin/notebooklm-py","Name":"teng-lin/notebooklm-py","Language":"Python","Stars":3927,"Description":"Unofficial Python API for Google NotebookLM"},{"URL":"https://github.com/Lightricks/ComfyUI-LTXVideo","Name":"Lightricks/ComfyUI-LTXVideo","Language":"Python","Stars":3218,"Description":"LTX-Video Support for ComfyUI"},{"URL":"https://github.com/lingfengQAQ/webnovel-writer","Name":"lingfengQAQ/webnovel-writer","Language":"Python","Stars":1130,"Description":"基于 Claude Code 的长篇网文辅助创作系统，解决 AI 写作中的「遗忘」和「幻觉」问题，支持 200 万字量级 连载创作。"},{"URL":"https://github.com/the-momentum/open-wearables","Name":"the-momentum/open-wearables","Language":"Python","Stars":914,"Description":"Self-hosted platform to unify wearable health data through one AI-ready API."}]},{"GroupName":"Go","Repos":[{"URL":"https://github.com/fatedier/frp","Name":"fatedier/frp","Language":"Go","Stars":105020,"Description":"A fast reverse proxy to help you expose a local server behind a NAT or firewall to the internet."},{"URL":"https://github.com/XTLS/Xray-core","Name":"XTLS/Xray-core","Language":"Go","Stars":35695,"Description":"Xray, Penetrates Everything. Also the best v2ray-core. Where the magic happens. An open platform for various uses."},{"URL":"https://github.com/filebrowser/filebrowser","Name":"filebrowser/filebrowser","Language":"Go","Stars":33750,"Description":"📂 Web File Browser"},{"URL":"https://github.com/wailsapp/wails","Name":"wailsapp/wails","Language":"Go","Stars":33151,"Description":"Create beautiful applications using Go"},{"URL":"https://github.com/SagerNet/sing-box","Name":"SagerNet/sing-box","Language":"Go","Stars":31196,"Description":"The universal proxy platform"},{"URL":"https://github.com/netbirdio/netbird","Name":"netbirdio/netbird","Language":"Go","Stars":23373,"Description":"Connect your devices into a secure WireGuard®-based overlay network with SSO, MFA and granular access controls."},{"URL":"https://github.com/GopeedLab/gopeed","Name":"GopeedLab/gopeed","Language":"Go","Stars":23154,"Description":"A modern download manager that supports all platforms. Built with Golang and Flutter."},{"URL":"https://github.com/steveyegge/beads","Name":"steveyegge/beads","Language":"Go","Stars":18582,"Description":"Beads - A memory upgrade for your coding agent"},{"URL":"https://github.com/TecharoHQ/anubis","Name":"TecharoHQ/anubis","Language":"Go","Stars":17572,"Description":"Weighs the soul of incoming HTTP requests to stop AI crawlers"},{"URL":"https://github.com/ipfs/kubo","Name":"ipfs/kubo","Language":"Go","Stars":16947,"Description":"An IPFS implementation in Go"},{"URL":"https://github.com/projectdiscovery/katana","Name":"projectdiscovery/katana","Language":"Go","Stars":15844,"Description":"A next-generation crawling and spidering framework."},{"URL":"https://github.com/cert-manager/cert-manager","Name":"cert-manager/cert-manager","Language":"Go","Stars":13668,"Description":"Automatically provision and manage TLS certificates in Kubernetes"},{"URL":"https://github.com/googleapis/genai-toolbox","Name":"googleapis/genai-toolbox","Language":"Go","Stars":13337,"Description":"MCP Toolbox for Databases is an open source MCP server for databases."},{"URL":"https://github.com/dlvhdr/gh-dash","Name":"dlvhdr/gh-dash","Language":"Go","Stars":10693,"Description":"A rich terminal UI for GitHub that doesn't break your flow."},{"URL":"https://github.com/v2fly/domain-list-community","Name":"v2fly/domain-list-community","Language":"Go","Stars":7893,"Description":"Community managed domain list. Generate geosite.dat for V2Ray."},{"URL":"https://github.com/flyteorg/flyte","Name":"flyteorg/flyte","Language":"Go","Stars":6862,"Description":"Scalable and flexible workflow orchestration platform that seamlessly unifies data, ML and analytics stacks."},{"URL":"https://github.com/mostlygeek/llama-swap","Name":"mostlygeek/llama-swap","Language":"Go","Stars":2718,"Description":"Reliable model swapping for any local OpenAI/Anthropic compatible server - llama.cpp, vllm, etc"},{"URL":"https://github.com/Ed1s0nZ/CyberStrikeAI","Name":"Ed1s0nZ/CyberStrikeAI","Language":"Go","Stars":2504,"Description":"CyberStrikeAI is an AI-native security testing platform built in Go. It integrates 100+ security tools, an intelligent orchestration engine, role-based testing with predefined security roles, a skills system with specialized testing skills, and comprehensive lifecycle management capabilities."},{"URL":"https://github.com/docker/docker-agent","Name":"docker/docker-agent","Language":"Go","Stars":2102,"Description":"AI Agent Builder and Runtime by Docker Engineering"}]},{"GroupName":"Rust","Repos":[{"URL":"https://github.com/zed-industries/zed","Name":"zed-industries/zed","Language":"Rust","Stars":76674,"Description":"Code at the speed of thought – Zed is a high-performance, multiplayer code editor from the creators of Atom and Tree-sitter."},{"URL":"https://github.com/openai/codex","Name":"openai/codex","Language":"Rust","Stars":64048,"Description":"Lightweight coding agent that runs in your terminal"},{"URL":"https://github.com/typst/typst","Name":"typst/typst","Language":"Rust","Stars":51918,"Description":"A markup-based typesetting system that is powerful and easy to learn."},{"URL":"https://github.com/bevyengine/bevy","Name":"bevyengine/bevy","Language":"Rust","Stars":44951,"Description":"A refreshingly simple data-driven game engine built in Rust"},{"URL":"https://github.com/helix-editor/helix","Name":"helix-editor/helix","Language":"Rust","Stars":43381,"Description":"A post-modern modal text editor."},{"URL":"https://github.com/sharkdp/fd","Name":"sharkdp/fd","Language":"Rust","Stars":41965,"Description":"A simple, fast and user-friendly alternative to 'find'"},{"URL":"https://github.com/qarmin/czkawka","Name":"qarmin/czkawka","Language":"Rust","Stars":29731,"Description":"Multi functional app to find duplicates, empty folders, similar images etc."},{"URL":"https://github.com/clockworklabs/SpacetimeDB","Name":"clockworklabs/SpacetimeDB","Language":"Rust","Stars":23009,"Description":"Development at the speed of light"},{"URL":"https://github.com/tursodatabase/turso","Name":"tursodatabase/turso","Language":"Rust","Stars":17735,"Description":"Turso is an in-process SQL database, compatible with SQLite."},{"URL":"https://github.com/rust-lang/book","Name":"rust-lang/book","Language":"Rust","Stars":17484,"Description":"The Rust Programming Language"},{"URL":"https://github.com/tikv/tikv","Name":"tikv/tikv","Language":"Rust","Stars":16561,"Description":"Distributed transactional key-value database, originally created to complement TiDB"},{"URL":"https://github.com/memvid/memvid","Name":"memvid/memvid","Language":"Rust","Stars":13334,"Description":"Memory layer for AI Agents. Replace complex RAG pipelines with a serverless, single-file memory layer. Give your agents instant retrieval and long-term memory."},{"URL":"https://github.com/rust-lang/rust-clippy","Name":"rust-lang/rust-clippy","Language":"Rust","Stars":12957,"Description":"A bunch of lints to catch common mistakes and improve your Rust code. Book: https://doc.rust-lang.org/clippy/"},{"URL":"https://github.com/cachix/devenv","Name":"cachix/devenv","Language":"Rust","Stars":6473,"Description":"Fast, Declarative, Reproducible, and Composable Developer Environments using Nix"},{"URL":"https://github.com/modelcontextprotocol/rust-sdk","Name":"modelcontextprotocol/rust-sdk","Language":"Rust","Stars":3130,"Description":"The official Rust SDK for the Model Context Protocol"},{"URL":"https://github.com/dora-rs/dora","Name":"dora-rs/dora","Language":"Rust","Stars":3015,"Description":"DORA (Dataflow-Oriented Robotic Architecture) is middleware designed to streamline and simplify the creation of AI-based robotic applications. It offers low latency, composable, and distributed dataflow capabilities. Applications are modeled as directed graphs, also referred to as pipelines."},{"URL":"https://github.com/max-sixty/worktrunk","Name":"max-sixty/worktrunk","Language":"Rust","Stars":2987,"Description":"Worktrunk is a CLI for Git worktree management, designed for parallel AI agent workflows"}]},{"GroupName":"Java","Repos":[{"URL":"https://github.com/iluwatar/java-design-patterns","Name":"iluwatar/java-design-patterns","Language":"Java","Stars":93799,"Description":"Design patterns implemented in Java"},{"URL":"https://github.com/google/guava","Name":"google/guava","Language":"Java","Stars":51495,"Description":"Google core libraries for Java"},{"URL":"https://github.com/ashishps1/awesome-system-design-resources","Name":"ashishps1/awesome-system-design-resources","Language":"Java","Stars":34646,"Description":"Learn System Design concepts and prepare for interviews using free resources."},{"URL":"https://github.com/DrKLO/Telegram","Name":"DrKLO/Telegram","Language":"Java","Stars":28679,"Description":"Telegram for Android source"},{"URL":"https://github.com/kestra-io/kestra","Name":"kestra-io/kestra","Language":"Java","Stars":26502,"Description":"Event Driven Orchestration \u0026 Scheduling Platform for Mission Critical Applications"},{"URL":"https://github.com/LSPosed/LSPosed","Name":"LSPosed/LSPosed","Language":"Java","Stars":22980,"Description":"LSPosed Framework"},{"URL":"https://github.com/kunal-kushwaha/DSA-Bootcamp-Java","Name":"kunal-kushwaha/DSA-Bootcamp-Java","Language":"Java","Stars":22249,"Description":"This repository consists of the code samples, assignments, and notes for the Java data structures \u0026 algorithms + interview preparation bootcamp of WeMakeDevs."},{"URL":"https://github.com/LawnchairLauncher/lawnchair","Name":"LawnchairLauncher/lawnchair","Language":"Java","Stars":12318,"Description":"No clever tagline needed."},{"URL":"https://github.com/HMCL-dev/HMCL","Name":"HMCL-dev/HMCL","Language":"Java","Stars":8942,"Description":"A Minecraft Launcher which is multi-functional, cross-platform and popular"},{"URL":"https://github.com/checkstyle/checkstyle","Name":"checkstyle/checkstyle","Language":"Java","Stars":8884,"Description":"Checkstyle is a development tool to help programmers write Java code that adheres to a coding standard. By default it supports the Google Java Style Guide and Sun Code Conventions, but is highly configurable. It can be invoked with an ANT task and a command line program."},{"URL":"https://github.com/cabaletta/baritone","Name":"cabaletta/baritone","Language":"Java","Stars":8709,"Description":"google maps for block game"},{"URL":"https://github.com/AntennaPod/AntennaPod","Name":"AntennaPod/AntennaPod","Language":"Java","Stars":7707,"Description":"A podcast manager for Android"},{"URL":"https://github.com/runelite/runelite","Name":"runelite/runelite","Language":"Java","Stars":5312,"Description":"Open source Old School RuneScape client"},{"URL":"https://github.com/gsantner/markor","Name":"gsantner/markor","Language":"Java","Stars":5231,"Description":"Text editor - Notes \u0026 ToDo (for Android) - Markdown, todo.txt, plaintext, math, .."},{"URL":"https://github.com/apache/maven","Name":"apache/maven","Language":"Java","Stars":4982,"Description":"Apache Maven core"},{"URL":"https://github.com/portfolio-performance/portfolio","Name":"portfolio-performance/portfolio","Language":"Java","Stars":3709,"Description":"Track and evaluate the performance of your investment portfolio across stocks, cryptocurrencies, and other assets."},{"URL":"https://github.com/NotHarshhaa/DevOps-Projects","Name":"NotHarshhaa/DevOps-Projects","Language":"Java","Stars":3607,"Description":"𝑫𝒆𝒗𝑶𝒑𝒔 𝑹𝒆𝒂𝒍 𝑾𝒐𝒓𝒍𝒅 𝑷𝒓𝒐𝒋𝒆𝒄𝒕𝒔 𝒇𝒐𝒓 𝑨𝒔𝒑𝒊𝒓𝒊𝒏𝒈 𝑫𝒆𝒗𝑶𝒑𝒔 𝑬𝒏𝒈𝒊𝒏𝒆𝒆𝒓𝒔 [𝑩𝒆𝒈𝒊𝒏𝒏𝒆𝒓 𝒕𝒐 𝑨𝒅𝒗𝒂𝒏𝒄𝒆𝒅]"},{"URL":"https://github.com/Card-Forge/forge","Name":"Card-Forge/forge","Language":"Java","Stars":2219,"Description":"An unofficial rules engine for the world's greatest card game."},{"URL":"https://github.com/xCollateral/VulkanMod","Name":"xCollateral/VulkanMod","Language":"Java","Stars":2191,"Description":"Vulkan renderer mod for Minecraft."},{"URL":"https://github.com/openhab/openhab-addons","Name":"openhab/openhab-addons","Language":"Java","Stars":2042,"Description":"Add-ons for openHAB"},{"URL":"https://github.com/eclipse/openvsx","Name":"eclipse/openvsx","Language":"Java","Stars":1871,"Description":"An open-source registry for VS Code extensions"},{"URL":"https://github.com/ZalithLauncher/ZalithLauncher","Name":"ZalithLauncher/ZalithLauncher","Language":"Java","Stars":1570,"Description":"Zalith Launcher is a Minecraft launcher developed based on PojavLauncher, capable of running Minecraft: Java Edition on Android devices."}]},{"GroupName":"JavaScript/TypeScript","Repos":[{"URL":"https://github.com/openclaw/openclaw","Name":"openclaw/openclaw","Language":"TypeScript","Stars":286358,"Description":"Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞"},{"URL":"https://github.com/shadcn-ui/ui","Name":"shadcn-ui/ui","Language":"TypeScript","Stars":108958,"Description":"A set of beautifully-designed, accessible components and a code distribution platform. Works with your favorite frameworks. Open Source. Open Code."},{"URL":"https://github.com/louislam/uptime-kuma","Name":"louislam/uptime-kuma","Language":"JavaScript","Stars":83831,"Description":"A fancy self-hosted monitoring tool"},{"URL":"https://github.com/webpack/webpack","Name":"webpack/webpack","Language":"JavaScript","Stars":66040,"Description":"A bundler for javascript and friends. Packs many modules into a few bundled assets. Code Splitting allows for loading parts of the application on demand. Through \"loaders\", modules can be CommonJs, AMD, ES6 modules, CSS, Images, JSON, Coffeescript, LESS, ... and your custom stuff."},{"URL":"https://github.com/toeverything/AFFiNE","Name":"toeverything/AFFiNE","Language":"TypeScript","Stars":65467,"Description":"There can be more than Notion and Miro. AFFiNE(pronounced [ə‘fain]) is a next-gen knowledge base that brings planning, sorting and creating all together. Privacy first, open-source, customizable and ready to use."},{"URL":"https://github.com/shareAI-lab/learn-claude-code","Name":"shareAI-lab/learn-claude-code","Language":"TypeScript","Stars":24305,"Description":"Bash is all you need - A nano Claude Code–like agent, built from 0 to 1"},{"URL":"https://github.com/SillyTavern/SillyTavern","Name":"SillyTavern/SillyTavern","Language":"JavaScript","Stars":24106,"Description":"LLM Frontend for Power Users."},{"URL":"https://github.com/TibixDev/winboat","Name":"TibixDev/winboat","Language":"TypeScript","Stars":19354,"Description":"Run Windows apps on 🐧 Linux with ✨ seamless integration"},{"URL":"https://github.com/iii-hq/iii","Name":"iii-hq/iii","Language":"TypeScript","Stars":15181,"Description":"iii (pronounced “three eye”) unifies your existing backend stack with a single engine and three primitives: Function, Worker, and Trigger."},{"URL":"https://github.com/is-a-dev/register","Name":"is-a-dev/register","Language":"JavaScript","Stars":9910,"Description":"Grab your own sweet-looking '.is-a.dev' subdomain."},{"URL":"https://github.com/blackboardsh/electrobun","Name":"blackboardsh/electrobun","Language":"TypeScript","Stars":9074,"Description":"Build ultra fast, tiny, and cross-platform desktop apps with Typescript."},{"URL":"https://github.com/aandrew-me/ytDownloader","Name":"aandrew-me/ytDownloader","Language":"JavaScript","Stars":8697,"Description":"Desktop App for downloading Videos and Audios from hundreds of sites"},{"URL":"https://github.com/jarrodwatts/claude-hud","Name":"jarrodwatts/claude-hud","Language":"JavaScript","Stars":4218,"Description":"A Claude Code plugin that shows what's happening - context usage, active tools, running agents, and todo progress"},{"URL":"https://github.com/pbakaus/impeccable","Name":"pbakaus/impeccable","Language":"JavaScript","Stars":2381,"Description":"The design language that makes your AI harness better at design."},{"URL":"https://github.com/Coding-Solo/godot-mcp","Name":"Coding-Solo/godot-mcp","Language":"JavaScript","Stars":2233,"Description":"MCP server for interfacing with Godot game engine. Provides tools for launching the editor, running projects, and capturing debug output."},{"URL":"https://github.com/alibaba/page-agent","Name":"alibaba/page-agent","Language":"TypeScript","Stars":2108,"Description":"JavaScript in-page GUI agent. Control web interfaces with natural language."},{"URL":"https://github.com/openai/openai-cua-sample-app","Name":"openai/openai-cua-sample-app","Language":"TypeScript","Stars":1570,"Description":"Learn how to use CUA (our Computer Using Agent) via the API on multiple computer environments."},{"URL":"https://github.com/jaegertracing/jaeger-ui","Name":"jaegertracing/jaeger-ui","Language":"JavaScript","Stars":1439,"Description":"Web UI for Jaeger"},{"URL":"https://github.com/apify/agent-skills","Name":"apify/agent-skills","Language":"JavaScript","Stars":1371,"Description":"Collection of Apify Agent Skills"},{"URL":"https://github.com/decolua/9router","Name":"decolua/9router","Language":"JavaScript","Stars":730,"Description":"Universal AI Proxy for Claude Code, Codex, Cursor | OpenAI, Claude, Gemini, Copilot"}]}];
-    const languageBar = document.getElementById("language-bar");
-    const repoCards = document.getElementById("repo-cards");
-    let active = 0;
+    const groups = [{"GroupName":"Trending","Repos":[{"URL":"https://github.com/openclaw/openclaw","Name":"openclaw/openclaw","Language":"TypeScript","Stars":287665,"Description":"Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞"},{"URL":"https://github.com/karpathy/nanochat","Name":"karpathy/nanochat","Language":"Python","Stars":45217,"Description":"The best ChatGPT that $100 can buy."},{"URL":"https://github.com/Raphire/Win11Debloat","Name":"Raphire/Win11Debloat","Language":"PowerShell","Stars":40949,"Description":"A simple, lightweight PowerShell script that allows you to remove pre-installed apps, disable telemetry, as well as perform various other changes to declutter and customize your Windows experience. Win11Debloat works for both Windows 10 and Windows 11."},{"URL":"https://github.com/666ghj/BettaFish","Name":"666ghj/BettaFish","Language":"Python","Stars":37118,"Description":"微舆：人人可用的多Agent舆情分析助手，打破信息茧房，还原舆情原貌，预测未来走向，辅助决策！从0实现，不依赖任何框架。"},{"URL":"https://github.com/msitarzewski/agency-agents","Name":"msitarzewski/agency-agents","Language":"Shell","Stars":15783,"Description":"A complete AI agency at your fingertips - From frontend wizards to Reddit community ninjas, from whimsy injectors to reality checkers. Each agent is a specialized expert with personality, processes, and proven deliverables."},{"URL":"https://github.com/GoogleCloudPlatform/generative-ai","Name":"GoogleCloudPlatform/generative-ai","Language":"Jupyter Notebook","Stars":15033,"Description":"Sample code and notebooks for Generative AI on Google Cloud, with Gemini on Vertex AI"},{"URL":"https://github.com/666ghj/MiroFish","Name":"666ghj/MiroFish","Language":"Python","Stars":9014,"Description":"A Simple and Universal Swarm Intelligence Engine, Predicting Anything. 简洁通用的群体智能引擎，预测万物"},{"URL":"https://github.com/teng-lin/notebooklm-py","Name":"teng-lin/notebooklm-py","Language":"Python","Stars":3991,"Description":"Unofficial Python API for Google NotebookLM"},{"URL":"https://github.com/alirezarezvani/claude-skills","Name":"alirezarezvani/claude-skills","Language":"Python","Stars":2986,"Description":"169 production-ready skills \u0026 plugins for Claude Code, OpenAI Codex, and OpenClaw — engineering, marketing, product, compliance, C-level advisory, and more. Install via /plugin marketplace."},{"URL":"https://github.com/NousResearch/hermes-agent","Name":"NousResearch/hermes-agent","Language":"Python","Stars":2594,"Description":"The agent that grows with you"},{"URL":"https://github.com/pbakaus/impeccable","Name":"pbakaus/impeccable","Language":"JavaScript","Stars":2550,"Description":"The design language that makes your AI harness better at design."},{"URL":"https://github.com/alibaba/page-agent","Name":"alibaba/page-agent","Language":"TypeScript","Stars":2197,"Description":"JavaScript in-page GUI agent. Control web interfaces with natural language."}]},{"GroupName":"C++","Repos":[{"URL":"https://github.com/ggml-org/llama.cpp","Name":"ggml-org/llama.cpp","Language":"C++","Stars":97285,"Description":"LLM inference in C/C++"},{"URL":"https://github.com/ocornut/imgui","Name":"ocornut/imgui","Language":"C++","Stars":71807,"Description":"Dear ImGui: Bloat-free Graphical User interface for C++ with minimal dependencies"},{"URL":"https://github.com/LizardByte/Sunshine","Name":"LizardByte/Sunshine","Language":"C++","Stars":35088,"Description":"Self-hosted game stream host for Moonlight."},{"URL":"https://github.com/facebook/rocksdb","Name":"facebook/rocksdb","Language":"C++","Stars":31614,"Description":"A library that provides an embeddable, persistent key-value store for fast storage."},{"URL":"https://github.com/microsoft/WSL","Name":"microsoft/WSL","Language":"C++","Stars":31317,"Description":"Windows Subsystem for Linux"},{"URL":"https://github.com/78/xiaozhi-esp32","Name":"78/xiaozhi-esp32","Language":"C++","Stars":24574,"Description":"An MCP-based chatbot | 一个基于MCP的聊天机器人"},{"URL":"https://github.com/MaaAssistantArknights/MaaAssistantArknights","Name":"MaaAssistantArknights/MaaAssistantArknights","Language":"C++","Stars":19815,"Description":"《明日方舟》小助手，全日常一键长草！| A one-click tool for the daily tasks of Arknights, supporting all clients."},{"URL":"https://github.com/TranslucentTB/TranslucentTB","Name":"TranslucentTB/TranslucentTB","Language":"C++","Stars":19071,"Description":"A lightweight utility that makes the Windows taskbar translucent/transparent."},{"URL":"https://github.com/dolphin-emu/dolphin","Name":"dolphin-emu/dolphin","Language":"C++","Stars":14699,"Description":"Dolphin is a GameCube / Wii emulator, allowing you to play games for these two platforms on PC with improvements."},{"URL":"https://github.com/xournalpp/xournalpp","Name":"xournalpp/xournalpp","Language":"C++","Stars":14449,"Description":"Xournal++ is a handwriting notetaking software with PDF annotation support. Written in C++ with GTK3, supporting Linux (e.g. Ubuntu, Debian, Arch, SUSE), macOS and Windows 10. Supports pen input from devices such as Wacom Tablets."},{"URL":"https://github.com/M2Team/NanaZip","Name":"M2Team/NanaZip","Language":"C++","Stars":13490,"Description":"The 7-Zip derivative intended for the modern Windows experience"},{"URL":"https://github.com/hrydgard/ppsspp","Name":"hrydgard/ppsspp","Language":"C++","Stars":13487,"Description":"A PSP emulator for Android, Windows, Mac and Linux, written in C++. Want to contribute? Join us on Discord at https://discord.gg/5NJB6dD or just send pull requests / issues. For discussion use the forums at forums.ppsspp.org."},{"URL":"https://github.com/OrcaSlicer/OrcaSlicer","Name":"OrcaSlicer/OrcaSlicer","Language":"C++","Stars":12813,"Description":"G-code generator for 3D printers (Bambu, Prusa, Voron, VzBot, RatRig, Creality, etc.)"},{"URL":"https://github.com/skypjack/entt","Name":"skypjack/entt","Language":"C++","Stars":12361,"Description":"Gaming meets modern C++ - a fast and reliable entity component system (ECS) and much more"},{"URL":"https://github.com/Alexays/Waybar","Name":"Alexays/Waybar","Language":"C++","Stars":10848,"Description":"Highly customizable Wayland bar for Sway and Wlroots based compositors. ✌️ 🎉"},{"URL":"https://github.com/esphome/esphome","Name":"esphome/esphome","Language":"C++","Stars":10678,"Description":"ESPHome is a system to control your ESP32, ESP8266, BK72xx, RP2040 by simple yet powerful configuration files and control them remotely through Home Automation systems."},{"URL":"https://github.com/dyang886/Game-Cheats-Manager","Name":"dyang886/Game-Cheats-Manager","Language":"C++","Stars":10673,"Description":"Easily download and manage single-player game cheats for your convenience"},{"URL":"https://github.com/wxWidgets/wxWidgets","Name":"wxWidgets/wxWidgets","Language":"C++","Stars":7048,"Description":"Cross-Platform C++ GUI Library"},{"URL":"https://github.com/meshtastic/firmware","Name":"meshtastic/firmware","Language":"C++","Stars":7030,"Description":"The official firmware for Meshtastic, an open-source, off-grid mesh communication system."},{"URL":"https://github.com/GDRETools/gdsdecomp","Name":"GDRETools/gdsdecomp","Language":"C++","Stars":3075,"Description":"Godot reverse engineering tools"},{"URL":"https://github.com/geode-sdk/geode","Name":"geode-sdk/geode","Language":"C++","Stars":1963,"Description":"The ultimate Geometry Dash modding framework"},{"URL":"https://github.com/Detanup01/gbe_fork","Name":"Detanup01/gbe_fork","Language":"C++","Stars":1826,"Description":"Fork of https://gitlab.com/Mr_Goldberg/goldberg_emulator"},{"URL":"https://github.com/pjasicek/OpenClaw","Name":"pjasicek/OpenClaw","Language":"C++","Stars":445,"Description":"Reimplementation of Captain Claw (1997) platformer"}]},{"GroupName":"Python","Repos":[{"URL":"https://github.com/virattt/ai-hedge-fund","Name":"virattt/ai-hedge-fund","Language":"Python","Stars":47012,"Description":"An AI Hedge Fund Team"},{"URL":"https://github.com/karpathy/nanochat","Name":"karpathy/nanochat","Language":"Python","Stars":45217,"Description":"The best ChatGPT that $100 can buy."},{"URL":"https://github.com/exo-explore/exo","Name":"exo-explore/exo","Language":"Python","Stars":42375,"Description":"Run frontier AI locally."},{"URL":"https://github.com/666ghj/BettaFish","Name":"666ghj/BettaFish","Language":"Python","Stars":37118,"Description":"微舆：人人可用的多Agent舆情分析助手，打破信息茧房，还原舆情原貌，预测未来走向，辅助决策！从0实现，不依赖任何框架。"},{"URL":"https://github.com/hpcaitech/Open-Sora","Name":"hpcaitech/Open-Sora","Language":"Python","Stars":28665,"Description":"Open-Sora: Democratizing Efficient Video Production for All"},{"URL":"https://github.com/Free-TV/IPTV","Name":"Free-TV/IPTV","Language":"Python","Stars":14652,"Description":"M3U Playlist for free TV channels"},{"URL":"https://github.com/666ghj/MiroFish","Name":"666ghj/MiroFish","Language":"Python","Stars":9015,"Description":"A Simple and Universal Swarm Intelligence Engine, Predicting Anything. 简洁通用的群体智能引擎，预测万物"},{"URL":"https://github.com/Blaizzy/mlx-audio","Name":"Blaizzy/mlx-audio","Language":"Python","Stars":6189,"Description":"A text-to-speech (TTS), speech-to-text (STT) and speech-to-speech (STS) library built on Apple's MLX framework, providing efficient speech analysis on Apple Silicon."},{"URL":"https://github.com/teng-lin/notebooklm-py","Name":"teng-lin/notebooklm-py","Language":"Python","Stars":3991,"Description":"Unofficial Python API for Google NotebookLM"},{"URL":"https://github.com/alirezarezvani/claude-skills","Name":"alirezarezvani/claude-skills","Language":"Python","Stars":2987,"Description":"169 production-ready skills \u0026 plugins for Claude Code, OpenAI Codex, and OpenClaw — engineering, marketing, product, compliance, C-level advisory, and more. Install via /plugin marketplace."},{"URL":"https://github.com/NousResearch/hermes-agent","Name":"NousResearch/hermes-agent","Language":"Python","Stars":2594,"Description":"The agent that grows with you"},{"URL":"https://github.com/strands-agents/samples","Name":"strands-agents/samples","Language":"Python","Stars":680,"Description":"Agent samples built using the Strands Agents SDK."}]},{"GroupName":"Go","Repos":[{"URL":"https://github.com/avelino/awesome-go","Name":"avelino/awesome-go","Language":"Go","Stars":166944,"Description":"A curated list of awesome Go frameworks, libraries and software"},{"URL":"https://github.com/fatedier/frp","Name":"fatedier/frp","Language":"Go","Stars":105027,"Description":"A fast reverse proxy to help you expose a local server behind a NAT or firewall to the internet."},{"URL":"https://github.com/syncthing/syncthing","Name":"syncthing/syncthing","Language":"Go","Stars":80650,"Description":"Open Source Continuous File Synchronization"},{"URL":"https://github.com/XTLS/Xray-core","Name":"XTLS/Xray-core","Language":"Go","Stars":35697,"Description":"Xray, Penetrates Everything. Also the best v2ray-core. Where the magic happens. An open platform for various uses."},{"URL":"https://github.com/filebrowser/filebrowser","Name":"filebrowser/filebrowser","Language":"Go","Stars":33755,"Description":"📂 Web File Browser"},{"URL":"https://github.com/GopeedLab/gopeed","Name":"GopeedLab/gopeed","Language":"Go","Stars":23159,"Description":"A modern download manager that supports all platforms. Built with Golang and Flutter."},{"URL":"https://github.com/m1k1o/neko","Name":"m1k1o/neko","Language":"Go","Stars":18989,"Description":"A self hosted virtual browser that runs in docker and uses WebRTC."},{"URL":"https://github.com/google/gvisor","Name":"google/gvisor","Language":"Go","Stars":17842,"Description":"Application Kernel for Containers"},{"URL":"https://github.com/goreleaser/goreleaser","Name":"goreleaser/goreleaser","Language":"Go","Stars":15638,"Description":"Release engineering, simplified"},{"URL":"https://github.com/grafana/pyroscope","Name":"grafana/pyroscope","Language":"Go","Stars":11275,"Description":"Continuous Profiling Platform. Debug performance issues down to a single line of code"},{"URL":"https://github.com/owncast/owncast","Name":"owncast/owncast","Language":"Go","Stars":11004,"Description":"Take control over your live stream video by running it yourself. Streaming + chat out of the box."},{"URL":"https://github.com/dlvhdr/gh-dash","Name":"dlvhdr/gh-dash","Language":"Go","Stars":10697,"Description":"A rich terminal UI for GitHub that doesn't break your flow."},{"URL":"https://github.com/pocket-id/pocket-id","Name":"pocket-id/pocket-id","Language":"Go","Stars":6994,"Description":"A simple and easy-to-use OIDC provider that allows users to authenticate with their passkeys to your services."},{"URL":"https://github.com/hatchet-dev/hatchet","Name":"hatchet-dev/hatchet","Language":"Go","Stars":6697,"Description":"🪓 Run Background Tasks at Scale"},{"URL":"https://github.com/getarcaneapp/arcane","Name":"getarcaneapp/arcane","Language":"Go","Stars":4929,"Description":"Modern Docker Management, Designed for Everyone"},{"URL":"https://github.com/canopy-network/canopy","Name":"canopy-network/canopy","Language":"Go","Stars":4634,"Description":"The official go implementation of the Canopy Network protocol"},{"URL":"https://github.com/Wei-Shaw/sub2api","Name":"Wei-Shaw/sub2api","Language":"Go","Stars":3830,"Description":"Sub2API-CRS2 一站式开源中转服务，让 Claude、Openai 、Gemini、Antigravity订阅统一接入，支持拼车共享，更高效分摊成本，原生工具无缝使用。"},{"URL":"https://github.com/Ed1s0nZ/CyberStrikeAI","Name":"Ed1s0nZ/CyberStrikeAI","Language":"Go","Stars":2545,"Description":"CyberStrikeAI is an AI-native security testing platform built in Go. It integrates 100+ security tools, an intelligent orchestration engine, role-based testing with predefined security roles, a skills system with specialized testing skills, and comprehensive lifecycle management capabilities."}]},{"GroupName":"Rust","Repos":[{"URL":"https://github.com/astral-sh/uv","Name":"astral-sh/uv","Language":"Rust","Stars":80548,"Description":"An extremely fast Python package and project manager, written in Rust."},{"URL":"https://github.com/sxyazi/yazi","Name":"sxyazi/yazi","Language":"Rust","Stars":33639,"Description":"💥 Blazing fast terminal file manager written in Rust, based on async I/O."},{"URL":"https://github.com/biomejs/biome","Name":"biomejs/biome","Language":"Rust","Stars":23971,"Description":"A toolchain for web projects, aimed to provide functionalities to maintain them. Biome offers formatter and linter, usable via CLI and LSP."},{"URL":"https://github.com/clockworklabs/SpacetimeDB","Name":"clockworklabs/SpacetimeDB","Language":"Rust","Stars":23020,"Description":"Development at the speed of light"},{"URL":"https://github.com/ratatui/ratatui","Name":"ratatui/ratatui","Language":"Rust","Stars":18901,"Description":"A Rust crate for cooking up terminal user interfaces (TUIs) 👨‍🍳🐀 https://ratatui.rs"},{"URL":"https://github.com/rust-lang/book","Name":"rust-lang/book","Language":"Rust","Stars":17485,"Description":"The Rust Programming Language"},{"URL":"https://github.com/rust-lang/rust-analyzer","Name":"rust-lang/rust-analyzer","Language":"Rust","Stars":16143,"Description":"A Rust compiler front-end for IDEs"},{"URL":"https://github.com/LGUG2Z/komorebi","Name":"LGUG2Z/komorebi","Language":"Rust","Stars":14168,"Description":"A tiling window manager for Windows 🍉"},{"URL":"https://github.com/memvid/memvid","Name":"memvid/memvid","Language":"Rust","Stars":13339,"Description":"Memory layer for AI Agents. Replace complex RAG pipelines with a serverless, single-file memory layer. Give your agents instant retrieval and long-term memory."},{"URL":"https://github.com/ast-grep/ast-grep","Name":"ast-grep/ast-grep","Language":"Rust","Stars":12808,"Description":"⚡A CLI tool for code structural search, lint and rewriting. Written in Rust"},{"URL":"https://github.com/Pumpkin-MC/Pumpkin","Name":"Pumpkin-MC/Pumpkin","Language":"Rust","Stars":7210,"Description":"Empowering everyone to host fast and efficient Minecraft servers."},{"URL":"https://github.com/0xPlaygrounds/rig","Name":"0xPlaygrounds/rig","Language":"Rust","Stars":6371,"Description":"⚙️🦀 Build modular and scalable LLM Applications in Rust"},{"URL":"https://github.com/maplibre/martin","Name":"maplibre/martin","Language":"Rust","Stars":3447,"Description":"Blazing fast and lightweight PostGIS, MBtiles and PMtiles tile server, tile generation, and mbtiles tooling."},{"URL":"https://github.com/tursodatabase/agentfs","Name":"tursodatabase/agentfs","Language":"Rust","Stars":2566,"Description":"The filesystem for agents."},{"URL":"https://github.com/ki-editor/ki-editor","Name":"ki-editor/ki-editor","Language":"Rust","Stars":774,"Description":""}]},{"GroupName":"Java","Repos":[{"URL":"https://github.com/krahets/hello-algo","Name":"krahets/hello-algo","Language":"Java","Stars":122861,"Description":"《Hello 算法》：动画图解、一键运行的数据结构与算法教程。支持简中、繁中、English、日本語，提供 Python, Java, C++, C, C#, JS, Go, Swift, Rust, Ruby, Kotlin, TS, Dart 等代码实现"},{"URL":"https://github.com/termux/termux-app","Name":"termux/termux-app","Language":"Java","Stars":51681,"Description":"Termux - a terminal emulator application for Android OS extendible by variety of packages."},{"URL":"https://github.com/TeamNewPipe/NewPipe","Name":"TeamNewPipe/NewPipe","Language":"Java","Stars":37457,"Description":"A libre lightweight streaming front-end for Android."},{"URL":"https://github.com/DrKLO/Telegram","Name":"DrKLO/Telegram","Language":"Java","Stars":28680,"Description":"Telegram for Android source"},{"URL":"https://github.com/Anuken/Mindustry","Name":"Anuken/Mindustry","Language":"Java","Stars":26773,"Description":"The automation tower defense RTS"},{"URL":"https://github.com/ashishps1/awesome-low-level-design","Name":"ashishps1/awesome-low-level-design","Language":"Java","Stars":22605,"Description":"Learn Low Level Design (LLD) and prepare for interviews using free resources."},{"URL":"https://github.com/apache/hadoop","Name":"apache/hadoop","Language":"Java","Stars":15500,"Description":"Apache Hadoop"},{"URL":"https://github.com/awsdocs/aws-doc-sdk-examples","Name":"awsdocs/aws-doc-sdk-examples","Language":"Java","Stars":10380,"Description":"Welcome to the AWS Code Examples Repository. This repo contains code examples used in the AWS documentation, AWS SDK Developer Guides, and more. For more information, see the Readme.md file below."},{"URL":"https://github.com/PojavLauncherTeam/PojavLauncher","Name":"PojavLauncherTeam/PojavLauncher","Language":"Java","Stars":8754,"Description":"A Minecraft: Java Edition Launcher for Android and iOS based on Boardwalk. Succeeded by https://github.com/AngelAuraMC/Amethyst-Android"},{"URL":"https://github.com/freeok/so-novel","Name":"freeok/so-novel","Language":"Java","Stars":6280,"Description":"小说下载｜网文下载 | 网络小说"},{"URL":"https://github.com/ReVanced/revanced-patches","Name":"ReVanced/revanced-patches","Language":"Java","Stars":5447,"Description":"🧩 Patches for ReVanced"},{"URL":"https://github.com/ReChronoRain/HyperCeiler","Name":"ReChronoRain/HyperCeiler","Language":"Java","Stars":4360,"Description":"HyperOS enhancement module - Make HyperOS Great Again!"},{"URL":"https://github.com/AsamK/signal-cli","Name":"AsamK/signal-cli","Language":"Java","Stars":4274,"Description":"signal-cli provides an unofficial commandline, JSON-RPC and dbus interface for the Signal messenger."},{"URL":"https://github.com/crimera/piko","Name":"crimera/piko","Language":"Java","Stars":2784,"Description":"morphe patches for twitter"},{"URL":"https://github.com/MewX/light-novel-library_Wenku8_Android","Name":"MewX/light-novel-library_Wenku8_Android","Language":"Java","Stars":2544,"Description":"[CASUALLY MAINTAINED] 轻小说文库 (Wenku8.com) 安卓版第三方公益App，始于2014年的初版Material Design风格、非盈利、Play Store上安装包最小的轻小说阅读器 (light novel reader)。目前网站的API由于被大量滥用，已更新成我自己架的 Cloudflare Worker API 中继节点，不然的话网站关闭API就全军覆没了。"},{"URL":"https://github.com/openhab/openhab-addons","Name":"openhab/openhab-addons","Language":"Java","Stars":2042,"Description":"Add-ons for openHAB"},{"URL":"https://github.com/Pugmatt/BedrockConnect","Name":"Pugmatt/BedrockConnect","Language":"Java","Stars":2007,"Description":"Join any Minecraft Bedrock Edition server IP on Xbox One, Nintendo Switch, and PS4/PS5"},{"URL":"https://github.com/sepinf-inc/IPED","Name":"sepinf-inc/IPED","Language":"Java","Stars":1754,"Description":"IPED Digital Forensic Tool. It is an open source software that can be used to process and analyze digital evidence, often seized at crime scenes by law enforcement or in a corporate investigation by private examiners."},{"URL":"https://github.com/ZalithLauncher/ZalithLauncher","Name":"ZalithLauncher/ZalithLauncher","Language":"Java","Stars":1570,"Description":"Zalith Launcher is a Minecraft launcher developed based on PojavLauncher, capable of running Minecraft: Java Edition on Android devices."},{"URL":"https://github.com/Trainguy9512/locomotion","Name":"Trainguy9512/locomotion","Language":"Java","Stars":714,"Description":""},{"URL":"https://github.com/woheller69/FreeDroidWarn","Name":"woheller69/FreeDroidWarn","Language":"Java","Stars":689,"Description":""}]},{"GroupName":"JavaScript/TypeScript","Repos":[{"URL":"https://github.com/kamranahmedse/developer-roadmap","Name":"kamranahmedse/developer-roadmap","Language":"TypeScript","Stars":350535,"Description":"Interactive roadmaps, guides and other educational content to help developers grow in their careers."},{"URL":"https://github.com/openclaw/openclaw","Name":"openclaw/openclaw","Language":"TypeScript","Stars":287668,"Description":"Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞"},{"URL":"https://github.com/mrdoob/three.js","Name":"mrdoob/three.js","Language":"JavaScript","Stars":111251,"Description":"JavaScript 3D Library."},{"URL":"https://github.com/shadcn-ui/ui","Name":"shadcn-ui/ui","Language":"TypeScript","Stars":108985,"Description":"A set of beautifully-designed, accessible components and a code distribution platform. Works with your favorite frameworks. Open Source. Open Code."},{"URL":"https://github.com/firecrawl/firecrawl","Name":"firecrawl/firecrawl","Language":"TypeScript","Stars":89917,"Description":"🔥 The Web Data API for AI - Turn entire websites into LLM-ready markdown or structured data"},{"URL":"https://github.com/toeverything/AFFiNE","Name":"toeverything/AFFiNE","Language":"TypeScript","Stars":65503,"Description":"There can be more than Notion and Miro. AFFiNE(pronounced [ə‘fain]) is a next-gen knowledge base that brings planning, sorting and creating all together. Privacy first, open-source, customizable and ready to use."},{"URL":"https://github.com/gsd-build/get-shit-done","Name":"gsd-build/get-shit-done","Language":"JavaScript","Stars":26738,"Description":"A light-weight and powerful meta-prompting, context engineering and spec-driven development system for Claude Code by TÂCHES."},{"URL":"https://github.com/shareAI-lab/learn-claude-code","Name":"shareAI-lab/learn-claude-code","Language":"TypeScript","Stars":24389,"Description":"Bash is all you need - A nano Claude Code–like agent, built from 0 to 1"},{"URL":"https://github.com/yjs/yjs","Name":"yjs/yjs","Language":"JavaScript","Stars":21385,"Description":"Shared data types for building collaborative software"},{"URL":"https://github.com/czlonkowski/n8n-mcp","Name":"czlonkowski/n8n-mcp","Language":"TypeScript","Stars":14640,"Description":"A MCP for Claude Desktop / Claude Code / Windsurf / Cursor to build n8n workflows for you"},{"URL":"https://github.com/alam00000/bentopdf","Name":"alam00000/bentopdf","Language":"JavaScript","Stars":11909,"Description":"A Privacy First PDF Toolkit"},{"URL":"https://github.com/is-a-dev/register","Name":"is-a-dev/register","Language":"JavaScript","Stars":9917,"Description":"Grab your own sweet-looking '.is-a.dev' subdomain."},{"URL":"https://github.com/aandrew-me/ytDownloader","Name":"aandrew-me/ytDownloader","Language":"JavaScript","Stars":8705,"Description":"Desktop App for downloading Videos and Audios from hundreds of sites"},{"URL":"https://github.com/pbakaus/impeccable","Name":"pbakaus/impeccable","Language":"JavaScript","Stars":2550,"Description":"The design language that makes your AI harness better at design."},{"URL":"https://github.com/tiann/hapi","Name":"tiann/hapi","Language":"TypeScript","Stars":2444,"Description":"App for Claude Code / Codex / Gemini / OpenCode, vibe coding anytime, anywhere"},{"URL":"https://github.com/alibaba/page-agent","Name":"alibaba/page-agent","Language":"TypeScript","Stars":2198,"Description":"JavaScript in-page GUI agent. Control web interfaces with natural language."},{"URL":"https://github.com/arhamkhnz/next-shadcn-admin-dashboard","Name":"arhamkhnz/next-shadcn-admin-dashboard","Language":"TypeScript","Stars":1793,"Description":"Modern Admin Dashboard Template built with Shadcn UI and Next.js 16"},{"URL":"https://github.com/apify/agent-skills","Name":"apify/agent-skills","Language":"JavaScript","Stars":1388,"Description":"Collection of Apify Agent Skills"},{"URL":"https://github.com/technomancer702/nodecast-tv","Name":"technomancer702/nodecast-tv","Language":"JavaScript","Stars":1045,"Description":"A self-hosted web application that lets you stream Live TV, Movies, and Series from your Xtream Codes or M3U provider directly in your browser. It's built with performance in mind and handles large libraries smoothly."}]}];
+    const viewGroups = buildViewGroups(groups);
+
+    const root = document.documentElement;
+    const themeToggle = document.getElementById("theme-toggle");
+    const themeMediaQuery = window.matchMedia
+        ? window.matchMedia("(prefers-color-scheme: dark)")
+        : {matches: false};
+    const languageList = document.getElementById("language-list");
+    const repoGrid = document.getElementById("repo-grid");
+    const reposMeta = document.getElementById("repos-meta");
+    const reposTitle = document.getElementById("repos-title");
+    const sortSelect = document.getElementById("sort-select");
+    const activeLanguage = document.getElementById("active-language");
+    const searchInput = document.getElementById("search-input");
+
+    let themeMode = "system";
+    let activeIndex = 0;
+    let keyword = "";
+    let sortMode = "default";
+
+    function getSystemTheme() {
+        return themeMediaQuery.matches ? "dark" : "light";
+    }
+
+    function getActiveTheme() {
+        if (themeMode === "system") {
+            return getSystemTheme();
+        }
+        return themeMode;
+    }
+
+    function updateThemeToggle(activeTheme) {
+        if (!themeToggle) {
+            return;
+        }
+
+        themeToggle.dataset.activeTheme = activeTheme;
+        const nextTheme = activeTheme === "dark" ? "light" : "dark";
+        const nextThemeText = nextTheme === "dark" ? "深色" : "浅色";
+        const label = `切换到${nextThemeText}主题`;
+        themeToggle.setAttribute("aria-label", label);
+        themeToggle.setAttribute("title", label);
+    }
+
+    function applyTheme() {
+        const activeTheme = getActiveTheme();
+        root.setAttribute("data-theme", activeTheme);
+        updateThemeToggle(activeTheme);
+    }
+
+    function toggleTheme() {
+        const activeTheme = getActiveTheme();
+        themeMode = activeTheme === "dark" ? "light" : "dark";
+        applyTheme();
+    }
+
+    function buildViewGroups(sourceGroups) {
+        if (!Array.isArray(sourceGroups) || sourceGroups.length === 0) {
+            return [];
+        }
+
+        const uniqueByUrl = new Map();
+        sourceGroups.forEach(group => {
+            const repos = Array.isArray(group?.Repos) ? group.Repos : [];
+            repos.forEach(repo => {
+                const key = String(repo?.URL || "").trim() || `${repo?.Name || "repo"}-${repo?.Stars || 0}`;
+                if (!uniqueByUrl.has(key)) {
+                    uniqueByUrl.set(key, repo);
+                }
+            });
+        });
+
+        const allRepos = Array.from(uniqueByUrl.values());
+        return [{ GroupName: "ALL", Repos: allRepos }, ...sourceGroups];
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll("\"", "&quot;")
+            .replaceAll("'", "&#39;");
+    }
+
+    function safeRepoUrl(value) {
+        try {
+            const parsed = new URL(String(value));
+            if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+                return parsed.href;
+            }
+        } catch (_error) {
+        }
+        return "#";
+    }
+
+    function filterRepos(repos) {
+        if (!keyword) {
+            return repos;
+        }
+        const q = keyword.toLowerCase();
+        return repos.filter(repo => {
+            const name = String(repo.Name || "").toLowerCase();
+            const desc = String(repo.Description || "").toLowerCase();
+            const lang = String(repo.Language || "").toLowerCase();
+            return name.includes(q) || desc.includes(q) || lang.includes(q);
+        });
+    }
+
+    function sortRepos(repos) {
+        const sorted = [...repos];
+        if (sortMode === "name_asc") {
+            sorted.sort((a, b) => String(a?.Name || "").localeCompare(String(b?.Name || ""), "en", {sensitivity: "base"}));
+            return sorted;
+        }
+        if (sortMode === "stars_desc") {
+            sorted.sort((a, b) => Number(b?.Stars || 0) - Number(a?.Stars || 0));
+        }
+        return sorted;
+    }
 
     function renderLanguages() {
-        languageBar.innerHTML = groups.map((group, index) => {
-            const activeClass = index === active ? "active" : "";
-            return `<button class="language-btn ${activeClass}" data-index="${index}">${group.GroupName} (${group.Repos.length})</button>`;
+        if (!Array.isArray(viewGroups) || viewGroups.length === 0) {
+            languageList.innerHTML = "<div class=\"empty\">没有可显示的语言分组。</div>";
+            activeLanguage.textContent = "-";
+            return;
+        }
+
+        languageList.innerHTML = viewGroups.map((group, index) => {
+            const isActive = index === activeIndex;
+            return `
+                <button class="language-btn ${isActive ? "active" : ""}" type="button" data-index="${index}">
+                    <span>${escapeHtml(group.GroupName || "Unknown")}</span>
+                    <span class="count">${Number(group.Repos?.length || 0)}</span>
+                </button>
+            `;
         }).join("");
 
-        languageBar.querySelectorAll(".language-btn").forEach(btn => {
-            btn.addEventListener("click", () => {
-                active = Number(btn.dataset.index);
+        languageList.querySelectorAll(".language-btn").forEach(button => {
+            button.addEventListener("click", () => {
+                activeIndex = Number(button.dataset.index);
                 renderLanguages();
                 renderRepos();
             });
@@ -308,28 +1014,87 @@
     }
 
     function renderRepos() {
-        const repos = groups[active]?.Repos || [];
-        if (!repos.length) {
-            repoCards.innerHTML = `<div class="empty">该分组暂无仓库。</div>`;
+        if (!Array.isArray(viewGroups) || viewGroups.length === 0) {
+            repoGrid.innerHTML = "<div class=\"empty\">未抓取到仓库数据。</div>";
+            reposMeta.textContent = "0 items";
+            reposTitle.textContent = "今日仓库";
             return;
         }
 
-        repoCards.innerHTML = repos.map((repo, idx) => {
-            const desc = repo.Description || "暂无描述";
-            const lang = repo.Language || groups[active].GroupName;
+        const currentGroup = viewGroups[activeIndex] || viewGroups[0];
+        const groupName = currentGroup.GroupName || "Unknown";
+        const repos = Array.isArray(currentGroup.Repos) ? currentGroup.Repos : [];
+        const filtered = filterRepos(repos);
+        const sorted = sortRepos(filtered);
+
+        activeLanguage.textContent = groupName;
+        reposTitle.textContent = `${groupName} Trending`;
+        reposMeta.textContent = `${sorted.length} / ${repos.length} items`;
+
+        if (sorted.length === 0) {
+            repoGrid.innerHTML = "<div class=\"empty\">当前过滤条件下没有结果。</div>";
+            return;
+        }
+
+        repoGrid.innerHTML = sorted.map((repo, idx) => {
+            const name = escapeHtml(repo.Name || "Unnamed repository");
+            const description = escapeHtml(repo.Description || "No description.");
+            const language = escapeHtml(repo.Language || groupName);
+            const stars = Number(repo.Stars || 0).toLocaleString();
+            const url = safeRepoUrl(repo.URL);
+            const rankClass = idx < 3 ? "repo-rank top" : "repo-rank";
+            const rankText = String(idx + 1).padStart(2, "0");
+
             return `
-                <a class="repo-card" href="${repo.URL}" target="_blank" rel="noopener" style="animation-delay:${idx * 0.03}s">
+                <a class="repo-card" href="${url}" target="_blank" rel="noopener" style="animation-delay:${idx * 0.025}s">
                     <div class="repo-head">
-                        <h3 class="repo-name">${repo.Name}</h3>
-                        <span class="repo-stars">★ ${Number(repo.Stars).toLocaleString()}</span>
+                        <h3 class="repo-name"><span class="${rankClass}">${rankText}</span><span>${name}</span></h3>
+                        <span class="star">★ ${stars}</span>
                     </div>
-                    <p class="repo-desc">${desc}</p>
-                    <div class="repo-foot">Language: ${lang}</div>
+                    <p class="repo-desc">${description}</p>
+                    <div class="repo-foot">
+                        <span class="tag">${language}</span>
+                    </div>
                 </a>
             `;
         }).join("");
     }
 
+    searchInput.addEventListener("input", (event) => {
+        keyword = String(event.target.value || "").trim();
+        renderRepos();
+    });
+
+    if (sortSelect) {
+        sortSelect.addEventListener("change", (event) => {
+            const mode = String(event.target.value || "default");
+            if (mode !== "default" && mode !== "stars_desc" && mode !== "name_asc") {
+                return;
+            }
+            sortMode = mode;
+            renderRepos();
+        });
+    }
+
+    if (themeToggle) {
+        themeToggle.addEventListener("click", toggleTheme);
+    }
+
+    if (typeof themeMediaQuery.addEventListener === "function") {
+        themeMediaQuery.addEventListener("change", () => {
+            if (themeMode === "system") {
+                applyTheme();
+            }
+        });
+    } else if (typeof themeMediaQuery.addListener === "function") {
+        themeMediaQuery.addListener(() => {
+            if (themeMode === "system") {
+                applyTheme();
+            }
+        });
+    }
+
+    applyTheme();
     renderLanguages();
     renderRepos();
 </script>

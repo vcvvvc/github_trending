@@ -462,6 +462,23 @@
             text-align: center;
         }
 
+        .footer-logo {
+            width: 92px;
+            height: 92px;
+            border-radius: 999px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: var(--card);
+            box-shadow: var(--panel-shadow);
+        }
+
+        .footer-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
         .footer-main {
             display: inline-flex;
             align-items: center;
@@ -562,6 +579,11 @@
             .stats {
                 grid-template-columns: 1fr;
             }
+
+            .footer {
+                justify-content: center;
+                text-align: center;
+            }
         }
 
         @media (max-width: 560px) {
@@ -580,7 +602,7 @@
             </a>
             <nav class="nav-menu">
                 <a class="nav-link" href="../index.html">首页</a>
-                <a class="nav-link active" href="index.html">历史归档</a>
+                <a class="nav-link active" href="history.html">历史归档</a>
             </nav>
         </div>
         <div class="nav-theme">
@@ -643,7 +665,7 @@
                 <a class="entry latest" href="2026-03-09.html" target="_blank" rel="noopener">
                     <span class="entry-name">2026-03-09.html</span>
                     <span class="entry-date">2026年3月9日</span>
-                    <span class="entry-size">41.8KB</span>
+                    <span class="entry-size">60.0KB</span>
                 </a>
                 
                 <a class="entry " href="2026-03-08.html" target="_blank" rel="noopener">
@@ -2226,6 +2248,9 @@
     </section>
 
     <footer class="footer">
+        <a class="footer-logo" href="../index.html" aria-label="返回首页">
+            <img src="../templates/logo.png" alt="GitHub Trending Logo">
+        </a>
         <div class="footer-main">
             <span class="footer-label">Source</span>
             <a class="footer-link" href="https://github.com/vcvvvc/github_trending" target="_blank" rel="noopener">github.com/vcvvvc/github_trending</a>
