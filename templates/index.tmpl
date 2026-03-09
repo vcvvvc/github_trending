@@ -6,8 +6,18 @@
     <title>GitHub Trending Daily</title>
     <script>
         (() => {
+            const storageKey = "gh-trending-theme";
+            let mode = "system";
+            try {
+                const saved = localStorage.getItem(storageKey);
+                if (saved === "light" || saved === "dark") {
+                    mode = saved;
+                }
+            } catch (_error) {
+            }
             const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-            document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
+            const theme = mode === "system" ? (prefersDark ? "dark" : "light") : mode;
+            document.documentElement.setAttribute("data-theme", theme);
         })();
     </script>
     <style>
@@ -164,36 +174,6 @@
             margin: 14px 0 0;
             color: var(--muted-foreground);
             font-size: 15px;
-        }
-
-        .btn {
-            border: 1px solid transparent;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 14px;
-            line-height: 1;
-            padding: 11px 14px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: transform 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
-        }
-
-        .btn:hover {
-            transform: translateY(-1px);
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: var(--primary-foreground);
-            box-shadow: var(--btn-primary-shadow);
-        }
-
-        .btn-secondary {
-            background: var(--card);
-            border-color: var(--border);
-            color: var(--foreground);
         }
 
         .theme-toggle {
@@ -699,6 +679,50 @@
             letter-spacing: 0.02em;
         }
 
+        .back-to-top {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 44px;
+            height: 44px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--foreground);
+            box-shadow: var(--panel-shadow);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(10px);
+            transition: opacity 0.18s ease, transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+            z-index: 50;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .back-to-top:hover {
+            border-color: var(--ring);
+            background: var(--muted);
+            transform: translateY(8px);
+        }
+
+        .back-to-top svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
         @keyframes float-up {
             to {
                 opacity: 1;
@@ -780,6 +804,13 @@
         @media (max-width: 560px) {
             .page {
                 padding: 16px 12px 36px;
+            }
+
+            .back-to-top {
+                right: 12px;
+                bottom: 12px;
+                width: 40px;
+                height: 40px;
             }
         }
     </style>
@@ -863,240 +894,322 @@
         <div class="footer-stats">Groups: {{.GroupCount}} · Repositories: {{.RepoCount}}</div>
     </footer>
 </main>
+<button class="back-to-top" id="back-to-top" type="button" aria-label="回到顶部" title="回到顶部">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 19V5"></path>
+        <path d="m5 12 7-7 7 7"></path>
+    </svg>
+</button>
 
 <script>
-    const groups = {{.GroupsJSON}};
-    const viewGroups = buildViewGroups(groups);
+    (() => {
+        const rawGroups = {{.GroupsJSON}};
+        const groups = Array.isArray(rawGroups) ? rawGroups : [];
+        const THEME_STORAGE_KEY = "gh-trending-theme";
+        const VALID_SORT_MODES = new Set(["default", "stars_desc", "name_asc"]);
 
-    const root = document.documentElement;
-    const themeToggle = document.getElementById("theme-toggle");
-    const themeMediaQuery = window.matchMedia
-        ? window.matchMedia("(prefers-color-scheme: dark)")
-        : {matches: false};
-    const languageList = document.getElementById("language-list");
-    const repoGrid = document.getElementById("repo-grid");
-    const reposMeta = document.getElementById("repos-meta");
-    const reposTitle = document.getElementById("repos-title");
-    const sortSelect = document.getElementById("sort-select");
-    const activeLanguage = document.getElementById("active-language");
-    const searchInput = document.getElementById("search-input");
+        const elements = {
+            root: document.documentElement,
+            themeToggle: document.getElementById("theme-toggle"),
+            languageList: document.getElementById("language-list"),
+            repoGrid: document.getElementById("repo-grid"),
+            reposMeta: document.getElementById("repos-meta"),
+            reposTitle: document.getElementById("repos-title"),
+            sortSelect: document.getElementById("sort-select"),
+            activeLanguage: document.getElementById("active-language"),
+            searchInput: document.getElementById("search-input"),
+            backToTop: document.getElementById("back-to-top")
+        };
+        const themeMediaQuery = window.matchMedia
+            ? window.matchMedia("(prefers-color-scheme: dark)")
+            : {matches: false};
+        const state = {
+            themeMode: "system",
+            activeIndex: 0,
+            keyword: "",
+            sortMode: "default"
+        };
+        const viewGroups = buildViewGroups(groups);
 
-    let themeMode = "system";
-    let activeIndex = 0;
-    let keyword = "";
-    let sortMode = "default";
-
-    function getSystemTheme() {
-        return themeMediaQuery.matches ? "dark" : "light";
-    }
-
-    function getActiveTheme() {
-        if (themeMode === "system") {
-            return getSystemTheme();
-        }
-        return themeMode;
-    }
-
-    function updateThemeToggle(activeTheme) {
-        if (!themeToggle) {
-            return;
-        }
-
-        themeToggle.dataset.activeTheme = activeTheme;
-        const nextTheme = activeTheme === "dark" ? "light" : "dark";
-        const nextThemeText = nextTheme === "dark" ? "深色" : "浅色";
-        const label = `切换到${nextThemeText}主题`;
-        themeToggle.setAttribute("aria-label", label);
-        themeToggle.setAttribute("title", label);
-    }
-
-    function applyTheme() {
-        const activeTheme = getActiveTheme();
-        root.setAttribute("data-theme", activeTheme);
-        updateThemeToggle(activeTheme);
-    }
-
-    function toggleTheme() {
-        const activeTheme = getActiveTheme();
-        themeMode = activeTheme === "dark" ? "light" : "dark";
-        applyTheme();
-    }
-
-    function buildViewGroups(sourceGroups) {
-        if (!Array.isArray(sourceGroups) || sourceGroups.length === 0) {
-            return [];
-        }
-
-        const uniqueByUrl = new Map();
-        sourceGroups.forEach(group => {
-            const repos = Array.isArray(group?.Repos) ? group.Repos : [];
-            repos.forEach(repo => {
-                const key = String(repo?.URL || "").trim() || `${repo?.Name || "repo"}-${repo?.Stars || 0}`;
-                if (!uniqueByUrl.has(key)) {
-                    uniqueByUrl.set(key, repo);
+        function loadThemeMode() {
+            try {
+                const saved = localStorage.getItem(THEME_STORAGE_KEY);
+                if (saved === "light" || saved === "dark") {
+                    return saved;
                 }
-            });
-        });
-
-        const allRepos = Array.from(uniqueByUrl.values());
-        return [{ GroupName: "ALL", Repos: allRepos }, ...sourceGroups];
-    }
-
-    function escapeHtml(value) {
-        return String(value ?? "")
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll("\"", "&quot;")
-            .replaceAll("'", "&#39;");
-    }
-
-    function safeRepoUrl(value) {
-        try {
-            const parsed = new URL(String(value));
-            if (parsed.protocol === "http:" || parsed.protocol === "https:") {
-                return parsed.href;
+            } catch (_error) {
             }
-        } catch (_error) {
-        }
-        return "#";
-    }
-
-    function filterRepos(repos) {
-        if (!keyword) {
-            return repos;
-        }
-        const q = keyword.toLowerCase();
-        return repos.filter(repo => {
-            const name = String(repo.Name || "").toLowerCase();
-            const desc = String(repo.Description || "").toLowerCase();
-            const lang = String(repo.Language || "").toLowerCase();
-            return name.includes(q) || desc.includes(q) || lang.includes(q);
-        });
-    }
-
-    function sortRepos(repos) {
-        const sorted = [...repos];
-        if (sortMode === "name_asc") {
-            sorted.sort((a, b) => String(a?.Name || "").localeCompare(String(b?.Name || ""), "en", {sensitivity: "base"}));
-            return sorted;
-        }
-        if (sortMode === "stars_desc") {
-            sorted.sort((a, b) => Number(b?.Stars || 0) - Number(a?.Stars || 0));
-        }
-        return sorted;
-    }
-
-    function renderLanguages() {
-        if (!Array.isArray(viewGroups) || viewGroups.length === 0) {
-            languageList.innerHTML = "<div class=\"empty\">没有可显示的语言分组。</div>";
-            activeLanguage.textContent = "-";
-            return;
+            return "system";
         }
 
-        languageList.innerHTML = viewGroups.map((group, index) => {
-            const isActive = index === activeIndex;
-            return `
-                <button class="language-btn ${isActive ? "active" : ""}" type="button" data-index="${index}">
-                    <span>${escapeHtml(group.GroupName || "Unknown")}</span>
-                    <span class="count">${Number(group.Repos?.length || 0)}</span>
-                </button>
-            `;
-        }).join("");
-
-        languageList.querySelectorAll(".language-btn").forEach(button => {
-            button.addEventListener("click", () => {
-                activeIndex = Number(button.dataset.index);
-                renderLanguages();
-                renderRepos();
-            });
-        });
-    }
-
-    function renderRepos() {
-        if (!Array.isArray(viewGroups) || viewGroups.length === 0) {
-            repoGrid.innerHTML = "<div class=\"empty\">未抓取到仓库数据。</div>";
-            reposMeta.textContent = "0 items";
-            reposTitle.textContent = "今日仓库";
-            return;
+        function saveThemeMode() {
+            try {
+                if (state.themeMode === "system") {
+                    localStorage.removeItem(THEME_STORAGE_KEY);
+                    return;
+                }
+                localStorage.setItem(THEME_STORAGE_KEY, state.themeMode);
+            } catch (_error) {
+            }
         }
 
-        const currentGroup = viewGroups[activeIndex] || viewGroups[0];
-        const groupName = currentGroup.GroupName || "Unknown";
-        const repos = Array.isArray(currentGroup.Repos) ? currentGroup.Repos : [];
-        const filtered = filterRepos(repos);
-        const sorted = sortRepos(filtered);
-
-        activeLanguage.textContent = groupName;
-        reposTitle.textContent = `${groupName} Trending`;
-        reposMeta.textContent = `${sorted.length} / ${repos.length} items`;
-
-        if (sorted.length === 0) {
-            repoGrid.innerHTML = "<div class=\"empty\">当前过滤条件下没有结果。</div>";
-            return;
+        function getSystemTheme() {
+            return themeMediaQuery.matches ? "dark" : "light";
         }
 
-        repoGrid.innerHTML = sorted.map((repo, idx) => {
-            const name = escapeHtml(repo.Name || "Unnamed repository");
-            const description = escapeHtml(repo.Description || "No description.");
-            const language = escapeHtml(repo.Language || groupName);
-            const stars = Number(repo.Stars || 0).toLocaleString();
-            const url = safeRepoUrl(repo.URL);
-            const rankClass = idx < 3 ? "repo-rank top" : "repo-rank";
-            const rankText = String(idx + 1).padStart(2, "0");
+        function getActiveTheme() {
+            return state.themeMode === "system" ? getSystemTheme() : state.themeMode;
+        }
 
-            return `
-                <a class="repo-card" href="${url}" target="_blank" rel="noopener" style="animation-delay:${idx * 0.025}s">
-                    <div class="repo-head">
-                        <h3 class="repo-name"><span class="${rankClass}">${rankText}</span><span>${name}</span></h3>
-                        <span class="star">★ ${stars}</span>
-                    </div>
-                    <p class="repo-desc">${description}</p>
-                    <div class="repo-foot">
-                        <span class="tag">${language}</span>
-                    </div>
-                </a>
-            `;
-        }).join("");
-    }
-
-    searchInput.addEventListener("input", (event) => {
-        keyword = String(event.target.value || "").trim();
-        renderRepos();
-    });
-
-    if (sortSelect) {
-        sortSelect.addEventListener("change", (event) => {
-            const mode = String(event.target.value || "default");
-            if (mode !== "default" && mode !== "stars_desc" && mode !== "name_asc") {
+        function updateThemeToggle(activeTheme) {
+            if (!elements.themeToggle) {
                 return;
             }
-            sortMode = mode;
+            elements.themeToggle.dataset.activeTheme = activeTheme;
+            const nextTheme = activeTheme === "dark" ? "light" : "dark";
+            const nextThemeText = nextTheme === "dark" ? "深色" : "浅色";
+            const label = `切换到${nextThemeText}主题`;
+            elements.themeToggle.setAttribute("aria-label", label);
+            elements.themeToggle.setAttribute("title", label);
+        }
+
+        function applyTheme() {
+            const activeTheme = getActiveTheme();
+            elements.root.setAttribute("data-theme", activeTheme);
+            updateThemeToggle(activeTheme);
+        }
+
+        function toggleTheme() {
+            const activeTheme = getActiveTheme();
+            state.themeMode = activeTheme === "dark" ? "light" : "dark";
+            saveThemeMode();
+            applyTheme();
+        }
+
+        function buildViewGroups(sourceGroups) {
+            if (!Array.isArray(sourceGroups) || sourceGroups.length === 0) {
+                return [];
+            }
+
+            const uniqueByUrl = new Map();
+            sourceGroups.forEach(group => {
+                const repos = Array.isArray(group?.Repos) ? group.Repos : [];
+                repos.forEach(repo => {
+                    const key = String(repo?.URL || "").trim() || `${repo?.Name || "repo"}-${repo?.Stars || 0}`;
+                    if (!uniqueByUrl.has(key)) {
+                        uniqueByUrl.set(key, repo);
+                    }
+                });
+            });
+
+            const allRepos = Array.from(uniqueByUrl.values());
+            allRepos.sort((a, b) => Number(b?.Stars || 0) - Number(a?.Stars || 0));
+            return [{GroupName: "ALL", Repos: allRepos}, ...sourceGroups];
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll("\"", "&quot;")
+                .replaceAll("'", "&#39;");
+        }
+
+        function safeRepoUrl(value) {
+            try {
+                const parsed = new URL(String(value));
+                if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+                    return parsed.href;
+                }
+            } catch (_error) {
+            }
+            return "#";
+        }
+
+        function getCurrentGroup() {
+            return viewGroups[state.activeIndex] || viewGroups[0] || {GroupName: "Unknown", Repos: []};
+        }
+
+        function filterRepos(repos) {
+            if (!state.keyword) {
+                return repos;
+            }
+            const keyword = state.keyword.toLowerCase();
+            return repos.filter(repo => {
+                const name = String(repo?.Name || "").toLowerCase();
+                const desc = String(repo?.Description || "").toLowerCase();
+                const lang = String(repo?.Language || "").toLowerCase();
+                return name.includes(keyword) || desc.includes(keyword) || lang.includes(keyword);
+            });
+        }
+
+        function sortRepos(repos) {
+            if (state.sortMode === "default") {
+                return repos;
+            }
+            const sorted = [...repos];
+            if (state.sortMode === "name_asc") {
+                sorted.sort((a, b) => String(a?.Name || "").localeCompare(String(b?.Name || ""), "en", {sensitivity: "base"}));
+                return sorted;
+            }
+            sorted.sort((a, b) => Number(b?.Stars || 0) - Number(a?.Stars || 0));
+            return sorted;
+        }
+
+        function renderLanguages() {
+            if (!elements.languageList || !elements.activeLanguage) {
+                return;
+            }
+            if (viewGroups.length === 0) {
+                elements.languageList.innerHTML = "<div class=\"empty\">没有可显示的语言分组。</div>";
+                elements.activeLanguage.textContent = "-";
+                return;
+            }
+
+            elements.languageList.innerHTML = viewGroups.map((group, index) => {
+                const isActive = index === state.activeIndex;
+                return `
+                    <button class="language-btn ${isActive ? "active" : ""}" type="button" data-index="${index}">
+                        <span>${escapeHtml(group.GroupName || "Unknown")}</span>
+                        <span class="count">${Number(group.Repos?.length || 0)}</span>
+                    </button>
+                `;
+            }).join("");
+        }
+
+        function renderRepos() {
+            if (!elements.repoGrid || !elements.reposMeta || !elements.reposTitle || !elements.activeLanguage) {
+                return;
+            }
+            if (viewGroups.length === 0) {
+                elements.repoGrid.innerHTML = "<div class=\"empty\">未抓取到仓库数据。</div>";
+                elements.reposMeta.textContent = "0 items";
+                elements.reposTitle.textContent = "今日仓库";
+                elements.activeLanguage.textContent = "-";
+                return;
+            }
+
+            const currentGroup = getCurrentGroup();
+            const groupName = currentGroup.GroupName || "Unknown";
+            const repos = Array.isArray(currentGroup.Repos) ? currentGroup.Repos : [];
+            const sorted = sortRepos(filterRepos(repos));
+
+            elements.activeLanguage.textContent = groupName;
+            elements.reposTitle.textContent = `${groupName} Trending`;
+            elements.reposMeta.textContent = `${sorted.length} / ${repos.length} items`;
+
+            if (sorted.length === 0) {
+                elements.repoGrid.innerHTML = "<div class=\"empty\">当前过滤条件下没有结果。</div>";
+                return;
+            }
+
+            elements.repoGrid.innerHTML = sorted.map((repo, index) => {
+                const name = escapeHtml(repo.Name || "Unnamed repository");
+                const description = escapeHtml(repo.Description || "No description.");
+                const language = escapeHtml(repo.Language || groupName);
+                const stars = Number(repo.Stars || 0).toLocaleString();
+                const url = safeRepoUrl(repo.URL);
+                const rankClass = index < 3 ? "repo-rank top" : "repo-rank";
+                const rankText = String(index + 1).padStart(2, "0");
+
+                return `
+                    <a class="repo-card" href="${url}" target="_blank" rel="noopener" style="animation-delay:${index * 0.025}s">
+                        <div class="repo-head">
+                            <h3 class="repo-name"><span class="${rankClass}">${rankText}</span><span>${name}</span></h3>
+                            <span class="star">★ ${stars}</span>
+                        </div>
+                        <p class="repo-desc">${description}</p>
+                        <div class="repo-foot">
+                            <span class="tag">${language}</span>
+                        </div>
+                    </a>
+                `;
+            }).join("");
+        }
+
+        function bindEvents() {
+            if (elements.searchInput) {
+                elements.searchInput.addEventListener("input", event => {
+                    state.keyword = String(event.target.value || "").trim();
+                    renderRepos();
+                });
+            }
+
+            if (elements.sortSelect) {
+                elements.sortSelect.addEventListener("change", event => {
+                    const mode = String(event.target.value || "default");
+                    if (!VALID_SORT_MODES.has(mode)) {
+                        return;
+                    }
+                    state.sortMode = mode;
+                    renderRepos();
+                });
+            }
+
+            if (elements.languageList) {
+                elements.languageList.addEventListener("click", event => {
+                    const button = event.target.closest(".language-btn");
+                    if (!button || !elements.languageList.contains(button)) {
+                        return;
+                    }
+                    const nextIndex = Number(button.dataset.index);
+                    if (Number.isNaN(nextIndex) || nextIndex === state.activeIndex) {
+                        return;
+                    }
+                    state.activeIndex = nextIndex;
+                    renderLanguages();
+                    renderRepos();
+                });
+            }
+
+            if (elements.themeToggle) {
+                elements.themeToggle.addEventListener("click", toggleTheme);
+            }
+
+            if (typeof themeMediaQuery.addEventListener === "function") {
+                themeMediaQuery.addEventListener("change", () => {
+                    if (state.themeMode === "system") {
+                        applyTheme();
+                    }
+                });
+            } else if (typeof themeMediaQuery.addListener === "function") {
+                themeMediaQuery.addListener(() => {
+                    if (state.themeMode === "system") {
+                        applyTheme();
+                    }
+                });
+            }
+        }
+
+        function bindBackToTop() {
+            if (!elements.backToTop) {
+                return;
+            }
+
+            const updateBackToTopVisibility = () => {
+                const visible = window.scrollY > 280;
+                elements.backToTop.classList.toggle("visible", visible);
+            };
+
+            elements.backToTop.addEventListener("click", () => {
+                window.scrollTo({top: 0, behavior: "smooth"});
+            });
+            window.addEventListener("scroll", updateBackToTopVisibility, {passive: true});
+            updateBackToTopVisibility();
+        }
+
+        function init() {
+            state.themeMode = loadThemeMode();
+            bindEvents();
+            bindBackToTop();
+            applyTheme();
+            renderLanguages();
             renderRepos();
-        });
-    }
+        }
 
-    if (themeToggle) {
-        themeToggle.addEventListener("click", toggleTheme);
-    }
-
-    if (typeof themeMediaQuery.addEventListener === "function") {
-        themeMediaQuery.addEventListener("change", () => {
-            if (themeMode === "system") {
-                applyTheme();
-            }
-        });
-    } else if (typeof themeMediaQuery.addListener === "function") {
-        themeMediaQuery.addListener(() => {
-            if (themeMode === "system") {
-                applyTheme();
-            }
-        });
-    }
-
-    applyTheme();
-    renderLanguages();
-    renderRepos();
+        init();
+    })();
 </script>
 </body>
 </html>

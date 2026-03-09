@@ -6,8 +6,18 @@
     <title>Trending 历史归档</title>
     <script>
         (() => {
+            const storageKey = "gh-trending-theme";
+            let mode = "system";
+            try {
+                const saved = localStorage.getItem(storageKey);
+                if (saved === "light" || saved === "dark") {
+                    mode = saved;
+                }
+            } catch (_error) {
+            }
             const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-            document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
+            const theme = mode === "system" ? (prefersDark ? "dark" : "light") : mode;
+            document.documentElement.setAttribute("data-theme", theme);
         })();
     </script>
     <style>
@@ -514,6 +524,50 @@
             letter-spacing: 0.02em;
         }
 
+        .back-to-top {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 44px;
+            height: 44px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--foreground);
+            box-shadow: var(--panel-shadow);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(10px);
+            transition: opacity 0.18s ease, transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+            z-index: 50;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .back-to-top:hover {
+            border-color: var(--ring);
+            background: var(--muted);
+            transform: translateY(8px);
+        }
+
+        .back-to-top svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
         @keyframes reveal {
             to {
                 opacity: 1;
@@ -590,6 +644,13 @@
             .page {
                 padding: 16px 12px 36px;
             }
+
+            .back-to-top {
+                right: 12px;
+                bottom: 12px;
+                width: 40px;
+                height: 40px;
+            }
         }
     </style>
 </head>
@@ -652,15 +713,16 @@
 
     <section class="months">
         {{range .Months}}
+        {{- $monthID := printf "month-%s" .YearMonth -}}
         <article class="month {{if .IsExpanded}}open{{end}}">
-            <button class="month-head" type="button">
+            <button class="month-head" type="button" aria-expanded="{{if .IsExpanded}}true{{else}}false{{end}}" aria-controls="{{$monthID}}">
                 <h2 class="month-name">{{.DisplayName}}</h2>
                 <span class="month-right">
                     <span class="month-count">{{len .Files}} 条</span>
                     <span class="caret" aria-hidden="true"></span>
                 </span>
             </button>
-            <div class="month-body">
+            <div class="month-body" id="{{$monthID}}">
                 {{range .Files}}
                 <a class="entry {{if .IsLatest}}latest{{end}}" href="{{.Name}}" target="_blank" rel="noopener">
                     <span class="entry-name">{{.Name}}</span>
@@ -684,78 +746,161 @@
         <div class="footer-stats">Months: {{len .Months}} · Files: {{.TotalFiles}}</div>
     </footer>
 </main>
+<button class="back-to-top" id="back-to-top" type="button" aria-label="回到顶部" title="回到顶部">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 19V5"></path>
+        <path d="m5 12 7-7 7 7"></path>
+    </svg>
+</button>
 
 <script>
-    const root = document.documentElement;
-    const themeToggle = document.getElementById("theme-toggle");
-    const themeMediaQuery = window.matchMedia
-        ? window.matchMedia("(prefers-color-scheme: dark)")
-        : {matches: false};
+    (() => {
+        const THEME_STORAGE_KEY = "gh-trending-theme";
+        const root = document.documentElement;
+        const themeToggle = document.getElementById("theme-toggle");
+        const monthsContainer = document.querySelector(".months");
+        const backToTop = document.getElementById("back-to-top");
+        const themeMediaQuery = window.matchMedia
+            ? window.matchMedia("(prefers-color-scheme: dark)")
+            : {matches: false};
+        const state = {
+            themeMode: "system"
+        };
 
-    let themeMode = "system";
-
-    function getSystemTheme() {
-        return themeMediaQuery.matches ? "dark" : "light";
-    }
-
-    function getActiveTheme() {
-        if (themeMode === "system") {
-            return getSystemTheme();
-        }
-        return themeMode;
-    }
-
-    function updateThemeToggle(activeTheme) {
-        if (!themeToggle) {
-            return;
-        }
-
-        themeToggle.dataset.activeTheme = activeTheme;
-        const nextTheme = activeTheme === "dark" ? "light" : "dark";
-        const nextThemeText = nextTheme === "dark" ? "深色" : "浅色";
-        const label = `切换到${nextThemeText}主题`;
-        themeToggle.setAttribute("aria-label", label);
-        themeToggle.setAttribute("title", label);
-    }
-
-    function applyTheme() {
-        const activeTheme = getActiveTheme();
-        root.setAttribute("data-theme", activeTheme);
-        updateThemeToggle(activeTheme);
-    }
-
-    function toggleTheme() {
-        const activeTheme = getActiveTheme();
-        themeMode = activeTheme === "dark" ? "light" : "dark";
-        applyTheme();
-    }
-
-    if (themeToggle) {
-        themeToggle.addEventListener("click", toggleTheme);
-    }
-
-    if (typeof themeMediaQuery.addEventListener === "function") {
-        themeMediaQuery.addEventListener("change", () => {
-            if (themeMode === "system") {
-                applyTheme();
+        function loadThemeMode() {
+            try {
+                const saved = localStorage.getItem(THEME_STORAGE_KEY);
+                if (saved === "light" || saved === "dark") {
+                    return saved;
+                }
+            } catch (_error) {
             }
-        });
-    } else if (typeof themeMediaQuery.addListener === "function") {
-        themeMediaQuery.addListener(() => {
-            if (themeMode === "system") {
-                applyTheme();
+            return "system";
+        }
+
+        function saveThemeMode() {
+            try {
+                if (state.themeMode === "system") {
+                    localStorage.removeItem(THEME_STORAGE_KEY);
+                    return;
+                }
+                localStorage.setItem(THEME_STORAGE_KEY, state.themeMode);
+            } catch (_error) {
             }
-        });
-    }
+        }
 
-    document.querySelectorAll(".month-head").forEach(head => {
-        head.addEventListener("click", () => {
-            const month = head.closest(".month");
-            month.classList.toggle("open");
-        });
-    });
+        function getSystemTheme() {
+            return themeMediaQuery.matches ? "dark" : "light";
+        }
 
-    applyTheme();
+        function getActiveTheme() {
+            return state.themeMode === "system" ? getSystemTheme() : state.themeMode;
+        }
+
+        function updateThemeToggle(activeTheme) {
+            if (!themeToggle) {
+                return;
+            }
+            themeToggle.dataset.activeTheme = activeTheme;
+            const nextTheme = activeTheme === "dark" ? "light" : "dark";
+            const nextThemeText = nextTheme === "dark" ? "深色" : "浅色";
+            const label = `切换到${nextThemeText}主题`;
+            themeToggle.setAttribute("aria-label", label);
+            themeToggle.setAttribute("title", label);
+        }
+
+        function applyTheme() {
+            const activeTheme = getActiveTheme();
+            root.setAttribute("data-theme", activeTheme);
+            updateThemeToggle(activeTheme);
+        }
+
+        function toggleTheme() {
+            const activeTheme = getActiveTheme();
+            state.themeMode = activeTheme === "dark" ? "light" : "dark";
+            saveThemeMode();
+            applyTheme();
+        }
+
+        function bindThemeEvents() {
+            if (themeToggle) {
+                themeToggle.addEventListener("click", toggleTheme);
+            }
+
+            if (typeof themeMediaQuery.addEventListener === "function") {
+                themeMediaQuery.addEventListener("change", () => {
+                    if (state.themeMode === "system") {
+                        applyTheme();
+                    }
+                });
+            } else if (typeof themeMediaQuery.addListener === "function") {
+                themeMediaQuery.addListener(() => {
+                    if (state.themeMode === "system") {
+                        applyTheme();
+                    }
+                });
+            }
+        }
+
+        function bindMonthToggles() {
+            if (!monthsContainer) {
+                return;
+            }
+
+            monthsContainer.addEventListener("click", event => {
+                const head = event.target.closest(".month-head");
+                if (!head || !monthsContainer.contains(head)) {
+                    return;
+                }
+
+                const month = head.closest(".month");
+                if (!month) {
+                    return;
+                }
+
+                const isOpen = month.classList.toggle("open");
+                head.setAttribute("aria-expanded", isOpen ? "true" : "false");
+            });
+        }
+
+        function bindBackToTop() {
+            if (!backToTop) {
+                return;
+            }
+
+            const updateBackToTopVisibility = () => {
+                const visible = window.scrollY > 280;
+                backToTop.classList.toggle("visible", visible);
+            };
+
+            backToTop.addEventListener("click", () => {
+                window.scrollTo({top: 0, behavior: "smooth"});
+            });
+            window.addEventListener("scroll", updateBackToTopVisibility, {passive: true});
+            updateBackToTopVisibility();
+        }
+
+        function initMonthExpandedState() {
+            document.querySelectorAll(".month").forEach(month => {
+                const head = month.querySelector(".month-head");
+                if (!head) {
+                    return;
+                }
+                head.setAttribute("aria-expanded", month.classList.contains("open") ? "true" : "false");
+            });
+        }
+
+        function init() {
+            state.themeMode = loadThemeMode();
+            bindThemeEvents();
+            bindMonthToggles();
+            bindBackToTop();
+            initMonthExpandedState();
+            applyTheme();
+        }
+
+        init();
+    })();
 </script>
 </body>
 </html>
