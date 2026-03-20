@@ -37,10 +37,11 @@ type FetchLanguageGroup struct {
 }
 
 type HomePageData struct {
-	Today      string
-	GroupCount int
-	RepoCount  int
-	GroupsJSON template.JS
+	Today       string
+	GroupCount  int
+	RepoCount   int
+	GroupsJSON  template.JS
+	AssetPrefix string
 }
 
 func countUniqueReposForHome(groups []LanguageGroup) int {
@@ -95,6 +96,42 @@ func renderTemplateToFile(templateFile string, data any, outputFilename string) 
 	return nil
 }
 
+func generateLLMSText(today string, groups []LanguageGroup) error {
+	// Why: 复用已抓取的同一份数据生成纯文本快照，避免 HTML 与文本版出现内容漂移。
+	var builder strings.Builder
+	builder.WriteString("# 每日仓库更新（纯文字）\n")
+	builder.WriteString("日期: ")
+	builder.WriteString(today)
+	builder.WriteString("\n来源: https://0120012.xyz/github_trending/index.html（GitHub Trending 抓取结果）\n")
+	builder.WriteString("历史归档：https://0120012.xyz/github_trending/daily_trending/history.html\n")
+	builder.WriteString("分组数: ")
+	builder.WriteString(fmt.Sprintf("%d", len(groups)))
+	builder.WriteString("\n\n")
+
+	for _, group := range groups {
+		builder.WriteString("## ")
+		builder.WriteString(group.GroupName)
+		builder.WriteString("（")
+		builder.WriteString(fmt.Sprintf("%d", len(group.Repos)))
+		builder.WriteString("）\n")
+		for idx, repo := range group.Repos {
+			builder.WriteString(fmt.Sprintf("%d. %s | ⭐ %d | %s\n", idx+1, repo.Name, repo.Stars, repo.Language))
+			builder.WriteString("   ")
+			builder.WriteString(repo.URL)
+			builder.WriteString("\n")
+			desc := strings.Join(strings.Fields(repo.Description), " ")
+			if desc != "" {
+				builder.WriteString("   ")
+				builder.WriteString(desc)
+				builder.WriteString("\n")
+			}
+		}
+		builder.WriteString("\n")
+	}
+
+	return os.WriteFile("llms.txt", []byte(builder.String()), 0o644)
+}
+
 func main() {
 	todayStr := time.Now().Format("2006-01-02")
 	dailyFilename := fmt.Sprintf("daily_trending/%s.html", todayStr)
@@ -105,7 +142,7 @@ func main() {
 		client = &http.Client{}
 	} else {
 		// For local development, use a SOCKS5 proxy.
-		socks5URL, err := url.Parse("socks5://127.0.0.1:10808")
+		socks5URL, err := url.Parse("socks5://127.0.0.1:12828")
 		if err != nil {
 			log.Fatalf("Failed to parse SOCKS5 URL: %v", err)
 		}
@@ -197,11 +234,14 @@ func main() {
 	}
 
 	homeData := HomePageData{
-		Today:      todayStr,
-		GroupCount: len(groupedItems),
-		RepoCount:  countUniqueReposForHome(groupedItems),
-		GroupsJSON: template.JS(jsonData),
+		Today:       todayStr,
+		GroupCount:  len(groupedItems),
+		RepoCount:   countUniqueReposForHome(groupedItems),
+		GroupsJSON:  template.JS(jsonData),
+		AssetPrefix: "",
 	}
+	dailyHomeData := homeData
+	dailyHomeData.AssetPrefix = "../"
 
 	err = renderTemplateToFile("templates/index.tmpl", homeData, "index.html")
 	if err != nil {
@@ -210,7 +250,7 @@ func main() {
 		fmt.Println("Root index.html updated successfully.")
 	}
 
-	err = renderTemplateToFile("templates/index.tmpl", homeData, dailyFilename)
+	err = renderTemplateToFile("templates/index.tmpl", dailyHomeData, dailyFilename)
 	if err != nil {
 		fmt.Printf("Error rendering daily archive file: %v\n", err)
 	} else {
@@ -222,6 +262,13 @@ func main() {
 		fmt.Printf("Error generating daily_trending/history.html: %v\n", err)
 	} else {
 		fmt.Println("Daily_trending/history.html updated successfully.")
+	}
+
+	err = generateLLMSText(todayStr, groupedItems)
+	if err != nil {
+		fmt.Printf("Error generating llms.txt: %v\n", err)
+	} else {
+		fmt.Println("llms.txt updated successfully.")
 	}
 
 	if os.Getenv("GITHUB_ACTIONS") != "true" {
