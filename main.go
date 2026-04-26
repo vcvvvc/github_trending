@@ -44,6 +44,30 @@ type HomePageData struct {
 	AssetPrefix string
 }
 
+type LLMSRepo struct {
+	URL         string `json:"url"`
+	Name        string `json:"name"`
+	Language    string `json:"language"`
+	Stars       int    `json:"stars"`
+	Description string `json:"description"`
+}
+
+type LLMSGroup struct {
+	Name      string     `json:"name"`
+	RepoCount int        `json:"repo_count"`
+	Repos     []LLMSRepo `json:"repos"`
+}
+
+type LLMSDocument struct {
+	Title      string      `json:"title"`
+	Date       string      `json:"date"`
+	Source     string      `json:"source"`
+	History    string      `json:"history"`
+	GroupCount int         `json:"group_count"`
+	RepoCount  int         `json:"repo_count"`
+	Groups     []LLMSGroup `json:"groups"`
+}
+
 func countUniqueReposForHome(groups []LanguageGroup) int {
 	seen := make(map[string]struct{})
 	for _, group := range groups {
@@ -96,40 +120,44 @@ func renderTemplateToFile(templateFile string, data any, outputFilename string) 
 	return nil
 }
 
-func generateLLMSText(today string, groups []LanguageGroup) error {
-	// Why: 复用已抓取的同一份数据生成纯文本快照，避免 HTML 与文本版出现内容漂移。
-	var builder strings.Builder
-	builder.WriteString("# 每日仓库更新（纯文字）\n")
-	builder.WriteString("日期: ")
-	builder.WriteString(today)
-	builder.WriteString("\n来源: https://0120012.xyz/github_trending/index.html（GitHub Trending 抓取结果）\n")
-	builder.WriteString("历史归档：https://0120012.xyz/github_trending/daily_trending/history.html\n")
-	builder.WriteString("分组数: ")
-	builder.WriteString(fmt.Sprintf("%d", len(groups)))
-	builder.WriteString("\n\n")
-
-	for _, group := range groups {
-		builder.WriteString("## ")
-		builder.WriteString(group.GroupName)
-		builder.WriteString("（")
-		builder.WriteString(fmt.Sprintf("%d", len(group.Repos)))
-		builder.WriteString("）\n")
-		for idx, repo := range group.Repos {
-			builder.WriteString(fmt.Sprintf("%d. %s | ⭐ %d | %s\n", idx+1, repo.Name, repo.Stars, repo.Language))
-			builder.WriteString("   ")
-			builder.WriteString(repo.URL)
-			builder.WriteString("\n")
-			desc := strings.Join(strings.Fields(repo.Description), " ")
-			if desc != "" {
-				builder.WriteString("   ")
-				builder.WriteString(desc)
-				builder.WriteString("\n")
-			}
-		}
-		builder.WriteString("\n")
+func generateLLMSJSON(today string, groups []LanguageGroup) error {
+	doc := LLMSDocument{
+		Title:      "每日仓库更新",
+		Date:       today,
+		Source:     "https://0120012.xyz/github_trending/index.html",
+		History:    "https://0120012.xyz/github_trending/daily_trending/history.html",
+		GroupCount: len(groups),
+		RepoCount:  countUniqueReposForHome(groups),
+		Groups:     make([]LLMSGroup, 0, len(groups)),
 	}
 
-	return os.WriteFile("llms.txt", []byte(builder.String()), 0o644)
+	for _, group := range groups {
+		jsonGroup := LLMSGroup{
+			Name:      group.GroupName,
+			RepoCount: len(group.Repos),
+			Repos:     make([]LLMSRepo, 0, len(group.Repos)),
+		}
+
+		for _, repo := range group.Repos {
+			jsonGroup.Repos = append(jsonGroup.Repos, LLMSRepo{
+				URL:         repo.URL,
+				Name:        repo.Name,
+				Language:    repo.Language,
+				Stars:       repo.Stars,
+				Description: strings.Join(strings.Fields(repo.Description), " "),
+			})
+		}
+
+		doc.Groups = append(doc.Groups, jsonGroup)
+	}
+
+	data, err := json.MarshalIndent(doc, "", "  ")
+	if err != nil {
+		return fmt.Errorf("marshal llms.json: %w", err)
+	}
+
+	data = append(data, '\n')
+	return os.WriteFile("llms.json", data, 0o644)
 }
 
 func main() {
@@ -264,11 +292,11 @@ func main() {
 		fmt.Println("Daily_trending/history.html updated successfully.")
 	}
 
-	err = generateLLMSText(todayStr, groupedItems)
+	err = generateLLMSJSON(todayStr, groupedItems)
 	if err != nil {
-		fmt.Printf("Error generating llms.txt: %v\n", err)
+		fmt.Printf("Error generating llms.json: %v\n", err)
 	} else {
-		fmt.Println("llms.txt updated successfully.")
+		fmt.Println("llms.json updated successfully.")
 	}
 
 	if os.Getenv("GITHUB_ACTIONS") != "true" {
