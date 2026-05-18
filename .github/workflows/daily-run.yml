@@ -3,13 +3,17 @@ name: Daily Trending
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 1 * * *'
+    # 每天北京时间 11:00 触发；GitHub Actions cron 使用 UTC
+    - cron: '0 3 * * *'
 
 jobs:
   build-and-commit:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      TZ: Asia/Shanghai
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,4 +35,4 @@ jobs:
           file_pattern: "daily_trending/*.html index.html llms.json sitemap.xml"
           commit_user_name: "github-actions[bot]"
           commit_user_email: "github-actions[bot]@users.noreply.github.com"
-          commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>" 
+          commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
