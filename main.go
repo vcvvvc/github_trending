@@ -124,7 +124,7 @@ func generateLLMSJSON(today string, groups []LanguageGroup) error {
 	doc := LLMSDocument{
 		Title:      "每日仓库更新",
 		Date:       today,
-		Source:     "https://0120012.xyz/github_trending/index.html",
+		Source:     "https://blog.0120012.xyz/github_trending/index.html",
 		History:    "https://0120012.xyz/github_trending/daily_trending/history.html",
 		GroupCount: len(groups),
 		RepoCount:  countUniqueReposForHome(groups),
