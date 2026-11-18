@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Trending Daily</title>
+    <script>
+        (() => {
+            const storageKey = "gh-trending-theme";
+            let mode = "system";
+            try {
+                const saved = localStorage.getItem(storageKey);
+                if (saved === "light" || saved === "dark") {
+                    mode = saved;
+                }
+            } catch (_error) {
+            }
+            const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+            const theme = mode === "system" ? (prefersDark ? "dark" : "light") : mode;
+            document.documentElement.setAttribute("data-theme", theme);
+        })();
+    </script>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap");
+
+        :root {
+            --radius: 14px;
+        }
+
+        :root[data-theme="light"] {
+            color-scheme: light;
+            --background: hsl(38 42% 97%);
+            --foreground: hsl(223 29% 14%);
+            --card: hsl(0 0% 100%);
+            --card-foreground: hsl(223 29% 14%);
+            --muted: hsl(33 34% 93%);
+            --muted-foreground: hsl(220 12% 39%);
+            --primary: hsl(213 91% 45%);
+            --primary-foreground: hsl(0 0% 100%);
+            --border: hsl(34 23% 84%);
+            --ring: hsl(213 91% 45%);
+            --shadow: 0 18px 40px rgba(31, 41, 55, 0.1);
+            --hero-glow: radial-gradient(980px 500px at 8% -16%, rgba(42, 124, 236, 0.2), transparent 65%);
+            --hero-glow-2: radial-gradient(900px 480px at 92% -22%, rgba(247, 146, 86, 0.16), transparent 68%);
+            --hero-bg: linear-gradient(136deg, rgba(255, 252, 247, 0.96), rgba(248, 251, 255, 0.93));
+            --hero-bloom: radial-gradient(circle, rgba(42, 124, 236, 0.2), rgba(42, 124, 236, 0));
+            --panel-bg: rgba(255, 255, 255, 0.88);
+            --panel-shadow: 0 10px 24px rgba(31, 46, 63, 0.08);
+            --btn-primary-shadow: 0 10px 22px rgba(42, 124, 236, 0.3);
+            --focus-ring: 0 0 0 3px rgba(42, 124, 236, 0.18);
+            --language-hover-border: hsl(214 42% 70%);
+            --language-active-bg: linear-gradient(130deg, hsl(213 92% 47%), hsl(195 88% 42%));
+            --language-active-foreground: #fff;
+            --language-active-shadow: 0 10px 22px rgba(42, 124, 236, 0.28);
+            --language-count-bg: rgba(255, 255, 255, 0.76);
+            --language-count-foreground: hsl(220 18% 29%);
+            --language-count-active-bg: rgba(255, 255, 255, 0.2);
+            --language-count-active-foreground: #fff;
+            --repo-bg: linear-gradient(155deg, #ffffff, #f9fbff);
+            --repo-hover-border: hsl(214 45% 72%);
+            --repo-hover-shadow: 0 11px 24px rgba(31, 46, 63, 0.14);
+            --star-bg: hsl(49 100% 92%);
+            --star-border: hsl(40 78% 78%);
+            --star-foreground: hsl(26 92% 24%);
+            --repo-desc: hsl(220 14% 35%);
+            --tag-foreground: hsl(220 14% 30%);
+            --empty-border: hsl(34 26% 78%);
+            --empty-bg: hsl(36 44% 97%);
+            --empty-foreground: hsl(220 10% 42%);
+            --link-foreground: hsl(212 78% 38%);
+            --link-border: rgba(33, 96, 186, 0.32);
+            --link-border-hover: rgba(33, 96, 186, 0.56);
+        }
+
+        :root[data-theme="dark"] {
+            color-scheme: dark;
+            --background: hsl(224 31% 8%);
+            --foreground: hsl(214 32% 93%);
+            --card: hsl(222 26% 13%);
+            --card-foreground: hsl(214 32% 93%);
+            --muted: hsl(223 20% 19%);
+            --muted-foreground: hsl(216 13% 67%);
+            --primary: hsl(209 96% 58%);
+            --primary-foreground: hsl(222 34% 10%);
+            --border: hsl(220 20% 24%);
+            --ring: hsl(209 96% 58%);
+            --shadow: 0 20px 40px rgba(0, 0, 0, 0.38);
+            --hero-glow: radial-gradient(900px 460px at 10% -15%, rgba(47, 141, 235, 0.33), transparent 65%);
+            --hero-glow-2: radial-gradient(880px 440px at 90% -20%, rgba(14, 189, 177, 0.24), transparent 68%);
+            --hero-bg: linear-gradient(132deg, hsl(223 29% 14% / 0.94), hsl(220 31% 11% / 0.92));
+            --hero-bloom: radial-gradient(circle, rgba(14, 189, 177, 0.3), rgba(14, 189, 177, 0));
+            --panel-bg: hsl(223 26% 12% / 0.88);
+            --panel-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+            --btn-primary-shadow: 0 10px 22px rgba(47, 141, 235, 0.35);
+            --focus-ring: 0 0 0 3px rgba(47, 141, 235, 0.24);
+            --language-hover-border: hsl(209 62% 58%);
+            --language-active-bg: linear-gradient(130deg, hsl(210 98% 43%), hsl(192 95% 37%));
+            --language-active-foreground: hsl(222 34% 10%);
+            --language-active-shadow: 0 10px 22px rgba(47, 141, 235, 0.32);
+            --language-count-bg: hsl(224 18% 22%);
+            --language-count-foreground: hsl(214 30% 86%);
+            --language-count-active-bg: hsl(222 34% 10% / 0.2);
+            --language-count-active-foreground: hsl(222 34% 10%);
+            --repo-bg: linear-gradient(155deg, hsl(224 25% 14%), hsl(222 28% 12%));
+            --repo-hover-border: hsl(209 60% 55%);
+            --repo-hover-shadow: 0 12px 24px rgba(0, 0, 0, 0.34);
+            --star-bg: hsl(43 42% 18%);
+            --star-border: hsl(43 45% 35%);
+            --star-foreground: hsl(48 98% 76%);
+            --repo-desc: hsl(216 14% 74%);
+            --tag-foreground: hsl(213 24% 84%);
+            --empty-border: hsl(222 14% 34%);
+            --empty-bg: hsl(223 25% 12%);
+            --empty-foreground: hsl(216 12% 68%);
+            --link-foreground: hsl(209 85% 67%);
+            --link-border: rgba(79, 159, 235, 0.5);
+            --link-border-hover: rgba(79, 159, 235, 0.75);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Noto Sans SC", sans-serif;
+            color: var(--foreground);
+            background: var(--hero-glow), var(--hero-glow-2), var(--background);
+            min-height: 100vh;
+        }
+
+        .page {
+            width: min(1220px, 100%);
+            margin: 0 auto;
+            padding: 28px 18px 54px;
+        }
+
+        .hero {
+            background: var(--hero-bg);
+            border: 1px solid var(--border);
+            border-radius: calc(var(--radius) + 6px);
+            box-shadow: var(--shadow);
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            right: -130px;
+            top: -120px;
+            width: 290px;
+            height: 290px;
+            border-radius: 50%;
+            background: var(--hero-bloom);
+            pointer-events: none;
+        }
+
+        .brand {
+            margin: 0;
+            font-family: "Manrope", sans-serif;
+            font-size: clamp(33px, 5.7vw, 58px);
+            line-height: 1;
+            letter-spacing: -0.04em;
+        }
+
+        .hero-subtitle {
+            margin: 14px 0 0;
+            color: var(--muted-foreground);
+            font-size: 15px;
+        }
+
+        .theme-toggle {
+            appearance: none;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--foreground);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-1px);
+            border-color: var(--language-hover-border);
+            background: var(--muted);
+        }
+
+        .theme-toggle svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .theme-toggle .icon-sun,
+        .theme-toggle .icon-moon {
+            display: none;
+        }
+
+        .theme-toggle[data-active-theme="light"] .icon-sun {
+            display: block;
+        }
+
+        .theme-toggle[data-active-theme="dark"] .icon-moon {
+            display: block;
+        }
+
+        .top-nav {
+            margin-bottom: 14px;
+            background: color-mix(in oklab, var(--muted) 82%, transparent);
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            box-shadow: var(--panel-shadow);
+            padding: 4px 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .nav-menu {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            padding: 0;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .nav-left {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+            flex: 1 1 auto;
+            position: relative;
+        }
+
+        .nav-logo {
+            display: inline-flex;
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: var(--card);
+            flex-shrink: 0;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .nav-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            border: 0;
+            border-radius: 8px;
+            padding: 8px 13px;
+            color: var(--foreground);
+            background: transparent;
+            font-size: 15px;
+            font-weight: 700;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+
+        .nav-link:hover {
+            background: color-mix(in oklab, var(--card) 90%, transparent);
+        }
+
+        .nav-link.active {
+            background: var(--card);
+            color: var(--foreground);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+        }
+
+        .nav-theme {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            background: transparent;
+            border: 0;
+            border-left: 1px solid var(--border);
+            border-radius: 0;
+            padding: 0 0 0 10px;
+            margin-left: auto;
+        }
+
+        .nav-date {
+            font-size: 13px;
+            color: var(--muted-foreground);
+            font-weight: 700;
+        }
+
+        .nav-theme-label {
+            font-size: 13px;
+            color: var(--muted-foreground);
+            font-weight: 700;
+        }
+
+        .layout {
+            margin-top: 18px;
+            display: grid;
+            grid-template-columns: 290px minmax(0, 1fr);
+            gap: 14px;
+            align-items: start;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--panel-shadow);
+            padding: 14px;
+            backdrop-filter: blur(8px);
+        }
+
+        .side-panel {
+            position: sticky;
+            top: 14px;
+        }
+
+        .section-title {
+            margin: 0;
+            font-size: 13px;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            font-weight: 700;
+        }
+
+        .group-value {
+            margin: 8px 0 12px;
+            font-family: "Manrope", sans-serif;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+
+        .search-wrap {
+            margin-top: 12px;
+            position: relative;
+        }
+
+        .input {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            background: var(--card);
+            color: var(--card-foreground);
+            padding: 10px 12px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .input:focus {
+            border-color: var(--ring);
+            box-shadow: var(--focus-ring);
+        }
+
+        .language-list {
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .language-btn {
+            appearance: none;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--foreground);
+            border-radius: 10px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+            text-align: left;
+        }
+
+        .language-btn:hover {
+            transform: translateY(-1px);
+            border-color: var(--language-hover-border);
+        }
+
+        .language-btn.active {
+            background: var(--language-active-bg);
+            border-color: transparent;
+            color: var(--language-active-foreground);
+            box-shadow: var(--language-active-shadow);
+        }
+
+        .language-btn .count {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: var(--language-count-bg);
+            color: var(--language-count-foreground);
+        }
+
+        .language-btn.active .count {
+            background: var(--language-count-active-bg);
+            color: var(--language-count-active-foreground);
+        }
+
+        .repos-header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .repos-title {
+            margin: 0;
+            font-family: "Manrope", sans-serif;
+            font-size: 22px;
+            letter-spacing: -0.02em;
+        }
+
+        .repos-meta {
+            color: var(--muted-foreground);
+            font-size: 13px;
+        }
+
+        .repos-tools {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .sort-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--muted-foreground);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .sort-select {
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--foreground);
+            border-radius: 8px;
+            padding: 6px 8px;
+            font-size: 12px;
+            font-weight: 700;
+            outline: none;
+        }
+
+        .sort-select:focus {
+            border-color: var(--ring);
+            box-shadow: var(--focus-ring);
+        }
+
+        .repo-grid {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .repo-card {
+            grid-column: span 6;
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background: var(--repo-bg);
+            padding: 14px;
+            transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+            animation: float-up 0.33s ease forwards;
+            opacity: 0;
+            transform: translateY(8px);
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .repo-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--repo-hover-border);
+            box-shadow: var(--repo-hover-shadow);
+        }
+
+        .repo-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .repo-name {
+            margin: 0;
+            font-size: 18px;
+            font-family: "Manrope", sans-serif;
+            line-height: 1.2;
+            letter-spacing: -0.01em;
+            word-break: break-word;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .repo-rank {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 30px;
+            height: 28px;
+            padding: 0 8px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--muted);
+            color: var(--tag-foreground);
+            font-size: 12px;
+            font-weight: 800;
+            flex-shrink: 0;
+            letter-spacing: 0.04em;
+        }
+
+        .repo-rank.top {
+            background: var(--primary);
+            color: var(--primary-foreground);
+            border-color: transparent;
+        }
+
+        .star {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: var(--star-bg);
+            border: 1px solid var(--star-border);
+            color: var(--star-foreground);
+            flex-shrink: 0;
+            font-weight: 700;
+        }
+
+        .repo-desc {
+            margin: 0;
+            color: var(--repo-desc);
+            font-size: 14px;
+            line-height: 1.45;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .repo-foot {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--muted-foreground);
+        }
+
+        .tag {
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--muted);
+            color: var(--tag-foreground);
+            padding: 3px 8px;
+            font-weight: 600;
+        }
+
+        .empty {
+            border: 1px dashed var(--empty-border);
+            background: var(--empty-bg);
+            border-radius: 13px;
+            padding: 30px 16px;
+            text-align: center;
+            color: var(--empty-foreground);
+            font-size: 14px;
+            grid-column: span 12;
+        }
+
+        .footer {
+            margin-top: 22px;
+            padding: 6px 2px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            color: var(--muted-foreground);
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .footer-logo {
+            width: 92px;
+            height: 92px;
+            border-radius: 999px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: var(--card);
+            box-shadow: var(--panel-shadow);
+        }
+
+        .footer-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .footer-main {
+            display: inline-flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .footer-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted-foreground);
+            opacity: 0.9;
+        }
+
+        .footer-link {
+            color: var(--link-foreground);
+            text-decoration: none;
+            border-bottom: 1px solid var(--link-border);
+            padding-bottom: 1px;
+        }
+
+        .footer-link:hover {
+            color: var(--primary);
+            border-bottom-color: var(--link-border-hover);
+        }
+
+        .footer-stats {
+            font-size: 12px;
+            color: var(--muted-foreground);
+            opacity: 0.9;
+            letter-spacing: 0.02em;
+        }
+
+        .back-to-top {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 44px;
+            height: 44px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--foreground);
+            box-shadow: var(--panel-shadow);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(10px);
+            transition: opacity 0.18s ease, transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+            z-index: 50;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .back-to-top:hover {
+            border-color: var(--ring);
+            background: var(--muted);
+            transform: translateY(8px);
+        }
+
+        .back-to-top svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        @keyframes float-up {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 960px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .side-panel {
+                position: static;
+            }
+
+            .language-list {
+                flex-direction: row;
+                overflow-x: auto;
+                padding-bottom: 8px;
+            }
+
+            .language-btn {
+                min-width: 186px;
+                flex-shrink: 0;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .nav-left {
+                width: 100%;
+                flex: 1 1 100%;
+                position: static;
+            }
+
+            .nav-menu {
+                width: auto;
+                flex: 1 1 auto;
+                justify-content: center;
+            }
+
+            .nav-logo {
+                position: static;
+                transform: none;
+            }
+
+            .nav-link {
+                text-align: center;
+                flex: 1 1 auto;
+            }
+
+            .nav-theme {
+                width: 100%;
+                margin-left: 0;
+                padding-left: 0;
+                border-left: 0;
+                border-top: 1px solid var(--border);
+                padding-top: 8px;
+            }
+
+            .footer {
+                justify-content: center;
+                text-align: center;
+            }
+
+            .repo-card {
+                grid-column: span 12;
+            }
+
+            .brand {
+                font-size: clamp(29px, 10vw, 44px);
+            }
+
+            .hero {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .page {
+                padding: 16px 12px 36px;
+            }
+
+            .back-to-top {
+                right: 12px;
+                bottom: 12px;
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class="page">
+    <header class="top-nav" aria-label="主导航">
+        <div class="nav-left">
+            <a class="nav-logo" href="../index.html" aria-label="返回首页">
+                <img src="../templates/logo.png" alt="GitHub Trending Logo">
+            </a>
+            <nav class="nav-menu">
+                <a class="nav-link active" href="../index.html">首页</a>
+                <a class="nav-link" href="../daily_trending/history.html">历史归档</a>
+            </nav>
+        </div>
+        <div class="nav-theme">
+            <span class="nav-date">Date: 2026-11-18</span>
+            <span class="nav-theme-label">主题</span>
+            <button class="theme-toggle" id="theme-toggle" type="button" aria-label="切换主题">
+                <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="4"></circle>
+                    <path d="M12 2v2"></path>
+                    <path d="M12 20v2"></path>
+                    <path d="m4.93 4.93 1.41 1.41"></path>
+                    <path d="m17.66 17.66 1.41 1.41"></path>
+                    <path d="M2 12h2"></path>
+                    <path d="M20 12h2"></path>
+                    <path d="m6.34 17.66-1.41 1.41"></path>
+                    <path d="m19.07 4.93-1.41 1.41"></path>
+                </svg>
+                <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 3a8.5 8.5 0 1 0 9 9 7 7 0 1 1-9-9z"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1 class="brand">GitHub Trending Daily</h1>
+        <p class="hero-subtitle">每天自动抓取热门仓库，按语言分组，主页看今天，历史页查过往。</p>
+    </section>
+
+    <section class="layout">
+        <aside class="panel side-panel">
+            <h2 class="section-title">Language Filter</h2>
+            <div class="group-value" id="active-language">-</div>
+            <div class="search-wrap">
+                <input class="input" id="search-input" type="search" placeholder="搜索仓库名、描述或语言">
+            </div>
+            <div class="language-list" id="language-list"></div>
+        </aside>
+
+        <section class="panel">
+            <div class="repos-header">
+                <h2 class="repos-title" id="repos-title">今日仓库</h2>
+                <div class="repos-tools">
+                    <label class="sort-wrap" for="sort-select">
+                        Sort
+                        <select class="sort-select" id="sort-select">
+                            <option value="default">Default</option>
+                            <option value="stars_desc">Star</option>
+                            <option value="name_asc">Name</option>
+                        </select>
+                    </label>
+                    <span class="repos-meta" id="repos-meta">0 items</span>
+                </div>
+            </div>
+            <div class="repo-grid" id="repo-grid"></div>
+        </section>
+    </section>
+
+    <footer class="footer">
+        <a class="footer-logo" href="../index.html" aria-label="返回首页">
+            <img src="../templates/logo.png" alt="GitHub Trending Logo">
+        </a>
+        <div class="footer-main">
+            <span class="footer-label">Source</span>
+            <a class="footer-link" href="https://github.com/vcvvvc/github_trending" target="_blank" rel="noopener">github.com/vcvvvc/github_trending</a>
+        </div>
+        <div class="footer-stats">Groups: 7 · Repositories: 103</div>
+    </footer>
+</main>
+<button class="back-to-top" id="back-to-top" type="button" aria-label="回到顶部" title="回到顶部">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 19V5"></path>
+        <path d="m5 12 7-7 7 7"></path>
+    </svg>
+</button>
+
+<script>
+    (() => {
+        const rawGroups = [{"GroupName":"Trending","Repos":[{"URL":"https://github.com/obra/superpowers","Name":"obra/superpowers","Language":"Shell","Stars":319487,"Description":"An agentic skills framework \u0026 software development methodology that works."},{"URL":"https://github.com/affaan-m/ECC","Name":"affaan-m/ECC","Language":"JavaScript","Stars":305722,"Description":"The agent harness performance optimization system. Skills, instincts, memory, security, and research-first development for Claude Code, Codex, Opencode, Cursor and beyond."},{"URL":"https://github.com/sveltejs/svelte","Name":"sveltejs/svelte","Language":"JavaScript","Stars":89659,"Description":"web development for the rest of us"},{"URL":"https://github.com/mvanhorn/last30days-skill","Name":"mvanhorn/last30days-skill","Language":"Python","Stars":69294,"Description":"AI agent skill that researches any topic across Reddit, X, YouTube, HN, Polymarket, and the web - then synthesizes a grounded summary"},{"URL":"https://github.com/jingyaogong/minimind","Name":"jingyaogong/minimind","Language":"Python","Stars":66167,"Description":"🧠 Train a 64M-parameter LLM from scratch in just 2h!"},{"URL":"https://github.com/alibaba/open-code-review","Name":"alibaba/open-code-review","Language":"Go","Stars":53887,"Description":"Secure, fast, efficient, battle-tested at Alibaba's scale. Hybrid architecture code review tool: deterministic pipelines + LLM Agent, precise line-level comments, built-in multi-language ruleset (NPE, thread-safety, XSS, SQL injection), OpenAI \u0026 Anthropic compatible."},{"URL":"https://github.com/dream-num/univer","Name":"dream-num/univer","Language":"TypeScript","Stars":29201,"Description":"Build your own AI office with Univer Office SDK. Bring editing, calculation, collaboration, and file processing into your product for people and AI agents. Built on an extensible open-source core."},{"URL":"https://github.com/ag-ui-protocol/ag-ui","Name":"ag-ui-protocol/ag-ui","Language":"TypeScript","Stars":20114,"Description":"AG-UI: the Agent-User Interaction Protocol. Bring Agents into Frontend Applications."},{"URL":"https://github.com/cursor/plugins","Name":"cursor/plugins","Language":"TypeScript","Stars":16963,"Description":"Cursor plugin specification and official plugins"},{"URL":"https://github.com/backnotprop/plannotator","Name":"backnotprop/plannotator","Language":"TypeScript","Stars":13155,"Description":"The workspace to stay in the loop and on top of agents - shape, decide, plan, annotate, review code, share with team, and send all feedback to agents with one click."},{"URL":"https://github.com/google-labs-code/stitch-skills","Name":"google-labs-code/stitch-skills","Language":"TypeScript","Stars":10180,"Description":"A library of Agent Skills designed to work with the Stitch MCP server. Each skill follows the Agent Skills open standard, for compatibility with coding agents such as Antigravity, Gemini CLI, Claude Code, Cursor."},{"URL":"https://github.com/elementalsouls/Claude-BugHunter","Name":"elementalsouls/Claude-BugHunter","Language":"Python","Stars":9705,"Description":"A Claude Code skill bundle for bug hunting and external red-team work - 82 skills, 15 slash commands, 681 disclosed-report patterns curated across 24 core vulnerability classes, plus enterprise identity + infrastructure attack matrices."},{"URL":"https://github.com/getarcaneapp/arcane","Name":"getarcaneapp/arcane","Language":"Go","Stars":9431,"Description":"Modern Docker Management, Designed for Everyone"},{"URL":"https://github.com/Tencent/LoopForge","Name":"Tencent/LoopForge","Language":"Go","Stars":3430,"Description":"Self-hosted workflows for coding-agent delivery. Orchestrate CodeBuddy, Codex and Claude Code with scripts and human approval gates. Includes Local workflows for coding assistants."},{"URL":"https://github.com/google-research/paper-orchestra","Name":"google-research/paper-orchestra","Language":"Python","Stars":3290,"Description":"PaperOrchestra is a multi-agent framework for automated AI research paper writing."}]},{"GroupName":"C++","Repos":[{"URL":"https://github.com/boykopovar/AnyPS5","Name":"boykopovar/AnyPS5","Language":"C++","Stars":54997,"Description":"Tool for automatic PS5 executables porting to Linux and Windows"},{"URL":"https://github.com/deskflow/deskflow","Name":"deskflow/deskflow","Language":"C++","Stars":31362,"Description":"Share a single keyboard and mouse between multiple computers."},{"URL":"https://github.com/gabime/spdlog","Name":"gabime/spdlog","Language":"C++","Stars":29769,"Description":"Fast C++ logging library."},{"URL":"https://github.com/OrcaSlicer/OrcaSlicer","Name":"OrcaSlicer/OrcaSlicer","Language":"C++","Stars":16536,"Description":"G-code generator for 3D printers (Bambu, Prusa, Voron, VzBot, RatRig, Creality, etc.)"},{"URL":"https://github.com/CleverRaven/Cataclysm-DDA","Name":"CleverRaven/Cataclysm-DDA","Language":"C++","Stars":13543,"Description":"Cataclysm - Dark Days Ahead. A turn-based survival game set in a post-apocalyptic world."},{"URL":"https://github.com/IfcOpenShell/IfcOpenShell","Name":"IfcOpenShell/IfcOpenShell","Language":"C++","Stars":2967,"Description":"Open source IFC library and geometry engine"},{"URL":"https://github.com/clice-io/clice","Name":"clice-io/clice","Language":"C++","Stars":1783,"Description":"A C/C++, Objective-C and CUDA language server built on Clang: crash-isolated worker processes, C++20 modules and compilation contexts out of the box, plus a CLI to index, query and refactor whole projects."},{"URL":"https://github.com/jimmgreen/pulse","Name":"jimmgreen/pulse","Language":"C++","Stars":1754,"Description":"为 Windows 打造的现代文件管理器，让浏览、搜索和整理文件更顺手。 | QQ Group 1043250162"},{"URL":"https://github.com/gta-reversed/gta-reversed","Name":"gta-reversed/gta-reversed","Language":"C++","Stars":1297,"Description":"Reimplementation of GTA:SA 1.0 US"},{"URL":"https://github.com/Helldez/BigMoeOnEdge","Name":"Helldez/BigMoeOnEdge","Language":"C++","Stars":1018,"Description":"Run MoE models bigger than your RAM. Frontier-size MoE on a phone, laptop, edge. Lossless, on stock llama.cpp. An adaptive streaming optimizer. Any hardware, any OS, any model, any quantization, behind a local OpenAI-compatible server."},{"URL":"https://github.com/sonicnext-dev/MarathonRecomp","Name":"sonicnext-dev/MarathonRecomp","Language":"C++","Stars":952,"Description":"An unofficial PC port of the Xbox 360 version of Sonic the Hedgehog (2006) created through the process of static recompilation"}]},{"GroupName":"Python","Repos":[{"URL":"https://github.com/Graphify-Labs/graphify","Name":"Graphify-Labs/graphify","Language":"Python","Stars":149752,"Description":"Turn any codebase, with its docs, SQL schemas, configs, and PDFs, into a queryable knowledge graph. A /graphify skill for Claude Code, Cursor, Codex, and Gemini CLI: local deterministic AST parsing, every edge explained, no vector store."},{"URL":"https://github.com/ComposioHQ/awesome-claude-skills","Name":"ComposioHQ/awesome-claude-skills","Language":"Python","Stars":79757,"Description":"A curated list of awesome Claude Skills, resources, and tools for customizing Claude AI workflows"},{"URL":"https://github.com/usestrix/strix","Name":"usestrix/strix","Language":"Python","Stars":76375,"Description":"Open-source AI penetration testing tool to find and fix your app’s vulnerabilities."},{"URL":"https://github.com/mvanhorn/last30days-skill","Name":"mvanhorn/last30days-skill","Language":"Python","Stars":69294,"Description":"AI agent skill that researches any topic across Reddit, X, YouTube, HN, Polymarket, and the web - then synthesizes a grounded summary"},{"URL":"https://github.com/jingyaogong/minimind","Name":"jingyaogong/minimind","Language":"Python","Stars":66167,"Description":"🧠 Train a 64M-parameter LLM from scratch in just 2h!"},{"URL":"https://github.com/virgiliojr94/book-to-skill","Name":"virgiliojr94/book-to-skill","Language":"Python","Stars":38314,"Description":"Turn any technical book PDF into a Claude Code skill — ready to study, reference, and use while you work."},{"URL":"https://github.com/HKUDS/RAG-Anything","Name":"HKUDS/RAG-Anything","Language":"Python","Stars":24607,"Description":"\"RAG-Anything: All-in-One RAG Framework\""},{"URL":"https://github.com/elementalsouls/Claude-BugHunter","Name":"elementalsouls/Claude-BugHunter","Language":"Python","Stars":9705,"Description":"A Claude Code skill bundle for bug hunting and external red-team work - 82 skills, 15 slash commands, 681 disclosed-report patterns curated across 24 core vulnerability classes, plus enterprise identity + infrastructure attack matrices."},{"URL":"https://github.com/kajisho5/ffmpeg-skill","Name":"kajisho5/ffmpeg-skill","Language":"Python","Stars":7822,"Description":"Local video editor for coding agents: 42 FFmpeg tools with a machine-readable contract and an MCP server, for Claude Code, Cursor and Codex. Cut, captions, reframe, loudness, platform exports. No cloud, no API keys."},{"URL":"https://github.com/tradermonty/claude-trading-skills","Name":"tradermonty/claude-trading-skills","Language":"Python","Stars":6914,"Description":"Claude Code skills for equity investors and traders — market analysis, technical charting, economic calendars, screeners, and trading strategy development."},{"URL":"https://github.com/dograh-hq/dograh","Name":"dograh-hq/dograh","Language":"Python","Stars":6192,"Description":"Open source voice AI platform. Self-hosted alternative to Vapi and Retell. On Prem, BYOK across Speech to Speech or LLM/STT/TTS, with a visual workflow builder, MCP native and telephony support."},{"URL":"https://github.com/3441293738/creatorhub","Name":"3441293738/creatorhub","Language":"Python","Stars":3643,"Description":"多平台内容监控·采集·搬运 一个 Web 面板管起抖音 / 小红书 / 快手 / 视频号 / TikTok"},{"URL":"https://github.com/NVIDIA/SkillEvaluator","Name":"NVIDIA/SkillEvaluator","Language":"Python","Stars":3391,"Description":"Multi-tier framework for evaluating AI agent skills and plugins with quality gates, semantic overlap detection, synthetic evaluation dataset generation, and live agent evaluation that measures how skills affect agent behavior."},{"URL":"https://github.com/google-research/paper-orchestra","Name":"google-research/paper-orchestra","Language":"Python","Stars":3290,"Description":"PaperOrchestra is a multi-agent framework for automated AI research paper writing."},{"URL":"https://github.com/HKUDS/AutoSwarm","Name":"HKUDS/AutoSwarm","Language":"Python","Stars":2634,"Description":"AutoSwarm: Unify All Your Agents. Break Context Barriers. Watch Them Work Together for You."},{"URL":"https://github.com/vstorm-co/agenticos","Name":"vstorm-co/agenticos","Language":"Python","Stars":413,"Description":"Open-source, self-hosted AI agent platform for your company's AI teammates. Build, run and govern agents on your own servers and models: shared chat, RAG, skills, a real browser, 4,700+ MCP servers, budgets, approvals and an audit trail. An alternative to ChatGPT Enterprise and Grok Bot. Apache-2.0, built on Pydantic AI."}]},{"GroupName":"Go","Repos":[{"URL":"https://github.com/JuliusBrussee/caveman","Name":"JuliusBrussee/caveman","Language":"Go","Stars":121120,"Description":"why use many token when few token do trick. Skill + local proxy for coding agents: shorter answers, smaller tool output, every original recoverable."},{"URL":"https://github.com/alibaba/open-code-review","Name":"alibaba/open-code-review","Language":"Go","Stars":53887,"Description":"Secure, fast, efficient, battle-tested at Alibaba's scale. Hybrid architecture code review tool: deterministic pipelines + LLM Agent, precise line-level comments, built-in multi-language ruleset (NPE, thread-safety, XSS, SQL injection), OpenAI \u0026 Anthropic compatible."},{"URL":"https://github.com/QuantumNous/new-api","Name":"QuantumNous/new-api","Language":"Go","Stars":52116,"Description":"Open-source AI gateway. Self-hosted LLM gateway with OpenAI-, Claude- and Gemini-compatible APIs, model routing, access control, usage tracking and cost accounting."},{"URL":"https://github.com/seaweedfs/seaweedfs","Name":"seaweedfs/seaweedfs","Language":"Go","Stars":36131,"Description":"SeaweedFS is a distributed storage system for object storage (S3), file systems, Iceberg table buckets, and Lance vector buckets, designed to handle billions of files with O(1) disk access and effortless horizontal scaling."},{"URL":"https://github.com/knadh/listmonk","Name":"knadh/listmonk","Language":"Go","Stars":24359,"Description":"High performance, self-hosted, newsletter and mailing list manager with a modern dashboard. Single binary app."},{"URL":"https://github.com/google/ax","Name":"google/ax","Language":"Go","Stars":14774,"Description":"Agent Executor (AX) is Google's open agentic orchestration runtime"},{"URL":"https://github.com/crossplane/crossplane","Name":"crossplane/crossplane","Language":"Go","Stars":12251,"Description":"The Cloud Native Control Plane"},{"URL":"https://github.com/getarcaneapp/arcane","Name":"getarcaneapp/arcane","Language":"Go","Stars":9431,"Description":"Modern Docker Management, Designed for Everyone"},{"URL":"https://github.com/ArvinLovegood/go-stock","Name":"ArvinLovegood/go-stock","Language":"Go","Stars":8198,"Description":"🦄🦄🦄AI赋能股票分析：AI加持的股票分析/选股工具。股票行情获取，AI热点资讯分析，AI资金/财务分析，涨跌报警推送。支持A股，港股，美股。支持市场整体/个股情绪分析，AI辅助选股等。数据全部保留在本地。支持DeepSeek，OpenAI， Ollama，LMStudio，AnythingLLM，硅基流动，火山方舟，阿里云百炼等平台或模型。"},{"URL":"https://github.com/basketikun/chatgpt2api","Name":"basketikun/chatgpt2api","Language":"Go","Stars":6938,"Description":"ChatGPT 官网接口纯协议逆向实现，Go 语言编写，高并发、低内存、高性能。指纹级请求还原，支持 GPT-Image-2.6 生图/改图、GIF 动图、文本模型与语音合成/转写，兼容 OpenAI 接口协议，在线批量生图，号池管理，支持导入 CPA、sub2api 号池，可接入 Cherry Studio、New API 等软件"},{"URL":"https://github.com/guohuiyuan/go-music-dl","Name":"guohuiyuan/go-music-dl","Language":"Go","Stars":6556,"Description":"一个基于 Go 语言的全网音乐搜索与下载工具。支持 CLI 命令行与 Web 服务双模式，内置网易云、QQ、酷狗、Bilibili、汽水音乐等 10+ 个主流平台，支持多源并发搜索与无损音质解析。music-dl交流群：755087923"},{"URL":"https://github.com/Tencent/LoopForge","Name":"Tencent/LoopForge","Language":"Go","Stars":3430,"Description":"Self-hosted workflows for coding-agent delivery. Orchestrate CodeBuddy, Codex and Claude Code with scripts and human approval gates. Includes Local workflows for coding assistants."},{"URL":"https://github.com/Autumn-27/ScopeSentry","Name":"Autumn-27/ScopeSentry","Language":"Go","Stars":2499,"Description":"ScopeSentry-Cyberspace mapping, subdomain enumeration, port scanning, sensitive information discovery, vulnerability scanning, distributed nodes"},{"URL":"https://github.com/Christ9038/Ydisks-Xianyu-Helper","Name":"Christ9038/Ydisks-Xianyu-Helper","Language":"Go","Stars":2465,"Description":"闲鱼多账号自动发货、消息回复系统——基于 Go 与 React 构建"}]},{"GroupName":"Rust","Repos":[{"URL":"https://github.com/farion1231/cc-switch","Name":"farion1231/cc-switch","Language":"Rust","Stars":155314,"Description":"A cross-platform desktop All-in-One assistant for Claude Code, Codex, OpenCode,DeepSeek Harness and more. Only official website: ccswitch.io"},{"URL":"https://github.com/pbakaus/impeccable","Name":"pbakaus/impeccable","Language":"Rust","Stars":112351,"Description":"The design vocabulary for your coding agent. Steer with polish and bolder, review with critique and audit, catch AI slop before it ships."},{"URL":"https://github.com/pnpm/pnpm","Name":"pnpm/pnpm","Language":"Rust","Stars":37117,"Description":"Fast, disk space efficient package manager"},{"URL":"https://github.com/rustfs/rustfs","Name":"rustfs/rustfs","Language":"Rust","Stars":36236,"Description":"RustFS is an open-source, S3-compatible high-performance object storage system supporting migration and coexistence with other S3-compatible platforms such as MinIO and Ceph."},{"URL":"https://github.com/atuinsh/atuin","Name":"atuinsh/atuin","Language":"Rust","Stars":32512,"Description":"✨ Making your shell magical"},{"URL":"https://github.com/t8y2/dbx","Name":"t8y2/dbx","Language":"Rust","Stars":30676,"Description":"25 MB lightweight cross-platform database client for 100+ databases, including MySQL, PostgreSQL, SQLite, Redis, MongoDB, DuckDB, SQL Server, and Dameng. Built-in AI, MCP Server, CLI, desktop and Docker. | 轻量级跨平台数据库管理工具，支持 MySQL、PostgreSQL、SQLite、Redis、MongoDB、达梦等 100+ 数据库，提供桌面端、Docker、CLI、内置 AI 助手和 MCP。"},{"URL":"https://github.com/PrimeIntellect-ai/prime-agent","Name":"PrimeIntellect-ai/prime-agent","Language":"Rust","Stars":22809,"Description":"A self-improving RLM agent for coding workflows and long-running autonomous tasks."},{"URL":"https://github.com/jlcodes99/cockpit-tools","Name":"jlcodes99/cockpit-tools","Language":"Rust","Stars":20089,"Description":"🚀 通用 AI IDE 账号管理工具：支持 Antigravity / Codex / GitHub Copilot / Windsurf / Kiro / Cursor / Gemini-cli / CodeBuddy，多账号切换、配额监控、自动唤醒与多开实例管理。 🚀 Universal AI IDE account manager for Antigravity / Codex / GitHub Copilot / Windsurf / Kiro / Cursor / Gemini-cli / CodeBuddy, with multi-account switching, quota monitoring, wake-up automation, and multi-insta"},{"URL":"https://github.com/anomalyco/hex","Name":"anomalyco/hex","Language":"Rust","Stars":7306,"Description":"Local voice dictation for mac, windows and linux"},{"URL":"https://github.com/malisper/pgrust","Name":"malisper/pgrust","Language":"Rust","Stars":5863,"Description":"Postgres rewritten in Rust, now faster than Postgres and Clickhouse"},{"URL":"https://github.com/NVIDIA-NeMo/Switchyard","Name":"NVIDIA-NeMo/Switchyard","Language":"Rust","Stars":3639,"Description":"Switchyard lets LLM applications route traffic across models and providers while preserving native OpenAI and Anthropic API compatibility - enabling flexible model selection, benchmarking, and cost/performance optimization."},{"URL":"https://github.com/BurntSushi/jiff","Name":"BurntSushi/jiff","Language":"Rust","Stars":3185,"Description":"A datetime library for Rust that encourages you to jump into the pit of success."},{"URL":"https://github.com/antithesishq/bombadil","Name":"antithesishq/bombadil","Language":"Rust","Stars":2605,"Description":"Property-based testing for web and terminal UIs"},{"URL":"https://github.com/aimod-cc/Agent2API","Name":"aimod-cc/Agent2API","Language":"Rust","Stars":2478,"Description":"Local AI routing gateway with Agent client takeover — reuse existing client logins, call 50+ AI clients through one base URL, with unified OpenAI / Anthropic / Images APIs, multi-account routing, check-in, balance and request reports · 本地 AI 路由网关 + Agent 客户端接管：复用各家客户端登录态，一个 base_url 调用 50+ 家模型额度，统一 OpenAI / Anthropic / 生图接口，多账号选路、签到、余额与请求报表一体管理"},{"URL":"https://github.com/leepokai/Codync","Name":"leepokai/Codync","Language":"Rust","Stars":2228,"Description":"Open source Grok Bot alternative, Bring your own agent and subscription: message Claude Code, Codex, Gemini CLI, Cursor, Copilot and 40+ AI agents as bots on your own computer, from iPhone, Mac, Windows, Linux or terminal. Agent-agnostic and free. Also a Muse and Dots alternative. Built in Rust."},{"URL":"https://github.com/ShayanAbbas1/dbdelve","Name":"ShayanAbbas1/dbdelve","Language":"Rust","Stars":1559,"Description":"Fast and lightweight DB Client made in Rust and GPUI."}]},{"GroupName":"Java","Repos":[{"URL":"https://github.com/iluwatar/java-design-patterns","Name":"iluwatar/java-design-patterns","Language":"Java","Stars":94885,"Description":"Design patterns implemented in Java"},{"URL":"https://github.com/spring-projects/spring-boot","Name":"spring-projects/spring-boot","Language":"Java","Stars":82011,"Description":"Spring Boot helps you to create Spring-powered, production-grade applications and services with absolute minimum fuss."},{"URL":"https://github.com/YunaiV/ruoyi-vue-pro","Name":"YunaiV/ruoyi-vue-pro","Language":"Java","Stars":40486,"Description":"🔥 官方推荐 🔥 RuoYi-Vue 全新 Pro 版本，优化重构所有功能。基于 Spring Boot + MyBatis Plus + Vue \u0026 Element 实现的后台管理系统 + 微信小程序，支持 RBAC 动态权限、数据权限、SaaS 多租户、Flowable 工作流、三方登录、支付、短信、商城、CRM、ERP、MES、IM、AI 大模型、IoT 物联网等功能。你的 ⭐️ Star ⭐️，是作者生发的动力！"},{"URL":"https://github.com/keycloak/keycloak","Name":"keycloak/keycloak","Language":"Java","Stars":37919,"Description":"Open Source Identity and Access Management For Modern Applications and Services"},{"URL":"https://github.com/yuliskov/SmartTube","Name":"yuliskov/SmartTube","Language":"Java","Stars":36430,"Description":"Browse media content with your own rules on Android TV"},{"URL":"https://github.com/xuxueli/xxl-job","Name":"xuxueli/xxl-job","Language":"Java","Stars":30671,"Description":"A distributed task scheduling framework.（分布式任务调度平台XXL-JOB）"},{"URL":"https://github.com/kestra-io/kestra","Name":"kestra-io/kestra","Language":"Java","Stars":30266,"Description":"Orchestrate everything, everywhere. The open-source control plane for workflows across data, infrastructure, business processes and AI agents. Declarative YAML, event-driven, any language, Git-versioned, scalable to millions of executions."},{"URL":"https://github.com/ashishps1/awesome-low-level-design","Name":"ashishps1/awesome-low-level-design","Language":"Java","Stars":28141,"Description":"Learn Low Level Design (LLD) and prepare for interviews using free resources."},{"URL":"https://github.com/JetBrains/intellij-community","Name":"JetBrains/intellij-community","Language":"Java","Stars":20740,"Description":"IntelliJ IDEA \u0026 IntelliJ Platform"},{"URL":"https://github.com/ZCShou/GoGoGo","Name":"ZCShou/GoGoGo","Language":"Java","Stars":11858,"Description":"一个基于 Android 调试 API + 百度地图实现的虚拟定位工具，并且同时实现了一个可以自由移动的摇杆"},{"URL":"https://github.com/hibernate/hibernate-orm","Name":"hibernate/hibernate-orm","Language":"Java","Stars":6488,"Description":"Idiomatic persistence for Java and relational databases"},{"URL":"https://github.com/NotHarshhaa/DevOps-Projects","Name":"NotHarshhaa/DevOps-Projects","Language":"Java","Stars":5603,"Description":"🚀 Real-world DevOps projects for aspiring engineers — Beginner to Advanced. Covers AWS, Kubernetes, Docker, CI/CD, Terraform, Jenkins, and more. Hands-on learning with step-by-step guides."},{"URL":"https://github.com/DependencyTrack/dependency-track","Name":"DependencyTrack/dependency-track","Language":"Java","Stars":4475,"Description":"Dependency-Track is an intelligent Component Analysis platform that allows organizations to identify and reduce risk in the software supply chain."},{"URL":"https://github.com/kksimp/Mac.apk","Name":"kksimp/Mac.apk","Language":"Java","Stars":4329,"Description":"Mac.apk: Run Android apps natively on Apple Silicon Macs"},{"URL":"https://github.com/jean-voila/FeurStagram","Name":"jean-voila/FeurStagram","Language":"Java","Stars":1392,"Description":"Instagram without Reels, feed or ads: an open-source, updatable Instagram app for Android that keeps DMs and stories."}]},{"GroupName":"JavaScript/TypeScript","Repos":[{"URL":"https://github.com/affaan-m/ECC","Name":"affaan-m/ECC","Language":"JavaScript","Stars":305722,"Description":"The agent harness performance optimization system. Skills, instincts, memory, security, and research-first development for Claude Code, Codex, Opencode, Cursor and beyond."},{"URL":"https://github.com/DietrichGebert/ponytail","Name":"DietrichGebert/ponytail","Language":"JavaScript","Stars":193318,"Description":"Makes your AI agent think like the laziest senior dev in the room. The best code is the code you never wrote."},{"URL":"https://github.com/stablyai/orca","Name":"stablyai/orca","Language":"TypeScript","Stars":128069,"Description":"Orca lets you run a fleet of coding agents (e.g. Claude Code, Codex) with your own subscription. Available on desktop, mobile and remote runtime."},{"URL":"https://github.com/sveltejs/svelte","Name":"sveltejs/svelte","Language":"JavaScript","Stars":89659,"Description":"web development for the rest of us"},{"URL":"https://github.com/lodash/lodash","Name":"lodash/lodash","Language":"JavaScript","Stars":61445,"Description":"A modern JavaScript utility library delivering modularity, performance, \u0026 extras."},{"URL":"https://github.com/coreyhaines31/marketingskills","Name":"coreyhaines31/marketingskills","Language":"JavaScript","Stars":61079,"Description":"Marketing skills for Claude Code and AI agents. CRO, copywriting, SEO, analytics, and growth engineering."},{"URL":"https://github.com/ChromeDevTools/chrome-devtools-mcp","Name":"ChromeDevTools/chrome-devtools-mcp","Language":"TypeScript","Stars":58089,"Description":"Chrome DevTools for coding agents"},{"URL":"https://github.com/tashfeenahmed/freellmapi","Name":"tashfeenahmed/freellmapi","Language":"TypeScript","Stars":54159,"Description":"10.1 billion tokens per month. 87 free LLM providers. 1,313 free model endpoints. All behind one /v1 endpoint, plus any custom OpenAI-compatible endpoint. Smart routing, automatic failover, encrypted keys. Personal experimentation only."},{"URL":"https://github.com/poteto/hiring-without-whiteboards","Name":"poteto/hiring-without-whiteboards","Language":"JavaScript","Stars":53371,"Description":"⭐️ Companies that don't have a broken hiring process"},{"URL":"https://github.com/karakeep-app/karakeep","Name":"karakeep-app/karakeep","Language":"TypeScript","Stars":30665,"Description":"A self-hostable bookmark-everything app (links, notes and images) with AI-based automatic tagging and full text search"},{"URL":"https://github.com/mastra-ai/mastra","Name":"mastra-ai/mastra","Language":"TypeScript","Stars":29587,"Description":"Mastra is the modern TypeScript framework for AI-powered applications and agents."},{"URL":"https://github.com/dream-num/univer","Name":"dream-num/univer","Language":"TypeScript","Stars":29201,"Description":"Build your own AI office with Univer Office SDK. Bring editing, calculation, collaboration, and file processing into your product for people and AI agents. Built on an extensible open-source core."},{"URL":"https://github.com/milind-soni/OpenMausBot","Name":"milind-soni/OpenMausBot","Language":"TypeScript","Stars":24937,"Description":"Open-source Grok Bot alternative with a virtual machine that bots can use"},{"URL":"https://github.com/citrolabs/ego-lite","Name":"citrolabs/ego-lite","Language":"JavaScript","Stars":23438,"Description":"The fastest browser for AI agents to run browser automation, built for sharing your logged-in browser state with your AI agents, like Codex or Claude Code, without disturbing you. Zero cost, zero config."},{"URL":"https://github.com/DuarteSantos8/openGym","Name":"DuarteSantos8/openGym","Language":"JavaScript","Stars":22589,"Description":"Open-source gym \u0026 body-weight tracker, now in the App Store (iPhone + Apple Watch) and as an Android APK. Plan routines, log workouts, see which muscles are trained, import from Strong/Hevy/FitNotes. Self-host it or use it on the phone alone."},{"URL":"https://github.com/ag-ui-protocol/ag-ui","Name":"ag-ui-protocol/ag-ui","Language":"TypeScript","Stars":20115,"Description":"AG-UI: the Agent-User Interaction Protocol. Bring Agents into Frontend Applications."},{"URL":"https://github.com/cursor/plugins","Name":"cursor/plugins","Language":"TypeScript","Stars":16963,"Description":"Cursor plugin specification and official plugins"},{"URL":"https://github.com/backnotprop/plannotator","Name":"backnotprop/plannotator","Language":"TypeScript","Stars":13156,"Description":"The workspace to stay in the loop and on top of agents - shape, decide, plan, annotate, review code, share with team, and send all feedback to agents with one click."},{"URL":"https://github.com/elder-plinius/G0DM0D3","Name":"elder-plinius/G0DM0D3","Language":"TypeScript","Stars":12645,"Description":"LIBERATED AI CHAT"},{"URL":"https://github.com/Jeffallan/claude-skills","Name":"Jeffallan/claude-skills","Language":"JavaScript","Stars":12429,"Description":"67 Specialized Skills for Full-Stack Developers. Transform Claude Code into your expert pair programmer."},{"URL":"https://github.com/lnkiai/m3e-canvas","Name":"lnkiai/m3e-canvas","Language":"TypeScript","Stars":10574,"Description":"Sketch Material 3 Expressive screens in the browser and turn them into vibe-coding prompts."},{"URL":"https://github.com/google-labs-code/stitch-skills","Name":"google-labs-code/stitch-skills","Language":"TypeScript","Stars":10180,"Description":"A library of Agent Skills designed to work with the Stitch MCP server. Each skill follows the Agent Skills open standard, for compatibility with coding agents such as Antigravity, Gemini CLI, Claude Code, Cursor."},{"URL":"https://github.com/a-ghorbani/pocketpal-ai","Name":"a-ghorbani/pocketpal-ai","Language":"TypeScript","Stars":9548,"Description":"An app that brings language models directly to your phone."},{"URL":"https://github.com/elie222/rakazo","Name":"elie222/rakazo","Language":"TypeScript","Stars":9058,"Description":"Open-source Grok Bot alternative. Choose your own model and sandbox."},{"URL":"https://github.com/nightly-labs/openbot","Name":"nightly-labs/openbot","Language":"TypeScript","Stars":8725,"Description":"A local-first desktop workspace for persistent AI teammates. Run Codex, Claude, and Grok with dedicated workspaces, task queues, file sharing, browser control, and agent-to-agent collaboration."},{"URL":"https://github.com/DeanChensj/jiangshan-map","Name":"DeanChensj/jiangshan-map","Language":"JavaScript","Stars":7692,"Description":"江山时序 · 中国历史交互地图时间轴 (403 BCE – Present) | Interactive Historical Atlas of China across 18 dynasties, 198 territory snapshots, ancient-to-modern place genealogy \u0026 classical poetry routes"},{"URL":"https://github.com/hieunc229/mailflare","Name":"hieunc229/mailflare","Language":"TypeScript","Stars":6926,"Description":"Email for professionals and teams"},{"URL":"https://github.com/Minglink/dsh-infinite-gen-5","Name":"Minglink/dsh-infinite-gen-5","Language":"JavaScript","Stars":4487,"Description":"DeepSeek v4.1 flash 最强逆向工具（无限五代） 求 Star 收藏 ⭐欢迎大家提交项目的改进"},{"URL":"https://github.com/aliyun/ai-agent-handbook","Name":"aliyun/ai-agent-handbook","Language":"JavaScript","Stars":3459,"Description":"A practical guide to building enterprise AI agents across their full lifecycle."},{"URL":"https://github.com/hanliang97/MatrixMedia","Name":"hanliang97/MatrixMedia","Language":"JavaScript","Stars":1547,"Description":"视频矩阵工具 vue electorn puppeteer 批量发布 视频到各个视频平台 自媒体 矩阵 抖音 小红书 头条 视频号 快手等 ai 自动化 cli"}]}];
+        const groups = Array.isArray(rawGroups) ? rawGroups : [];
+        const THEME_STORAGE_KEY = "gh-trending-theme";
+        const VALID_SORT_MODES = new Set(["default", "stars_desc", "name_asc"]);
+        const SEARCH_DEBOUNCE_MS = 120;
+
+        const elements = {
+            root: document.documentElement,
+            themeToggle: document.getElementById("theme-toggle"),
+            languageList: document.getElementById("language-list"),
+            repoGrid: document.getElementById("repo-grid"),
+            reposMeta: document.getElementById("repos-meta"),
+            reposTitle: document.getElementById("repos-title"),
+            sortSelect: document.getElementById("sort-select"),
+            activeLanguage: document.getElementById("active-language"),
+            searchInput: document.getElementById("search-input"),
+            backToTop: document.getElementById("back-to-top")
+        };
+        const themeMediaQuery = window.matchMedia
+            ? window.matchMedia("(prefers-color-scheme: dark)")
+            : {matches: false};
+        const state = {
+            themeMode: "system",
+            activeIndex: 0,
+            keyword: "",
+            sortMode: "default"
+        };
+        const viewGroups = buildViewGroups(groups);
+        const repoSearchTextCache = new WeakMap();
+
+        function normalizeText(value) {
+            return String(value || "").trim().toLowerCase();
+        }
+
+        function createDebounced(fn, waitMs) {
+            let timerId = null;
+            return (...args) => {
+                if (timerId !== null) {
+                    clearTimeout(timerId);
+                }
+                timerId = setTimeout(() => {
+                    timerId = null;
+                    fn(...args);
+                }, waitMs);
+            };
+        }
+
+        function loadThemeMode() {
+            try {
+                const saved = localStorage.getItem(THEME_STORAGE_KEY);
+                if (saved === "light" || saved === "dark") {
+                    return saved;
+                }
+            } catch (_error) {
+            }
+            return "system";
+        }
+
+        function saveThemeMode() {
+            try {
+                if (state.themeMode === "system") {
+                    localStorage.removeItem(THEME_STORAGE_KEY);
+                    return;
+                }
+                localStorage.setItem(THEME_STORAGE_KEY, state.themeMode);
+            } catch (_error) {
+            }
+        }
+
+        function getSystemTheme() {
+            return themeMediaQuery.matches ? "dark" : "light";
+        }
+
+        function getActiveTheme() {
+            return state.themeMode === "system" ? getSystemTheme() : state.themeMode;
+        }
+
+        function updateThemeToggle(activeTheme) {
+            if (!elements.themeToggle) {
+                return;
+            }
+            elements.themeToggle.dataset.activeTheme = activeTheme;
+            const nextTheme = activeTheme === "dark" ? "light" : "dark";
+            const nextThemeText = nextTheme === "dark" ? "深色" : "浅色";
+            const label = `切换到${nextThemeText}主题`;
+            elements.themeToggle.setAttribute("aria-label", label);
+            elements.themeToggle.setAttribute("title", label);
+        }
+
+        function applyTheme() {
+            const activeTheme = getActiveTheme();
+            elements.root.setAttribute("data-theme", activeTheme);
+            updateThemeToggle(activeTheme);
+        }
+
+        function toggleTheme() {
+            const activeTheme = getActiveTheme();
+            state.themeMode = activeTheme === "dark" ? "light" : "dark";
+            saveThemeMode();
+            applyTheme();
+        }
+
+        function bindMediaQueryChange(onChange) {
+            if (typeof onChange !== "function") {
+                return;
+            }
+            if (typeof themeMediaQuery.addEventListener === "function") {
+                themeMediaQuery.addEventListener("change", onChange);
+                return;
+            }
+            if (typeof themeMediaQuery.addListener === "function") {
+                themeMediaQuery.addListener(onChange);
+            }
+        }
+
+        function buildViewGroups(sourceGroups) {
+            if (!Array.isArray(sourceGroups) || sourceGroups.length === 0) {
+                return [];
+            }
+
+            const uniqueByUrl = new Map();
+            sourceGroups.forEach(group => {
+                const repos = Array.isArray(group?.Repos) ? group.Repos : [];
+                repos.forEach(repo => {
+                    const key = String(repo?.URL || "").trim() || `${repo?.Name || "repo"}-${repo?.Stars || 0}`;
+                    if (!uniqueByUrl.has(key)) {
+                        uniqueByUrl.set(key, repo);
+                    }
+                });
+            });
+
+            const allRepos = Array.from(uniqueByUrl.values());
+            allRepos.sort((a, b) => Number(b?.Stars || 0) - Number(a?.Stars || 0));
+            return [{GroupName: "ALL", Repos: allRepos}, ...sourceGroups];
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll("\"", "&quot;")
+                .replaceAll("'", "&#39;");
+        }
+
+        function safeRepoUrl(value) {
+            try {
+                const parsed = new URL(String(value));
+                if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+                    return parsed.href;
+                }
+            } catch (_error) {
+            }
+            return "#";
+        }
+
+        function getCurrentGroup() {
+            return viewGroups[state.activeIndex] || viewGroups[0] || {GroupName: "Unknown", Repos: []};
+        }
+
+        function filterRepos(repos) {
+            const keyword = normalizeText(state.keyword);
+            if (!keyword) {
+                return repos;
+            }
+            return repos.filter(repo => {
+                if (!repo || typeof repo !== "object") {
+                    return false;
+                }
+                let searchText = repoSearchTextCache.get(repo);
+                if (!searchText) {
+                    searchText = normalizeText(`${repo?.Name || ""} ${repo?.Description || ""} ${repo?.Language || ""}`);
+                    repoSearchTextCache.set(repo, searchText);
+                }
+                return searchText.includes(keyword);
+            });
+        }
+
+        function sortRepos(repos) {
+            if (state.sortMode === "default") {
+                return repos;
+            }
+            const sorted = [...repos];
+            if (state.sortMode === "name_asc") {
+                sorted.sort((a, b) => String(a?.Name || "").localeCompare(String(b?.Name || ""), "en", {sensitivity: "base"}));
+                return sorted;
+            }
+            sorted.sort((a, b) => Number(b?.Stars || 0) - Number(a?.Stars || 0));
+            return sorted;
+        }
+
+        function renderLanguages() {
+            if (!elements.languageList || !elements.activeLanguage) {
+                return;
+            }
+            if (viewGroups.length === 0) {
+                elements.languageList.innerHTML = "<div class=\"empty\">没有可显示的语言分组。</div>";
+                elements.activeLanguage.textContent = "-";
+                return;
+            }
+
+            elements.languageList.innerHTML = viewGroups.map((group, index) => {
+                const isActive = index === state.activeIndex;
+                return `
+                    <button class="language-btn ${isActive ? "active" : ""}" type="button" data-index="${index}">
+                        <span>${escapeHtml(group.GroupName || "Unknown")}</span>
+                        <span class="count">${Number(group.Repos?.length || 0)}</span>
+                    </button>
+                `;
+            }).join("");
+        }
+
+        function renderRepos() {
+            if (!elements.repoGrid || !elements.reposMeta || !elements.reposTitle || !elements.activeLanguage) {
+                return;
+            }
+            if (viewGroups.length === 0) {
+                elements.repoGrid.innerHTML = "<div class=\"empty\">未抓取到仓库数据。</div>";
+                elements.reposMeta.textContent = "0 items";
+                elements.reposTitle.textContent = "今日仓库";
+                elements.activeLanguage.textContent = "-";
+                return;
+            }
+
+            const currentGroup = getCurrentGroup();
+            const groupName = currentGroup.GroupName || "Unknown";
+            const repos = Array.isArray(currentGroup.Repos) ? currentGroup.Repos : [];
+            const sorted = sortRepos(filterRepos(repos));
+
+            elements.activeLanguage.textContent = groupName;
+            elements.reposTitle.textContent = `${groupName} Trending`;
+            elements.reposMeta.textContent = `${sorted.length} / ${repos.length} items`;
+
+            if (sorted.length === 0) {
+                elements.repoGrid.innerHTML = "<div class=\"empty\">当前过滤条件下没有结果。</div>";
+                return;
+            }
+
+            elements.repoGrid.innerHTML = sorted.map((repo, index) => {
+                const name = escapeHtml(repo.Name || "Unnamed repository");
+                const description = escapeHtml(repo.Description || "No description.");
+                const language = escapeHtml(repo.Language || groupName);
+                const stars = Number(repo.Stars || 0).toLocaleString();
+                const url = safeRepoUrl(repo.URL);
+                const rankClass = index < 3 ? "repo-rank top" : "repo-rank";
+                const rankText = String(index + 1).padStart(2, "0");
+
+                return `
+                    <a class="repo-card" href="${url}" target="_blank" rel="noopener" style="animation-delay:${index * 0.025}s">
+                        <div class="repo-head">
+                            <h3 class="repo-name"><span class="${rankClass}">${rankText}</span><span>${name}</span></h3>
+                            <span class="star">★ ${stars}</span>
+                        </div>
+                        <p class="repo-desc">${description}</p>
+                        <div class="repo-foot">
+                            <span class="tag">${language}</span>
+                        </div>
+                    </a>
+                `;
+            }).join("");
+        }
+
+        function bindEvents() {
+            if (elements.searchInput) {
+                const onSearchInput = createDebounced(() => {
+                    renderRepos();
+                }, SEARCH_DEBOUNCE_MS);
+                elements.searchInput.addEventListener("input", event => {
+                    state.keyword = String(event.target.value || "").trim();
+                    onSearchInput();
+                });
+                elements.searchInput.addEventListener("keydown", event => {
+                    if (event.key !== "Escape" || !elements.searchInput.value) {
+                        return;
+                    }
+                    elements.searchInput.value = "";
+                    state.keyword = "";
+                    renderRepos();
+                });
+            }
+
+            if (elements.sortSelect) {
+                elements.sortSelect.addEventListener("change", event => {
+                    const mode = String(event.target.value || "default");
+                    if (!VALID_SORT_MODES.has(mode)) {
+                        return;
+                    }
+                    state.sortMode = mode;
+                    renderRepos();
+                });
+            }
+
+            if (elements.languageList) {
+                elements.languageList.addEventListener("click", event => {
+                    const button = event.target.closest(".language-btn");
+                    if (!button || !elements.languageList.contains(button)) {
+                        return;
+                    }
+                    const nextIndex = Number(button.dataset.index);
+                    if (Number.isNaN(nextIndex) || nextIndex === state.activeIndex) {
+                        return;
+                    }
+                    state.activeIndex = nextIndex;
+                    renderLanguages();
+                    renderRepos();
+                });
+            }
+
+            if (elements.themeToggle) {
+                elements.themeToggle.addEventListener("click", toggleTheme);
+            }
+
+            bindMediaQueryChange(() => {
+                if (state.themeMode === "system") {
+                    applyTheme();
+                }
+            });
+        }
+
+        function bindBackToTop() {
+            if (!elements.backToTop) {
+                return;
+            }
+
+            const updateBackToTopVisibility = () => {
+                const visible = window.scrollY > 280;
+                elements.backToTop.classList.toggle("visible", visible);
+            };
+            const queueNextFrame = typeof window.requestAnimationFrame === "function"
+                ? window.requestAnimationFrame.bind(window)
+                : callback => setTimeout(callback, 16);
+            let pendingFrame = null;
+            const scheduleVisibilityUpdate = () => {
+                if (pendingFrame !== null) {
+                    return;
+                }
+                pendingFrame = queueNextFrame(() => {
+                    pendingFrame = null;
+                    updateBackToTopVisibility();
+                });
+            };
+
+            elements.backToTop.addEventListener("click", () => {
+                window.scrollTo({top: 0, behavior: "smooth"});
+            });
+            window.addEventListener("scroll", scheduleVisibilityUpdate, {passive: true});
+            updateBackToTopVisibility();
+        }
+
+        function init() {
+            state.themeMode = loadThemeMode();
+            bindEvents();
+            bindBackToTop();
+            applyTheme();
+            renderLanguages();
+            renderRepos();
+        }
+
+        init();
+    })();
+</script>
+</body>
+</html>
